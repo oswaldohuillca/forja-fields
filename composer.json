@@ -1,0 +1,40 @@
+{
+    "name": "apros/forja",
+    "description": "Campos personalizados para WordPress definidos por código, con la interfaz de administración de ACF/SCF.",
+    "type": "library",
+    "keywords": ["wordpress", "custom-fields", "metabox", "theme"],
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Apros",
+            "homepage": "https://apros.pe"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.9",
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Forja\\": "src/"
+        },
+        "files": [
+            "bootstrap.php"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "lint:fix": "phpcbf"
+    }
+}

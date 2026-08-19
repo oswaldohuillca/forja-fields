@@ -1,0 +1,16 @@
+# Dependencias
+/vendor/
+/node_modules/
+
+# Los artefactos de build SÍ se versionan: quien instala el paquete con
+# Composer dentro de un tema no ejecuta Bun ni Vite, así que el CSS y el JS
+# compilados tienen que viajar dentro del paquete.
+# (no ignorar /assets/build/)
+
+# Entorno
+.DS_Store
+*.log
+.env
+.env.local
+bun.lock
+assets/build/

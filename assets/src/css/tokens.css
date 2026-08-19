@@ -1,0 +1,65 @@
+/*
+ * Tokens de diseño.
+ *
+ * Portados de `secure-custom-fields/assets/src/sass/_variables.scss`, donde
+ * viven como variables Sass. Aquí son custom properties para que el CSS sea
+ * plano y para poder redefinirlas por contexto (modo oscuro, por ejemplo).
+ */
+
+:root {
+	/* Grises */
+	--forja-gray-50: #f9fafb;
+	--forja-gray-100: #f2f4f7;
+	--forja-gray-200: #eaecf0;
+	--forja-gray-300: #d0d5dd;
+	--forja-gray-400: #98a2b3;
+	--forja-gray-500: #667085;
+	--forja-gray-600: #475467;
+	--forja-gray-700: #344054;
+	--forja-gray-800: #1d2939;
+	--forja-gray-900: #101828;
+
+	/* Azules */
+	--forja-blue-50: #ebf5fa;
+	--forja-blue-100: #d8ebf5;
+	--forja-blue-200: #a5d2e7;
+	--forja-blue-300: #6bb5d8;
+	--forja-blue-400: #399ccb;
+	--forja-blue-500: #0783be;
+	--forja-blue-600: #066998;
+	--forja-blue-700: #044e71;
+	--forja-blue-800: #033f5b;
+	--forja-blue-900: #032f45;
+
+	/* Utilidad */
+	--forja-color-info: #2d69da;
+	--forja-color-success: #52aa59;
+	--forja-color-warning: #f79009;
+	--forja-color-danger: #d13737;
+	--forja-color-required: #f00;
+
+	--forja-color-primary: var(--forja-blue-500);
+	--forja-color-primary-hover: var(--forja-blue-600);
+	--forja-color-secondary: var(--forja-gray-500);
+	--forja-color-secondary-hover: var(--forja-gray-400);
+
+	/* Bordes del admin */
+	--forja-wp-card-border: #ccd0d4;
+	--forja-wp-card-border-1: #d5d9dd;
+	--forja-wp-card-border-2: #eee;
+	--forja-wp-input-border: #7e8993;
+
+	/* Radios */
+	--forja-radius-sm: 4px;
+	--forja-radius-md: 6px;
+	--forja-radius-lg: 8px;
+	--forja-radius-xl: 12px;
+
+	/* Elevación y foco */
+	--forja-elevation-01: 0 1px 2px rgb(16 25 40 / 10%);
+	--forja-outline: 3px solid var(--forja-blue-50);
+
+	/* Espaciado interno de un campo */
+	--forja-field-padding-x: 12px;
+	--forja-field-padding-y: 15px;
+}

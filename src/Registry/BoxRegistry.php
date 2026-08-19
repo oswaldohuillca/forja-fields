@@ -1,0 +1,111 @@
+<?php
+/**
+ * Registro global de grupos de campos.
+ *
+ * @package Forja
+ */
+
+declare( strict_types = 1 );
+
+namespace Forja\Registry;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Guarda las cajas declaradas y permite consultarlas por contexto.
+ */
+final class BoxRegistry {
+
+	/**
+	 * Cajas registradas, indexadas por identificador.
+	 *
+	 * @var array<string, Box>
+	 */
+	private array $boxes = array();
+
+	/**
+	 * Catálogo de tipos de campo.
+	 *
+	 * @var FieldRegistry
+	 */
+	private FieldRegistry $fields;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param FieldRegistry $fields Catálogo de tipos de campo.
+	 */
+	public function __construct( FieldRegistry $fields ) {
+		$this->fields = $fields;
+	}
+
+	/**
+	 * Declara una caja a partir de su configuración.
+	 *
+	 * @param string               $id   Identificador único.
+	 * @param array<string, mixed> $args Configuración; la clave «fields» contiene los campos.
+	 * @return Box Caja registrada.
+	 * @throws \InvalidArgumentException Si el identificador ya existe o la configuración es inválida.
+	 */
+	public function register( string $id, array $args ): Box {
+		if ( isset( $this->boxes[ $id ] ) ) {
+			throw new \InvalidArgumentException(
+				sprintf( 'Forja: ya existe una caja con el id «%s».', esc_html( $id ) )
+			);
+		}
+
+		$definitions = $args['fields'] ?? array();
+		unset( $args['fields'] );
+
+		$fields = array();
+
+		foreach ( $definitions as $definition ) {
+			$fields[] = $this->fields->make( $definition );
+		}
+
+		$box = new Box( $id, $args, $fields );
+
+		$this->boxes[ $id ] = $box;
+
+		return $box;
+	}
+
+	/**
+	 * Devuelve todas las cajas registradas.
+	 *
+	 * @return array<string, Box> Cajas.
+	 */
+	public function all(): array {
+		return $this->boxes;
+	}
+
+	/**
+	 * Devuelve una caja por su identificador.
+	 *
+	 * @param string $id Identificador.
+	 * @return Box|null Caja, o null si no existe.
+	 */
+	public function get( string $id ): ?Box {
+		return $this->boxes[ $id ] ?? null;
+	}
+
+	/**
+	 * Filtra las cajas que aplican a un tipo y subtipo de objeto.
+	 *
+	 * Deliberadamente no evalúa plantilla, identificador ni condición: eso
+	 * necesita el objeto en la mano y se hace con `Box::matches_object()`.
+	 * Separarlo permite que el guardado use este filtro más amplio y se apoye
+	 * en el nonce, evitando depender de un estado (la plantilla elegida) que
+	 * puede estar cambiando en la misma petición.
+	 *
+	 * @param string $object_type Tipo de objeto: post, term, user, comment u option.
+	 * @param string $subtype     Subtipo concreto: post type, taxonomía, etc.
+	 * @return array<string, Box> Cajas que aplican.
+	 */
+	public function for_subtype( string $object_type, string $subtype ): array {
+		return array_filter(
+			$this->boxes,
+			static fn ( Box $box ): bool => $box->get( 'object_type' ) === $object_type && $box->applies_to( $subtype )
+		);
+	}
+}
