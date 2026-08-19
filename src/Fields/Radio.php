@@ -54,7 +54,7 @@ final class Radio extends ChoiceField {
 		// El campo oculto asegura que la clave viaje siempre, incluso si el
 		// navegador no envía ningún radio marcado.
 		printf(
-			'<input type="hidden" name="%s" value="" />',
+			'<input type="hidden" name="%s" />',
 			esc_attr( $input_name )
 		);
 

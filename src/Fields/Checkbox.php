@@ -62,12 +62,12 @@ final class Checkbox extends ChoiceField {
 		// Sin este oculto, desmarcar todas las casillas no enviaría la clave y
 		// el guardado no podría distinguirlo de «no se tocó el campo».
 		printf(
-			'<input type="hidden" name="%s" value="" />',
+			'<input type="hidden" name="%s" />',
 			esc_attr( $input_name )
 		);
 
 		printf(
-			'<ul class="acf-checkbox-list %s" aria-labelledby="%s-label">',
+			'<ul class="acf-checkbox-list %s" role="group" aria-labelledby="%s-label">',
 			esc_attr( $this->layout_class() ),
 			esc_attr( $this->input_id() )
 		);
@@ -91,7 +91,7 @@ final class Checkbox extends ChoiceField {
 			}
 
 			printf(
-				'<li><label%s><input %s />%s</label></li>',
+				'<li><label%s><input %s /> %s</label></li>',
 				$selected ? ' class="selected"' : '',
 				Html::attributes( $attributes ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 				esc_html( $choice_label )

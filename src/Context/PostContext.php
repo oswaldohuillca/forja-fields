@@ -126,9 +126,9 @@ final class PostContext {
 
 		wp_nonce_field( $this->nonce_action( $box ), $this->nonce_name( $box ) );
 
-		$values           = array();
-		$storage          = $this->storage->for( 'post' );
-		$label_placement  = 'left' === $box->get( 'label_placement' ) ? '-left' : '-top';
+		$values          = array();
+		$storage         = $this->storage->for( 'post' );
+		$label_placement = 'left' === $box->get( 'label_placement' ) ? '-left' : '-top';
 
 		foreach ( $box->fields() as $field ) {
 			if ( ! $field->stores_value() ) {

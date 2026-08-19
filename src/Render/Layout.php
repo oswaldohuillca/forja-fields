@@ -105,7 +105,7 @@ final class Layout {
 	/**
 	 * Vuelca el acordeón en curso a la lista de nodos.
 	 *
-	 * @param array<string, mixed>|null      $accordion Acordeón abierto, si lo hay.
+	 * @param array<string, mixed>|null        $accordion Acordeón abierto, si lo hay.
 	 * @param array<int, array<string, mixed>> $nodes     Lista de nodos, por referencia.
 	 * @return null Siempre null, para reasignar la variable en el llamador.
 	 */

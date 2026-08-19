@@ -86,7 +86,7 @@ final class Select extends ChoiceField {
 		if ( $multiple ) {
 			// Igual que en el checkbox: sin esto, deseleccionar todo no
 			// enviaría la clave.
-			printf( '<input type="hidden" name="%s" value="" />', esc_attr( $input_name ) );
+			printf( '<input type="hidden" name="%s" />', esc_attr( $input_name ) );
 		}
 
 		printf( '<select %s>', Html::attributes( $attributes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.

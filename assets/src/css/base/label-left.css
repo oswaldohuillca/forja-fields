@@ -1,0 +1,114 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Etiqueta a la izquierda (label_placement => 'left')
+ *--------------------------------------------------------------------------*/
+
+/*
+ * La etiqueta ocupa una columna del 20 % y el control el 80 % restante. La
+ * franja gris de la izquierda no es un fondo del label: es un pseudoelemento
+ * del campo que abarca toda su altura, para que la columna se vea continua
+ * aunque el control sea más alto que su etiqueta.
+ */
+.acf-fields.-left > .acf-field {
+	padding: var(--forja-field-padding-y) 0;
+
+	&::after {
+		display: block;
+		clear: both;
+		content: "";
+	}
+
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		z-index: 0;
+		background: #f9f9f9;
+		border-color: #e1e1e1;
+		border-style: solid;
+		border-width: 0 1px 0 0;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		width: 20%;
+	}
+
+	/* Con la etiqueta a un lado, los anchos porcentuales no aplican. */
+	&[data-width] {
+		float: none;
+		width: auto !important;
+		border-left-width: 0 !important;
+		border-right-width: 0 !important;
+	}
+
+	& > .acf-label {
+		float: left;
+		width: 20%;
+		margin: 0;
+		padding: 0 var(--forja-field-padding-x);
+	}
+
+	& > .acf-input {
+		float: left;
+		width: 80%;
+		margin: 0;
+		padding: 0 var(--forja-field-padding-x);
+	}
+
+	html[dir="rtl"] & {
+		&::before {
+			border-width: 0 0 0 1px;
+			left: auto;
+			right: 0;
+		}
+
+		& > .acf-label,
+		& > .acf-input {
+			float: right;
+		}
+	}
+
+	/* En la columna lateral no hay sitio: se apilan. */
+	#side-sortables & {
+		&::before {
+			display: none;
+		}
+
+		& > .acf-label {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		& > .acf-input {
+			width: 100%;
+		}
+	}
+
+	@media screen and (max-width: 640px) {
+		&::before {
+			display: none;
+		}
+
+		& > .acf-label {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		& > .acf-input {
+			width: 100%;
+		}
+	}
+}
+
+.acf-fields.-clear.-left > .acf-field {
+	padding: 0;
+	border: none;
+
+	&::before {
+		display: none;
+	}
+}

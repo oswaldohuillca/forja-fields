@@ -22,7 +22,20 @@
 
 declare( strict_types = 1 );
 
-defined( 'ABSPATH' ) || exit;
+/*
+ * Aquí NO se usa el habitual `defined( 'ABSPATH' ) || exit;`.
+ *
+ * Composer incluye este archivo desde `vendor/autoload.php`, así que lo carga
+ * cualquier herramienta de línea de comandos del proyecto —phpcs, phpunit, un
+ * script propio— fuera de WordPress. Un `exit` ahí las mata en silencio, sin
+ * mensaje y con código 0, que es un fallo muy desagradable de diagnosticar.
+ *
+ * Con `return` el archivo tampoco hace nada fuera de WordPress, pero deja
+ * seguir al proceso.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 if ( ! isset( $GLOBALS['forja_candidates'] ) ) {
 	$GLOBALS['forja_candidates'] = array();

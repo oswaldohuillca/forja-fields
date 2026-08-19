@@ -54,7 +54,7 @@ final class FieldRegistry {
 	/**
 	 * Añade un tipo de campo al catálogo.
 	 *
-	 * @param class-string<Field> $class_name Clase que extiende Field.
+	 * @param string $class_name Nombre de una clase que extiende Field.
 	 * @return void
 	 * @throws \InvalidArgumentException Si la clase no extiende Field.
 	 */

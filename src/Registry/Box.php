@@ -137,20 +137,20 @@ final class Box {
 	 * Todos los criterios declarados deben cumplirse. Los que se dejan vacíos
 	 * no filtran.
 	 *
-	 * @param object $object Objeto en edición; normalmente un WP_Post.
+	 * @param object $target Objeto en edición; normalmente un WP_Post.
 	 * @return bool True si aplica.
 	 */
-	public function matches_object( object $object ): bool {
+	public function matches_object( object $target ): bool {
 		$templates = (array) $this->get( 'templates', array() );
 
 		if ( array() !== $templates ) {
-			if ( ! $object instanceof \WP_Post ) {
+			if ( ! $target instanceof \WP_Post ) {
 				return false;
 			}
 
 			// `get_page_template_slug()` devuelve cadena vacía para la
 			// plantilla por defecto; se normaliza para poder declararla.
-			$current = get_page_template_slug( $object );
+			$current = get_page_template_slug( $target );
 			$current = '' === $current ? 'default' : $current;
 
 			if ( ! in_array( $current, $templates, true ) ) {
@@ -161,7 +161,7 @@ final class Box {
 		$object_ids = (array) $this->get( 'object_ids', array() );
 
 		if ( array() !== $object_ids ) {
-			$id = $object->ID ?? 0;
+			$id = $target->ID ?? 0;
 
 			if ( ! in_array( (int) $id, array_map( 'intval', $object_ids ), true ) ) {
 				return false;
@@ -170,7 +170,7 @@ final class Box {
 
 		$condition = $this->get( 'condition' );
 
-		if ( is_callable( $condition ) && ! $condition( $object ) ) {
+		if ( is_callable( $condition ) && ! $condition( $target ) ) {
 			return false;
 		}
 

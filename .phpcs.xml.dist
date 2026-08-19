@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<ruleset name="Forja">
+	<description>Estándares de código de WordPress aplicados a Forja.</description>
+
+	<file>src</file>
+	<file>includes</file>
+	<file>bootstrap.php</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/assets/build/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="parallel" value="8"/>
+	<arg value="sp"/>
+
+	<!--
+		Rutas de los estándares externos, declaradas aquí en lugar de depender
+		de la configuración global que escribe el plugin de Composer. Así el
+		análisis funciona igual en cualquier máquina y en CI.
+	-->
+	<config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra,vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-paragonie,vendor/phpcompatibility/phpcompatibility-wp"/>
+
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+
+	<!-- Compatibilidad con la versión mínima de PHP declarada en composer.json. -->
+	<config name="testVersion" value="8.1-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Prefijos permitidos para funciones, clases y constantes globales. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="forja"/>
+				<element value="Forja"/>
+				<element value="FORJA"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		Los hooks siguen la convención de ACF, `forja/nombre_del_hook`, en lugar
+		de `forja_nombre_del_hook`. Es deliberado: quien viene de ACF reconoce
+		la forma, y la barra separa con claridad el espacio de nombres del
+		paquete del nombre del gancho.
+	-->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="forja-fields"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		El paquete usa PSR-4, no la convención de nombres de archivo de
+		WordPress: las clases viven en `src/Nombre.php`, no en
+		`class-nombre.php`. Es requisito del autoload de Composer.
+	-->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>src/*</exclude-pattern>
+	</rule>
+</ruleset>

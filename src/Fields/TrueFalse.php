@@ -63,11 +63,14 @@ final class TrueFalse extends Field {
 		$active = ! empty( $value );
 		$ui     = (bool) $this->get( 'ui', false );
 
+		// El orden de las claves define el orden de los atributos; se mantiene
+		// el de ACF para que el markup sea comparable byte a byte.
 		$attributes = array(
 			'type'         => 'checkbox',
 			'id'           => $this->input_id(),
 			'name'         => $input_name,
 			'value'        => '1',
+			'class'        => '',
 			'autocomplete' => 'off',
 		);
 

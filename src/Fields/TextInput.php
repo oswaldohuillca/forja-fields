@@ -59,6 +59,26 @@ abstract class TextInput extends Field {
 	}
 
 	/**
+	 * Clases adicionales del envoltorio `.acf-input-wrap`.
+	 *
+	 * @return array<int, string> Clases adicionales.
+	 */
+	protected function wrap_classes(): array {
+		return array();
+	}
+
+	/**
+	 * Markup que se cuela dentro del envoltorio, antes del control.
+	 *
+	 * Lo usa el campo `url` para su icono.
+	 *
+	 * @return string Markup ya escapado.
+	 */
+	protected function before_input(): string {
+		return '';
+	}
+
+	/**
 	 * Pinta el control con su prefijo y sufijo opcionales.
 	 *
 	 * @param mixed  $value      Valor actual del campo.
@@ -105,8 +125,12 @@ abstract class TextInput extends Field {
 			}
 		}
 
+		$wrap_classes = array_merge( array( 'acf-input-wrap' ), $this->wrap_classes() );
+
 		printf(
-			'<div class="acf-input-wrap"><input %s /></div>',
+			'<div class="%s">%s<input %s /></div>',
+			esc_attr( implode( ' ', $wrap_classes ) ),
+			$this->before_input(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup fijo definido por el tipo de campo.
 			Html::attributes( $attributes ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 		);
 	}

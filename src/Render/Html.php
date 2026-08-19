@@ -19,22 +19,18 @@ final class Html {
 	/**
 	 * Convierte un array asociativo en atributos HTML escapados.
 	 *
-	 * Los atributos con valor cadena vacía se omiten, salvo los que
-	 * legítimamente pueden ir vacíos (como «value»).
+	 * Los atributos vacíos se omiten, igual que hace `acf_clean_atts()`. Un
+	 * `value=""` o un `placeholder=""` sobrante no cambia nada visualmente,
+	 * pero ensucia el markup y rompe la comparación con el original.
 	 *
-	 * @param array<string, string|int|bool> $attributes Pares atributo => valor.
+	 * @param array<string, string|int|bool|null> $attributes Pares atributo => valor.
 	 * @return string Atributos listos para interpolar en una etiqueta.
 	 */
 	public static function attributes( array $attributes ): string {
-		$always_render = array( 'value', 'placeholder' );
-		$parts         = array();
+		$parts = array();
 
 		foreach ( $attributes as $name => $value ) {
-			if ( false === $value || null === $value ) {
-				continue;
-			}
-
-			if ( '' === (string) $value && ! in_array( $name, $always_render, true ) ) {
+			if ( false === $value || null === $value || '' === (string) $value ) {
 				continue;
 			}
 

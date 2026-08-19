@@ -35,6 +35,24 @@ final class Url extends TextInput {
 	}
 
 	/**
+	 * Clase que posiciona el icono dentro del envoltorio.
+	 *
+	 * @return array<int, string> Clases adicionales.
+	 */
+	protected function wrap_classes(): array {
+		return array( 'acf-url' );
+	}
+
+	/**
+	 * Icono de globo que ACF pinta a la izquierda del control.
+	 *
+	 * @return string Markup del icono.
+	 */
+	protected function before_input(): string {
+		return '<i class="acf-icon -globe -small"></i>';
+	}
+
+	/**
 	 * Sanea la URL para almacenarla.
 	 *
 	 * Se usa la variante «raw» porque el valor va a la base de datos, no a un

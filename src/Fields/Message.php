@@ -39,9 +39,9 @@ final class Message extends Field {
 		return array_merge(
 			parent::defaults(),
 			array(
-				'message' => '',
+				'message'   => '',
 				// Escapar por defecto; se puede desactivar para permitir HTML.
-				'esc_html' => true,
+				'esc_html'  => true,
 				// Cómo tratar los saltos de línea: wpautop, br o vacío.
 				'new_lines' => 'wpautop',
 			)

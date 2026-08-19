@@ -53,7 +53,7 @@ final class ButtonGroup extends ChoiceField {
 		}
 
 		printf(
-			'<input type="hidden" name="%s" value="" />',
+			'<input type="hidden" name="%s" />',
 			esc_attr( $input_name )
 		);
 
@@ -70,9 +70,10 @@ final class ButtonGroup extends ChoiceField {
 		);
 
 		foreach ( $choices as $choice_value => $choice_label ) {
+			// A diferencia del radio, aquí el control no lleva `id`: el CSS lo
+			// oculta y quien recibe el foco es la etiqueta.
 			$attributes = array(
 				'type'  => 'radio',
-				'id'    => $this->option_id( $choice_value ),
 				'name'  => $input_name,
 				'value' => $choice_value,
 			);
@@ -87,9 +88,18 @@ final class ButtonGroup extends ChoiceField {
 				$attributes['disabled'] = 'disabled';
 			}
 
+			// Tabulación móvil: sólo la opción activa entra en el orden de
+			// tabulación; dentro del grupo se navega con las flechas.
+			$label_attributes = array(
+				'class'        => $selected ? 'selected' : '',
+				'tabindex'     => $selected ? '0' : '-1',
+				'role'         => 'radio',
+				'aria-checked' => $selected ? 'true' : 'false',
+			);
+
 			printf(
-				'<label%s><input %s />%s</label>',
-				$selected ? ' class="selected"' : '',
+				'<label %s><input %s /> %s</label>',
+				Html::attributes( $label_attributes ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 				Html::attributes( $attributes ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 				esc_html( $choice_label )
 			);

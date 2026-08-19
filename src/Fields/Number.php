@@ -45,7 +45,8 @@ final class Number extends TextInput {
 			array(
 				'min'  => '',
 				'max'  => '',
-				'step' => '',
+				// ACF emite «any» por defecto, para no impedir decimales.
+				'step' => 'any',
 			)
 		);
 	}
