@@ -16,13 +16,22 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Reproduce el markup de `acf_render_field_wrap()` de ACF/SCF.
  *
- * La estructura DOM se mantiene byte a byte respecto al original porque los
- * ~9.600 líneas de CSS portadas dependen de ella. Cualquier cambio aquí
- * rompe la paridad visual, que es el requisito central del plugin.
+ * La estructura DOM se mantiene igual a la del original porque las líneas de
+ * CSS portadas dependen de ella. Cualquier cambio aquí rompe la paridad
+ * visual, que es el requisito central del paquete.
  *
  * @see secure-custom-fields/includes/acf-field-functions.php:645
  */
 final class Renderer {
+
+	/**
+	 * Contador de grupos de pestañas dentro de la misma petición.
+	 *
+	 * Sirve para que dos cajas con pestañas no se interfieran.
+	 *
+	 * @var int
+	 */
+	private int $tab_group = 0;
 
 	/**
 	 * Pinta una colección de campos dentro de su contenedor.
@@ -34,24 +43,43 @@ final class Renderer {
 	 * @return void
 	 */
 	public function render_fields( array $fields, array $values, string $input_prefix, string $instruction = 'label' ): void {
-		foreach ( $fields as $field ) {
+		$layout = Layout::parse( $fields );
+		$group  = '';
+
+		if ( array() !== $layout['tabs'] ) {
+			++$this->tab_group;
+			$group = 'g' . $this->tab_group;
+
+			$this->render_tab_bar( $layout['tabs'], $group );
+		}
+
+		foreach ( $layout['nodes'] as $node ) {
+			$extra = $this->tab_attributes( $node['tab'] ?? null, $group );
+
+			if ( 'accordion' === $node['type'] ) {
+				$this->render_accordion( $node, $values, $input_prefix, $instruction, $extra );
+				continue;
+			}
+
+			$field = $node['field'];
 			$value = $values[ $field->name() ] ?? $field->default_value();
 
-			$this->render_field_wrap( $field, $value, $input_prefix, $instruction );
+			$this->render_field_wrap( $field, $value, $input_prefix, $instruction, $extra );
 		}
 	}
 
 	/**
 	 * Pinta el envoltorio completo de un campo.
 	 *
-	 * @param Field  $field        Campo a pintar.
-	 * @param mixed  $value        Valor actual.
-	 * @param string $input_prefix Prefijo del atributo «name».
-	 * @param string $instruction  Dónde colocar las instrucciones.
+	 * @param Field                 $field        Campo a pintar.
+	 * @param mixed                 $value        Valor actual.
+	 * @param string                $input_prefix Prefijo del atributo «name».
+	 * @param string                $instruction  Dónde colocar las instrucciones.
+	 * @param array<string, string> $extra        Atributos adicionales del envoltorio.
 	 * @return void
 	 */
-	public function render_field_wrap( Field $field, mixed $value, string $input_prefix, string $instruction = 'label' ): void {
-		$wrapper = $this->wrapper_attributes( $field );
+	public function render_field_wrap( Field $field, mixed $value, string $input_prefix, string $instruction = 'label', array $extra = array() ): void {
+		$wrapper = array_merge( $this->wrapper_attributes( $field ), $extra );
 
 		printf( '<div %s>', Html::attributes( $wrapper ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 
@@ -74,6 +102,109 @@ final class Renderer {
 		echo '</div>';
 
 		echo '</div>';
+	}
+
+	/**
+	 * Pinta la barra de pestañas.
+	 *
+	 * @param array<int, array{key: string, label: string, selected: bool}> $tabs  Pestañas declaradas.
+	 * @param string                                                        $group Identificador del grupo.
+	 * @return void
+	 */
+	private function render_tab_bar( array $tabs, string $group ): void {
+		printf(
+			'<div class="acf-tab-wrap -top" data-forja-tab-group="%s">',
+			esc_attr( $group )
+		);
+
+		echo '<ul class="acf-hl acf-tab-group" role="tablist">';
+
+		foreach ( $tabs as $tab ) {
+			printf(
+				'<li><a class="acf-tab-button" href="#" role="tab" data-key="%s" data-selected="%s">%s</a></li>',
+				esc_attr( $tab['key'] ),
+				$tab['selected'] ? '1' : '0',
+				esc_html( $tab['label'] )
+			);
+		}
+
+		echo '</ul>';
+		echo '</div>';
+	}
+
+	/**
+	 * Pinta un acordeón con sus campos dentro.
+	 *
+	 * @param array<string, mixed>  $node         Nodo de tipo acordeón.
+	 * @param array<string, mixed>  $values       Valores actuales.
+	 * @param string                $input_prefix Prefijo del atributo «name».
+	 * @param string                $instruction  Dónde colocar las instrucciones.
+	 * @param array<string, string> $extra        Atributos adicionales del envoltorio.
+	 * @return void
+	 */
+	private function render_accordion( array $node, array $values, string $input_prefix, string $instruction, array $extra ): void {
+		$field = $node['field'];
+		$open  = (bool) $field->get( 'open', false );
+
+		$wrapper           = array_merge( $this->wrapper_attributes( $field ), $extra );
+		$wrapper['class'] .= ' acf-accordion' . ( $open ? ' -open' : '' );
+
+		if ( $field->get( 'multi_expand', false ) ) {
+			$wrapper['data-multi-expand'] = '1';
+		}
+
+		printf( '<div %s>', Html::attributes( $wrapper ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
+
+		printf(
+			'<div class="acf-label acf-accordion-title" tabindex="0" role="button" aria-expanded="%s">',
+			$open ? 'true' : 'false'
+		);
+
+		// El icono lo repinta el JavaScript al abrir y cerrar; aquí se emite
+		// ya en el estado correcto para que no parpadee al cargar.
+		printf(
+			'<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="acf-accordion-icon" aria-hidden="true" focusable="false"><path d="%s"></path></svg>',
+			$open
+				? 'M6.5 12.4L12 8l5.5 4.4-.9 1.2L12 10l-4.5 3.6-1-1.2z'
+				: 'M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z'
+		);
+
+		$this->render_label( $field );
+		$this->render_instructions( $field );
+
+		echo '</div>';
+
+		echo '<div class="acf-input acf-accordion-content">';
+		echo '<div class="acf-fields">';
+
+		foreach ( $node['children'] as $child ) {
+			$value = $values[ $child->name() ] ?? $child->default_value();
+
+			$this->render_field_wrap( $child, $value, $input_prefix, $instruction );
+		}
+
+		echo '</div>';
+		echo '</div>';
+
+		echo '</div>';
+	}
+
+	/**
+	 * Atributos que asocian un campo con su pestaña.
+	 *
+	 * @param string|null $tab   Clave de la pestaña, si el campo pertenece a una.
+	 * @param string      $group Identificador del grupo de pestañas.
+	 * @return array<string, string> Atributos adicionales.
+	 */
+	private function tab_attributes( ?string $tab, string $group ): array {
+		if ( null === $tab || '' === $group ) {
+			return array();
+		}
+
+		return array(
+			'data-forja-tab'       => $tab,
+			'data-forja-tab-group' => $group,
+		);
 	}
 
 	/**
@@ -114,9 +245,9 @@ final class Renderer {
 		$width = (string) ( $wrapper['width'] ?? '' );
 
 		if ( '' !== $width ) {
-			$width                     = (float) preg_replace( '/[^0-9.]/', '', $width );
-			$attributes['data-width']  = (string) $width;
-			$attributes['style']      .= sprintf( 'width:%s%%;', $width );
+			$width                    = (float) preg_replace( '/[^0-9.]/', '', $width );
+			$attributes['data-width'] = (string) $width;
+			$attributes['style']     .= sprintf( 'width:%s%%;', $width );
 		}
 
 		return $attributes;

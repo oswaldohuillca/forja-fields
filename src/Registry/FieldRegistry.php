@@ -47,6 +47,8 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\TrueFalse::class );
 		$this->register( \Forja\Fields\Message::class );
 		$this->register( \Forja\Fields\Separator::class );
+		$this->register( \Forja\Fields\Tab::class );
+		$this->register( \Forja\Fields\Accordion::class );
 	}
 
 	/**

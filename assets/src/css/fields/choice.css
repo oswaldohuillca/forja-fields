@@ -1,0 +1,54 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Listas de radios y casillas
+ *--------------------------------------------------------------------------*/
+
+ul.acf-radio-list,
+ul.acf-checkbox-list {
+	background: transparent;
+	border: 1px solid transparent;
+	position: relative;
+	padding: 1px;
+	margin: 0;
+
+	&:focus-visible {
+		border: 1px solid var(--forja-blue-200);
+		border-radius: var(--forja-radius-md);
+	}
+
+	& li {
+		font-size: 13px;
+		line-height: 22px;
+		margin: 0;
+		position: relative;
+		word-wrap: break-word;
+
+		& label {
+			display: inline;
+		}
+
+		& input[type="checkbox"],
+		& input[type="radio"] {
+			width: auto;
+			margin: -1px 4px 0 0;
+			vertical-align: middle;
+		}
+	}
+
+	&.acf-hl li {
+		margin-right: 20px;
+		clear: none;
+	}
+
+	html[dir="rtl"] & li {
+		& input[type="checkbox"],
+		& input[type="radio"] {
+			margin-left: 4px;
+			margin-right: 0;
+		}
+	}
+}

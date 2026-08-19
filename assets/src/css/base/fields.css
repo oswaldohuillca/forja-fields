@@ -1,0 +1,68 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  acf-fields
+ *--------------------------------------------------------------------------*/
+
+.acf-fields {
+	position: relative;
+
+	&::after {
+		display: block;
+		clear: both;
+		content: "";
+	}
+
+	&.-border {
+		border: 1px solid var(--forja-wp-card-border);
+		background: #fff;
+	}
+
+	& > .acf-field {
+		position: relative;
+		margin: 0;
+		padding: 16px;
+		border-top: 1px solid var(--forja-gray-200);
+
+		&:first-child {
+			border-top: none;
+			margin-top: 0;
+		}
+	}
+}
+
+td.acf-fields {
+	padding: 0 !important;
+}
+
+.acf-fields.-clear > .acf-field {
+	border: none;
+	padding: 0;
+	margin: 15px 0;
+
+	&[data-width] {
+		border: none !important;
+	}
+
+	& > .acf-label,
+	& > .acf-input {
+		padding: 0;
+	}
+}
+
+/*----------------------------------------------------------------------------
+ *  acf-postbox
+ *--------------------------------------------------------------------------*/
+
+.acf-postbox {
+	position: relative;
+
+	/* Anula el espaciado propio de WordPress para que los campos lleguen al borde. */
+	& > .inside {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+}

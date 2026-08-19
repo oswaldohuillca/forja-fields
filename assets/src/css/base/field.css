@@ -1,0 +1,103 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  acf-field
+ *--------------------------------------------------------------------------*/
+
+.acf-field,
+.acf-field .acf-label,
+.acf-field .acf-input {
+	box-sizing: border-box;
+	position: relative;
+}
+
+.acf-field {
+	margin: 15px 0;
+
+	/*
+	 * El clear es importante: evita problemas de maquetación con los campos
+	 * que flotan por tener ancho porcentual. No quitar.
+	 */
+	clear: both;
+
+	& .acf-label {
+		vertical-align: top;
+		margin: 0 0 10px;
+
+		& label {
+			display: block;
+			font-weight: 500;
+			margin: 0 0 3px;
+			padding: 0;
+		}
+
+		&:empty {
+			margin-bottom: 0;
+		}
+	}
+
+	& .acf-input {
+		vertical-align: top;
+	}
+
+	& p.description {
+		display: block;
+		margin: 6px 0 0;
+		padding: 0;
+		font-size: 12px;
+		color: var(--forja-gray-500);
+	}
+}
+
+td.acf-field,
+tr.acf-field {
+	margin: 0;
+}
+
+.acf-required {
+	color: var(--forja-color-required);
+}
+
+/*----------------------------------------------------------------------------
+ *  Anchos porcentuales
+ *--------------------------------------------------------------------------*/
+
+.acf-field[data-width] {
+	float: left;
+	clear: none;
+
+	& + .acf-field[data-width] {
+		border-left: 1px solid var(--forja-wp-card-border-2);
+	}
+
+	html[dir="rtl"] & {
+		float: right;
+
+		& + .acf-field[data-width] {
+			border-left: none;
+			border-right: 1px solid var(--forja-wp-card-border-2);
+		}
+	}
+}
+
+td.acf-field[data-width],
+tr.acf-field[data-width] {
+	float: none;
+}
+
+.acf-field.-c0 {
+	clear: both;
+	border-left-width: 0 !important;
+
+	html[dir="rtl"] & {
+		border-left-width: 1px !important;
+		border-right-width: 0 !important;
+	}
+}
+
+.acf-field.-r0 {
+	border-top-width: 0 !important;
+}

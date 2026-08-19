@@ -1,0 +1,90 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Grupo de botones
+ *--------------------------------------------------------------------------*/
+
+.acf-button-group {
+	padding-left: 1px;
+	display: inline-flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	& label {
+		display: inline-block;
+		border: 1px solid var(--forja-wp-input-border);
+		position: relative;
+		z-index: 1;
+		padding: 5px 10px;
+		background: #fff;
+		cursor: pointer;
+		margin: 0 0 0 -1px;
+		flex: 1;
+		text-align: center;
+		white-space: nowrap;
+
+		&:hover {
+			color: #016087;
+			background: #f3f5f6;
+			border-color: #0071a1;
+			z-index: 2;
+		}
+
+		&:focus-visible {
+			color: #016087;
+			background: #f3f5f6;
+			border-color: #0071a1;
+			box-shadow: 0 0 0 1px #fff, 0 0 0 3px #007cba;
+			z-index: 2;
+			outline: none;
+		}
+
+		&.selected {
+			border-color: #007cba;
+			background: #1d9fdd;
+			color: #fff;
+			z-index: 2;
+		}
+
+		&:first-child {
+			border-radius: 3px 0 0 3px;
+		}
+
+		&:last-child {
+			border-radius: 0 3px 3px 0;
+		}
+
+		&:only-child {
+			border-radius: 3px;
+		}
+	}
+
+	& input {
+		display: none !important;
+	}
+
+	&.-vertical {
+		padding-left: 0;
+		padding-top: 1px;
+		flex-direction: column;
+
+		& label {
+			margin: -1px 0 0;
+
+			&:first-child {
+				border-radius: 3px 3px 0 0;
+			}
+
+			&:last-child {
+				border-radius: 0 0 3px 3px;
+			}
+
+			&:only-child {
+				border-radius: 3px;
+			}
+		}
+	}
+}

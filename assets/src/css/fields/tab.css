@@ -1,0 +1,91 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Pestañas
+ *--------------------------------------------------------------------------*/
+
+/*
+ * El campo `tab` no llega a emitirse: el renderer lo consume al agrupar y en
+ * su lugar pinta esta barra antes del primer campo de la primera sección.
+ * Los campos ocultos usan el atributo `hidden`, no una clase.
+ */
+.acf-tab-wrap {
+	clear: both;
+	z-index: 1;
+	overflow: auto;
+
+	/* Oculta la barra de scroll sin perder el desplazamiento. */
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+.acf-tab-group {
+	border-bottom: 1px solid #ccc;
+	padding: 10px 10px 0;
+
+	& li {
+		margin: 0 0.5em 0 0;
+
+		& a {
+			padding: 5px 10px;
+			display: block;
+			color: #555;
+			font-size: 14px;
+			font-weight: 600;
+			line-height: 24px;
+			border: 1px solid #ccc;
+			border-bottom: 0 none;
+			text-decoration: none;
+			background: #e5e5e5;
+			transition: none;
+			cursor: pointer;
+
+			&:hover {
+				background: #fff;
+			}
+
+			&:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+			&:empty {
+				display: none;
+			}
+		}
+
+		html[dir="rtl"] & {
+			margin: 0 0 0 0.5em;
+		}
+
+		&.active a {
+			background: #f1f1f1;
+			color: #000;
+			padding-bottom: 6px;
+			margin-bottom: -1px;
+			position: relative;
+			z-index: 1;
+		}
+	}
+}
+
+.acf-fields > .acf-tab-wrap {
+	background: #f9f9f9;
+
+	& .acf-tab-group {
+		position: relative;
+		border-top: 1px solid var(--forja-wp-card-border);
+		border-bottom: 1px solid var(--forja-wp-card-border);
+
+		/* Sube el campo siguiente para que quede bajo el borde. */
+		z-index: 2;
+		margin-bottom: -1px;
+	}
+}

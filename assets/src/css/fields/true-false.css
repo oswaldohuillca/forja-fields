@@ -1,0 +1,99 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Interruptor (true_false con ui)
+ *--------------------------------------------------------------------------*/
+
+.acf-true-false:has(.acf-switch) label {
+	display: flex;
+	align-items: center;
+	justify-items: center;
+}
+
+.acf-switch-input {
+	opacity: 0;
+	position: absolute;
+	margin: 0;
+}
+
+.acf-switch {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	width: fit-content;
+	max-width: 100%;
+	border-radius: 5px;
+	cursor: pointer;
+	position: relative;
+	background: #f5f5f5;
+	height: 30px;
+	vertical-align: middle;
+	border: 1px solid var(--forja-wp-input-border);
+	transition: background 0.25s ease;
+
+	& span {
+		display: inline-block;
+		float: left;
+		text-align: center;
+		font-size: 13px;
+		line-height: 22px;
+		padding: 4px 10px;
+		min-width: 15px;
+	}
+
+	& .acf-switch-on {
+		color: #fff;
+		text-shadow: #007cba 0 1px 0;
+		overflow: hidden;
+	}
+
+	& .acf-switch-off {
+		overflow: hidden;
+	}
+
+	& .acf-switch-slider {
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		bottom: 2px;
+		right: 50%;
+		z-index: 1;
+		background: #fff;
+		border-radius: 3px;
+		border: 1px solid var(--forja-wp-input-border);
+		transition: all 0.25s ease;
+		transition-property: left, right;
+	}
+
+	&:hover,
+	&.-focus {
+		border-color: #0071a1;
+		background: #f3f5f6;
+		color: #016087;
+
+		& .acf-switch-slider {
+			border-color: #0071a1;
+		}
+	}
+
+	&.-on {
+		background: #0d99d5;
+		border-color: #007cba;
+
+		& .acf-switch-slider {
+			left: 50%;
+			right: 2px;
+			border-color: #007cba;
+		}
+
+		&:hover {
+			border-color: #007cba;
+		}
+	}
+
+	& + span {
+		margin-left: 6px;
+	}
+}

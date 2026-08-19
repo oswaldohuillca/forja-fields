@@ -152,8 +152,35 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `true_false` | `message`, `ui`, `ui_on_text`, `ui_off_text` | Guarda `1` o `0`; con `ui` pinta el interruptor |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
+| `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
+| `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
 
 Todos aceptan además `readonly` y `disabled`.
+
+### Pestañas y acordeones
+
+No son campos, sino instrucciones de maquetado: se declaran en línea y todo lo
+que viene después les pertenece, hasta el siguiente del mismo tipo.
+
+```php
+'fields' => array(
+	array( 'type' => 'tab', 'name' => 'banner', 'label' => 'Banner', 'selected' => true ),
+	array( 'type' => 'text', 'name' => 'titulo' ),      // en la pestaña Banner
+	array( 'type' => 'tab', 'name' => 'seo', 'label' => 'SEO' ),
+	array( 'type' => 'text', 'name' => 'meta_titulo' ), // en la pestaña SEO
+
+	// Cierra el grupo: lo que siga no está en ninguna pestaña.
+	array( 'type' => 'tab', 'name' => 'fin', 'endpoint' => true ),
+
+	array( 'type' => 'accordion', 'name' => 'avanzado', 'label' => 'Avanzado' ),
+	array( 'type' => 'text', 'name' => 'clase_css' ),   // dentro del acordeón
+),
+```
+
+La diferencia entre ambos está en el DOM: el acordeón **anida** a sus campos
+dentro de su panel, mientras que la pestaña los deja como hermanos y sólo
+alterna su visibilidad. Es lo que hace ACF, y el CSS del envoltorio depende de
+ello.
 
 ### Opciones de los campos de elección
 

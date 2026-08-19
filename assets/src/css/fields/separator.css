@@ -1,0 +1,30 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Separador
+ *--------------------------------------------------------------------------*/
+
+.acf-field-separator {
+	& .acf-label {
+		margin-bottom: 0;
+
+		& label {
+			font-weight: normal;
+		}
+	}
+
+	& .acf-input {
+		display: none;
+	}
+
+	.acf-fields > & {
+		background: #f9f9f9;
+		border-top: 1px solid #dfdfdf;
+		border-bottom: 1px solid #dfdfdf;
+		margin-bottom: -1px;
+		z-index: 2;
+	}
+}

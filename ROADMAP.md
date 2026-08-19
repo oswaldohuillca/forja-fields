@@ -39,10 +39,9 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 - [ ] Configurar PHPCS con WordPress-Extra y dejar el código sin avisos
 - [ ] Publicar el paquete (Packagist o repositorio VCS privado) y fijar versiones con etiquetas
 
-## Capa 1 — Campos sin dependencias de JS
+## Capa 1 — Campos sin dependencias de JS ✅
 
-Cubren la mayoría de proyectos a medida. Todos usan el mismo envoltorio, así que
-el trabajo por campo es pequeño.
+**Completa: 16 de 16.** Cubren la mayoría de proyectos a medida.
 
 - [x] `text`
 - [x] `textarea`
@@ -58,8 +57,8 @@ el trabajo por campo es pequeño.
 - [x] `select` (nativo, sin select2)
 - [x] `message`
 - [x] `separator`
-- [ ] `tab` (necesita JS: reestructura el DOM en paneles)
-- [ ] `accordion` (necesita JS)
+- [x] `tab`
+- [x] `accordion`
 
 ## Capa 2 — Campos con dependencias externas
 
@@ -117,5 +116,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Vite en lugar de webpack | Sin bloques de Gutenberg ni imports `@wordpress/*`, el `dependency-extraction-webpack-plugin` y los `.asset.php` dejan de hacer falta. |
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
+| Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Pestañas y acordeones se resuelven en el servidor | ACF los monta con JavaScript reestructurando el DOM. Como aquí el renderer conoce la lista completa de campos, puede emitir la estructura final directamente y dejar al JS sólo abrir y cerrar. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |
