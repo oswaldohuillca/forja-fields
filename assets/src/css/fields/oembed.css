@@ -1,0 +1,68 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Contenido incrustado
+ *--------------------------------------------------------------------------*/
+
+.acf-oembed {
+	position: relative;
+	border: 1px solid var(--forja-wp-card-border);
+	background: #fff;
+	border-radius: var(--forja-radius-sm);
+
+	& .acf-oembed-search-wrap {
+		padding: 8px;
+		border-bottom: 1px solid var(--forja-wp-card-border-2);
+	}
+
+	& .acf-oembed-preview {
+		padding: 0;
+		text-align: center;
+		background: var(--forja-gray-50);
+
+		&:empty {
+			display: none;
+		}
+
+		/* Lo que devuelve el proveedor no conoce el ancho del campo. */
+		& iframe,
+		& embed,
+		& video {
+			max-width: 100%;
+			display: block;
+			margin: 0 auto;
+		}
+	}
+
+	& .acf-oembed-error {
+		margin: 0;
+		padding: 12px;
+		color: var(--forja-color-danger);
+		font-size: 13px;
+	}
+
+	& .acf-oembed-remove {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+	}
+
+	&:hover .acf-oembed-remove,
+	&:focus-within .acf-oembed-remove {
+		opacity: 1;
+	}
+
+	/* Sin valor no hay nada que quitar. */
+	&:not(.-value) .acf-oembed-remove {
+		display: none;
+	}
+
+	&.-loading .acf-oembed-preview {
+		opacity: 0.5;
+	}
+}

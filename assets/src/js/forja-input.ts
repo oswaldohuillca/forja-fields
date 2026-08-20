@@ -11,7 +11,9 @@ import { markGridPositions } from './modules/grid';
 import { syncRange } from './modules/range';
 import { syncSwitch } from './modules/switch';
 import { trackSelected } from './modules/choices';
+import { initLink } from './modules/link';
 import { initMedia } from './modules/media';
+import { initOembed } from './modules/oembed';
 import { initRepeater } from './modules/repeater';
 import { initColorPicker } from './modules/color';
 import { initConditions } from './modules/conditions';
@@ -47,6 +49,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	);
 	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
 	forEach( '.acf-color-picker', initColorPicker );
+	forEach( '.acf-link', initLink );
+	forEach( '.acf-oembed', initOembed );
 	forEach( '.acf-repeater', initRepeater );
 	forEach( '.acf-flexible-content', initFlexible );
 	forEach( '.acf-tab-wrap', initTabs );

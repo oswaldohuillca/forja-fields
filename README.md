@@ -202,6 +202,8 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `date_time_picker` | `return_format`, `min`, `max` | Control nativo; se guarda como `Y-m-d H:i:s` |
 | `color_picker` | `enable_opacity`, `palette` | Selector del núcleo; hexadecimal, o `rgba()` con opacidad |
 | `wysiwyg` | `tabs`, `toolbar`, `rows`, `media_upload`, `table` | TinyMCE; funciona también dentro de repetidores |
+| `link` | `return_format` | Modal de enlaces del núcleo; guarda texto, URL y destino |
+| `oembed` | `width`, `height`, `return_format` | Guarda la dirección; el HTML se resuelve al pintar |
 | `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
 | `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
@@ -474,6 +476,31 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Enlaces y contenido incrustado
+
+`link` abre el mismo modal que el botón de enlace del editor y guarda las tres
+piezas de un enlace:
+
+```php
+$enlace = forja_get_field( 'cta' );
+// array( 'title' => 'Ver más', 'url' => 'https://…', 'target' => '_blank' )
+```
+
+Devuelve `null` si no hay enlace, así que se comprueba con un `if`. Con
+`return_format => 'url'` devuelve sólo la dirección.
+
+`oembed` **guarda la dirección, no el HTML**. Es deliberado: el markup de un
+proveedor cambia con el tiempo, y guardarlo dejaría el sitio lleno de vídeos
+rotos. El HTML se resuelve al pintar:
+
+```php
+echo forja_get_field( 'video' );   // el HTML incrustado
+```
+
+Con `return_format => 'url'` devuelve la dirección sin resolver. La vista previa
+en el escritorio usa el endpoint `oembed/1.0/proxy` de la API REST del núcleo,
+que ya se ocupa de los proveedores y de la caché.
 
 ### Taxonomías y usuarios
 

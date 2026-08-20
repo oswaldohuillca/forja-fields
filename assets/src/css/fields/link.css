@@ -1,0 +1,90 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Enlace
+ *--------------------------------------------------------------------------*/
+
+.acf-link {
+	position: relative;
+
+	/*
+	 * El ancla que entiende el modal del núcleo y los ocultos que viajan en el
+	 * envío. No se ven, pero tienen que estar en el formulario.
+	 */
+	& .acf-hidden {
+		position: absolute !important;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+
+	& .link-wrap {
+		display: none;
+		position: relative;
+		padding: 8px 60px 8px 10px;
+		border: 1px solid var(--forja-wp-card-border);
+		background: #fff;
+		border-radius: var(--forja-radius-sm);
+	}
+
+	& .link-title {
+		display: block;
+		font-weight: bold;
+		font-size: 13px;
+		line-height: 1.4;
+		word-break: break-word;
+	}
+
+	& .link-url {
+		display: block;
+		font-size: 12px;
+		color: var(--forja-gray-500);
+		text-decoration: none;
+		word-break: break-all;
+	}
+
+	/* Sólo se anuncia la pestaña nueva cuando el enlace la usa. */
+	& .link-target {
+		display: none;
+		font-size: 11px;
+		font-style: normal;
+		color: var(--forja-gray-400);
+	}
+
+	&.-external .link-target {
+		display: block;
+	}
+
+	& .acf-icon {
+		position: absolute;
+		top: 8px;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+
+		&.-pencil {
+			right: 34px;
+		}
+
+		&.-cancel {
+			right: 4px;
+		}
+	}
+
+	& .link-wrap:hover .acf-icon,
+	& .link-wrap:focus-within .acf-icon {
+		opacity: 1;
+	}
+
+	/* Con valor se enseña la ficha; sin él, el botón de seleccionar. */
+	&.-value > .button {
+		display: none;
+	}
+
+	&.-value .link-wrap {
+		display: block;
+	}
+}
