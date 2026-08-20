@@ -82,7 +82,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 
 - [x] `group`
 - [x] `repeater` (tabla, añadir, quitar, reordenar y límites en servidor; sin paginación ni plegado)
-- [ ] `flexible_content`
+- [x] `flexible_content` (capas, orden y límites; sin renombrar ni desactivar capas)
 - [ ] `clone`
 
 ## Transversales
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [ ] Páginas de opciones
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 64 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 78 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Cada tipo devuelve su tipo nativo, no la cadena de la base de datos | `number` devuelve int o float, `true_false` bool, los medios int. Un `true_false` devolviendo «'0'» es una trampa: en PHP es una cadena no vacía. |
+| Un `number` sin rellenar devuelve null, no cero | El cero es un valor legítimo; confundirlos impide distinguir «no lo tocaron» de «pusieron cero». |
 | Los compuestos devuelven sus errores al escribir | `Composite::write_value()` devuelve mensajes en vez de void. Un compuesto que no valida no escribe nada, igual que un campo simple. |
 | El repetidor guarda en el formato de ACF, no serializado | Una clave por subcampo y fila (`banner_0_titulo`). Permite leer lo que ya hay en un sitio existente sin migrar, y deja cada subcampo consultable con `meta_query`. |
 | Reordenar usa la API nativa de arrastrar y soltar | Evita jQuery UI, que es la única razón por la que ACF lo necesita. |

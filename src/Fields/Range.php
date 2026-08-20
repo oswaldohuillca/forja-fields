@@ -116,6 +116,22 @@ final class Range extends Field {
 	}
 
 	/**
+	 * Devuelve el valor como número.
+	 *
+	 * A diferencia del campo numérico, un rango siempre tiene valor: si no hay
+	 * nada guardado, el deslizador parte de su mínimo.
+	 *
+	 * @param mixed $value Valor almacenado.
+	 * @return int|float Número dentro del rango.
+	 */
+	public function format_value( mixed $value ): mixed {
+		$min = (float) $this->get( 'min', 0 );
+		$raw = is_numeric( $value ) ? (float) $value : $min;
+
+		return floor( $raw ) === $raw ? (int) $raw : $raw;
+	}
+
+	/**
 	 * Sanea el valor acotándolo al rango declarado.
 	 *
 	 * @param mixed $raw Valor crudo enviado por el navegador.

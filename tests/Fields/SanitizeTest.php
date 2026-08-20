@@ -91,3 +91,37 @@ describe( 'campos con opciones', function () {
 		expect( $field->sanitize( array( 'sur', 'nada', 'este' ) ) )->toBe( array( 'sur', 'este' ) );
 	} );
 } );
+
+describe( 'formato de retorno', function () {
+	it( 'devuelve el número como número, no como cadena', function () {
+		// WordPress entrega los metadatos como texto; sin format_value() la
+		// plantilla recibiría «1234».
+		$field = forja_test_field( array( 'type' => 'number' ) );
+
+		expect( $field->format_value( '1234' ) )->toBe( 1234 )
+			->and( $field->format_value( '12.5' ) )->toBe( 12.5 );
+	} );
+
+	it( 'distingue un número sin rellenar de un cero', function () {
+		$field = forja_test_field( array( 'type' => 'number' ) );
+
+		expect( $field->format_value( '' ) )->toBeNull()
+			->and( $field->format_value( '0' ) )->toBe( 0 );
+	} );
+
+	it( 'devuelve el booleano como booleano', function () {
+		// Devolver «'0'» sería una trampa: en PHP es una cadena no vacía.
+		$field = forja_test_field( array( 'type' => 'true_false' ) );
+
+		expect( $field->format_value( '1' ) )->toBeTrue()
+			->and( $field->format_value( '0' ) )->toBeFalse()
+			->and( $field->format_value( '' ) )->toBeFalse();
+	} );
+
+	it( 'el rango siempre devuelve número, nunca null', function () {
+		$field = forja_test_field( array( 'type' => 'range', 'min' => 10, 'max' => 100 ) );
+
+		expect( $field->format_value( '42' ) )->toBe( 42 )
+			->and( $field->format_value( '' ) )->toBe( 10 );
+	} );
+} );

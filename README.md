@@ -204,6 +204,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
 | `repeater` | `sub_fields`, `min`, `max`, `button_label` | Lista de filas; compatible con los datos de ACF |
 | `group` | `sub_fields`, `layout` | Subcampos bajo un nombre común, sin repetición |
+| `flexible_content` | `layouts`, `min`, `max`, `button_label` | Filas de distinta forma, a elegir por el editor |
 
 Todos aceptan además `readonly` y `disabled`.
 
@@ -305,6 +306,68 @@ echo esc_html( $direccion['calle'] );
 `layout` acepta `block` (etiquetas arriba, por defecto) o `row` (a la
 izquierda). A diferencia del acordeón, que sólo agrupa visualmente, aquí el
 nombre del grupo forma parte de la clave.
+
+### Contenido flexible
+
+Un repetidor en el que cada fila puede tener una forma distinta:
+
+```php
+array(
+	'type'         => 'flexible_content',
+	'name'         => 'secciones',
+	'button_label' => 'Añadir sección',
+	'layouts'      => array(
+		'banner' => array(
+			'label'      => 'Banner',
+			'sub_fields' => array(
+				array( 'type' => 'image', 'name' => 'imagen', 'label' => 'Imagen' ),
+				array( 'type' => 'text',  'name' => 'titular', 'label' => 'Titular' ),
+			),
+		),
+		'texto'  => array(
+			'label'      => 'Texto',
+			'sub_fields' => array(
+				array( 'type' => 'textarea', 'name' => 'cuerpo', 'label' => 'Cuerpo' ),
+			),
+		),
+	),
+)
+```
+
+Cada fila devuelve su capa en la clave `acf_fc_layout`:
+
+```php
+foreach ( forja_get_field( 'secciones' ) as $seccion ) {
+	match ( $seccion['acf_fc_layout'] ) {
+		'banner' => get_template_part( 'partials/banner', null, $seccion ),
+		'texto'  => get_template_part( 'partials/texto', null, $seccion ),
+		default  => null,
+	};
+}
+```
+
+Se almacena en el formato de ACF: la clave del campo guarda la lista ordenada de
+capas, y los valores usan el mismo esquema que el repetidor. El índice es la
+**posición en la lista**, no la posición dentro de su capa.
+
+### Tipos que devuelve cada campo
+
+WordPress entrega todos los metadatos como cadenas. Forja los devuelve con su
+tipo nativo:
+
+| Tipo | Devuelve | Sin rellenar |
+|---|---|---|
+| `number` | `int` o `float` | `null` |
+| `range` | `int` o `float` | el mínimo |
+| `true_false` | `bool` | `false` |
+| `image`, `file` | según `return_format` | `0`, `''` o `null` |
+| `checkbox`, `select` múltiple | `array` | `array()` |
+| `repeater`, `flexible_content` | `array` de filas | `array()` |
+| `group` | `array` por subcampo | `array()` |
+
+Un `number` sin rellenar devuelve `null` y no `0` a propósito: el cero es un
+valor legítimo, y confundirlos impediría distinguir «no lo tocaron» de
+«pusieron cero».
 
 ### Validación
 

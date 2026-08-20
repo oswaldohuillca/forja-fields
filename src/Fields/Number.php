@@ -71,6 +71,29 @@ final class Number extends TextInput {
 	}
 
 	/**
+	 * Devuelve el valor como número.
+	 *
+	 * WordPress entrega los metadatos como cadenas, así que sin esto la
+	 * plantilla recibiría «1234» en lugar de 1234.
+	 *
+	 * Un campo sin rellenar devuelve null, no cero: el cero es un valor
+	 * legítimo y confundirlos haría imposible distinguir «no lo tocaron» de
+	 * «pusieron cero».
+	 *
+	 * @param mixed $value Valor almacenado.
+	 * @return int|float|null Número, o null si está sin rellenar.
+	 */
+	public function format_value( mixed $value ): mixed {
+		$raw = trim( (string) $value );
+
+		if ( '' === $raw || ! is_numeric( $raw ) ) {
+			return null;
+		}
+
+		return str_contains( $raw, '.' ) ? (float) $raw : (int) $raw;
+	}
+
+	/**
 	 * Sanea el valor conservando su naturaleza numérica.
 	 *
 	 * Un campo vacío se guarda como cadena vacía y no como cero, para poder

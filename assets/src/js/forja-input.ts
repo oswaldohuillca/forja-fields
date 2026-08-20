@@ -13,6 +13,7 @@ import { syncSwitch } from './modules/switch';
 import { trackSelected } from './modules/choices';
 import { initMedia } from './modules/media';
 import { initRepeater } from './modules/repeater';
+import { initFlexible } from './modules/flexible';
 import { initTabs } from './modules/tabs';
 import { initAccordion } from './modules/accordion';
 
@@ -43,6 +44,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	);
 	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
 	forEach( '.acf-repeater', initRepeater );
+	forEach( '.acf-flexible-content', initFlexible );
 	forEach( '.acf-tab-wrap', initTabs );
 	forEach( '.acf-accordion', initAccordion );
 } );

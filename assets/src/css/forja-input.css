@@ -22,6 +22,7 @@
 @import "./fields/range.css";
 @import "./fields/media.css";
 @import "./fields/repeater.css";
+@import "./fields/flexible.css";
 @import "./fields/choice.css";
 @import "./fields/button-group.css";
 @import "./fields/true-false.css";

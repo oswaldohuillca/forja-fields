@@ -1,0 +1,143 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Contenido flexible
+ *--------------------------------------------------------------------------*/
+
+.acf-flexible-content {
+	position: relative;
+
+	/* Plantillas que el JavaScript clona: una por capa. */
+	& > .clones {
+		display: none;
+	}
+
+	& > .values {
+		margin: 0 0 8px;
+
+		& > .layout {
+			position: relative;
+			margin: 20px 0 0;
+			background: #fff;
+			border: 1px solid var(--forja-wp-card-border);
+
+			&:first-child {
+				margin-top: 0;
+			}
+		}
+	}
+
+	/* El mensaje de vacío sólo aparece cuando no hay ninguna fila. */
+	& > .no-value-message {
+		display: none;
+		padding: 15px;
+		border: 1px dashed var(--forja-wp-card-border);
+		background: #f9f9f9;
+		color: var(--forja-gray-500);
+		font-size: 13px;
+	}
+
+	&.-empty > .no-value-message {
+		display: block;
+	}
+
+	&.-empty > .values {
+		display: none;
+	}
+}
+
+.acf-fc-layout-handle {
+	padding: 8px 12px;
+	cursor: pointer;
+	border-bottom: 1px solid var(--forja-wp-card-border-2);
+	background: #f9f9f9;
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: bold;
+	color: var(--forja-gray-700);
+
+	&:hover {
+		background: #f3f4f5;
+	}
+}
+
+.acf-fc-layout-order {
+	display: inline-block;
+	min-width: 20px;
+	height: 20px;
+	line-height: 20px;
+	margin-right: 8px;
+	text-align: center;
+	background: var(--forja-gray-200);
+	border-radius: 100%;
+	font-weight: normal;
+	color: var(--forja-gray-600);
+}
+
+.acf-fc-layout-controls {
+	position: absolute;
+	top: 6px;
+	right: 8px;
+	display: none;
+
+	& .acf-icon.disabled {
+		opacity: 0.3;
+		pointer-events: none;
+	}
+}
+
+.layout:hover > .acf-fc-layout-controls,
+.layout:focus-within > .acf-fc-layout-controls {
+	display: block;
+}
+
+/* Fila plegada: se ve la cabecera y nada más. */
+.layout.-collapsed > .acf-fields {
+	display: none;
+}
+
+/*----------------------------------------------------------------------------
+ *  Menú para elegir capa
+ *--------------------------------------------------------------------------*/
+
+.acf-fc-popup {
+	position: absolute;
+	z-index: 900;
+	margin-top: 4px;
+	background: #2f3742;
+	border-radius: var(--forja-radius-sm);
+	padding: 4px 0;
+	min-width: 150px;
+
+	& ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	& a {
+		display: block;
+		padding: 6px 12px;
+		color: #fff;
+		text-decoration: none;
+		font-size: 13px;
+
+		&:hover {
+			background: var(--forja-color-primary);
+		}
+	}
+}
+
+.acf-flexible-content > .acf-actions {
+	position: relative;
+	text-align: left;
+	padding: 0;
+
+	& .button.disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+}

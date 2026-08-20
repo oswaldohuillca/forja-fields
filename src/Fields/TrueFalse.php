@@ -119,6 +119,20 @@ final class TrueFalse extends Field {
 	}
 
 	/**
+	 * Devuelve el valor como booleano.
+	 *
+	 * Se almacena como 1 o 0, y WordPress lo entrega como cadena. Devolver
+	 * «'0'» sería una trampa: en PHP es una cadena no vacía y más de una
+	 * plantilla la trataría como verdadera.
+	 *
+	 * @param mixed $value Valor almacenado.
+	 * @return bool Verdadero o falso.
+	 */
+	public function format_value( mixed $value ): mixed {
+		return '1' === (string) $value;
+	}
+
+	/**
 	 * Sanea el valor a un entero cero o uno.
 	 *
 	 * @param mixed $raw Valor crudo enviado por el navegador.
