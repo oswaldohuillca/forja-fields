@@ -26,6 +26,8 @@ src/
     FieldRegistry.php     Catálogo tipo → clase; construye instancias de campo
     Box.php               Un grupo de campos y su destino
     BoxRegistry.php       Todos los grupos declarados; consulta por contexto
+    FieldSets.php         Listas de campos con nombre, para clonarlas
+    CloneResolver.php     Sustituye cada `clone` por los campos a los que apunta
 
   Fields/
     Field.php             Clase base: configuración, saneado, formato, reglas
@@ -181,6 +183,52 @@ un término o una página de opciones.
 
 `write_value()` **devuelve los errores** encontrados. Un compuesto que no valida
 no escribe nada, igual que un campo simple.
+
+### El `clone` se resuelve al registrar, y luego deja de existir
+
+Es el campo que más se aparta de ACF, y conviene entender por qué.
+
+En ACF el clon tiene que existir en tiempo de ejecución. Los campos viven en la
+base de datos, un grupo sólo puede referenciar a otro por su clave, y la
+sustitución ocurre en cada petición mediante filtros. De ahí sale toda la
+maquinaria del `class-acf-field-clone.php`: claves compuestas
+(`clave_del_clon_clave_del_campo`), copias de seguridad en `__key`, `__name` y
+`__label`, y un filtro que restaura la clave original al pintar para que la
+lógica condicional del navegador siga encontrando su objetivo.
+
+Aquí los campos se declaran por código, así que el clon se puede expandir **una
+sola vez, en `BoxRegistry::register()`**, sobre las definiciones en crudo y antes
+de instanciar nada. Al terminar `CloneResolver::expand()` no queda ningún campo
+de tipo `clone` en el árbol: el renderer, el guardado y la lectura no saben que
+existió. Nada de lo anterior hace falta.
+
+`CloneResolver` no conoce ninguno de los dos registros. Recibe en el constructor
+una función que traduce un identificador en definiciones, y `BoxRegistry` la
+compone para que busque primero entre los conjuntos reutilizables y después
+entre las cajas ya registradas. Por eso las definiciones expandidas de cada caja
+se conservan en `BoxRegistry::$definitions`: clonar necesita el array en crudo,
+no las instancias de `Field`, porque cada copia puede renombrarse o prefijarse
+antes de construirse.
+
+Consecuencias que conviene tener presentes:
+
+- **El orden de registro importa.** La fuente debe declararse antes que quien la
+  clona. Es el precio de resolver en el momento del registro; a cambio, un
+  identificador mal escrito falla con una excepción legible en vez de dejar la
+  caja a medias.
+- **Sin prefijo, las claves no cambian.** Un campo clonado guarda bajo su propio
+  nombre, así que un sitio con datos de ACF se puede reorganizar en conjuntos
+  reutilizables sin migrar ni un metadato.
+- **En `seamless` las condiciones se heredan.** Al desaparecer el clon, ACF
+  pierde sus reglas de visibilidad; aquí pasan a los campos que no tengan las
+  suyas. Es una divergencia deliberada.
+- **Los ciclos se cortan.** Un conjunto que se clona a sí mismo se detecta por el
+  rastro de referencias visitadas, y hay además un tope de anidamiento.
+
+En muchos casos el clon no es necesario: compartir una lista de campos entre dos
+cajas es una variable de PHP. Lo que `clone` aporta y una variable no es el
+prefijado de claves y etiquetas, el envoltorio en un `group`, y poder
+referenciar una caja ya registrada por su identificador.
 
 ### Un nonce por caja, y su ausencia significa «no toques nada»
 

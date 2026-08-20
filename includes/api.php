@@ -61,6 +61,34 @@ function forja_register_box( string $id, array $args ): \Forja\Registry\Box {
 }
 
 /**
+ * Declara un conjunto de campos reutilizable.
+ *
+ * Un conjunto no se pinta en ninguna parte: existe para que varias cajas lo
+ * incorporen con un campo de tipo `clone`. Debe declararse **antes** que las
+ * cajas que lo usan.
+ *
+ * Ejemplo:
+ *
+ *     forja_register_fields( 'seo', array(
+ *         array( 'type' => 'text', 'name' => 'titulo', 'label' => 'Título SEO' ),
+ *         array( 'type' => 'textarea', 'name' => 'descripcion', 'label' => 'Descripción' ),
+ *     ) );
+ *
+ *     forja_register_box( 'ficha', array(
+ *         'fields' => array(
+ *             array( 'type' => 'clone', 'clone' => 'seo' ),
+ *         ),
+ *     ) );
+ *
+ * @param string                           $id     Identificador único del conjunto.
+ * @param array<int, array<string, mixed>> $fields Definiciones de campo.
+ * @return void
+ */
+function forja_register_fields( string $id, array $fields ): void {
+	forja()->boxes()->sets()->register( $id, $fields );
+}
+
+/**
  * Registra un tipo de campo adicional.
  *
  * @param string $class_name Clase que extiende `\Forja\Fields\Field`.

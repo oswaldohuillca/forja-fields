@@ -33,6 +33,24 @@ final class BoxRegistry {
 	private FieldRegistry $fields;
 
 	/**
+	 * Conjuntos de campos reutilizables.
+	 *
+	 * @var FieldSets
+	 */
+	private FieldSets $sets;
+
+	/**
+	 * Definiciones ya expandidas de cada caja, indexadas por identificador.
+	 *
+	 * Se conservan además de los campos instanciados porque un `clone` puede
+	 * apuntar a una caja anterior, y clonar necesita las definiciones en crudo:
+	 * cada copia puede renombrarse o prefijarse antes de construirse.
+	 *
+	 * @var array<string, array<int, array<string, mixed>>>
+	 */
+	private array $definitions = array();
+
+	/**
 	 * Índice de campos por nombre, construido bajo demanda.
 	 *
 	 * @var array<string, Field>|null
@@ -42,10 +60,40 @@ final class BoxRegistry {
 	/**
 	 * Constructor.
 	 *
-	 * @param FieldRegistry $fields Catálogo de tipos de campo.
+	 * @param FieldRegistry  $fields Catálogo de tipos de campo.
+	 * @param FieldSets|null $sets   Conjuntos reutilizables; se crea uno vacío si no se pasa.
 	 */
-	public function __construct( FieldRegistry $fields ) {
+	public function __construct( FieldRegistry $fields, ?FieldSets $sets = null ) {
 		$this->fields = $fields;
+		$this->sets   = $sets ?? new FieldSets();
+	}
+
+	/**
+	 * Conjuntos de campos reutilizables.
+	 *
+	 * @return FieldSets Registro de conjuntos.
+	 */
+	public function sets(): FieldSets {
+		return $this->sets;
+	}
+
+	/**
+	 * Expansor de clones, con las dos fuentes que se pueden referenciar.
+	 *
+	 * Un `clone` por nombre busca primero entre los conjuntos reutilizables y
+	 * después entre las cajas ya registradas. El orden importa poco en la
+	 * práctica —los identificadores no suelen chocar— pero se documenta para que
+	 * sea predecible.
+	 *
+	 * Las definiciones de una caja se devuelven ya expandidas, así que clonar
+	 * una caja que a su vez clonaba otra no vuelve a resolver nada.
+	 *
+	 * @return CloneResolver Expansor listo para usar.
+	 */
+	private function resolver(): CloneResolver {
+		return new CloneResolver(
+			fn ( string $reference ): ?array => $this->sets->get( $reference ) ?? ( $this->definitions[ $reference ] ?? null )
+		);
 	}
 
 	/**
@@ -63,8 +111,13 @@ final class BoxRegistry {
 			);
 		}
 
-		$definitions = $args['fields'] ?? array();
+		$definitions = (array) ( $args['fields'] ?? array() );
 		unset( $args['fields'] );
+
+		// Los clones se resuelven aquí, antes de instanciar nada: a partir de
+		// esta línea el resto del paquete trabaja con una lista de campos
+		// normales y no sabe que existía un `clone`.
+		$definitions = $this->resolver()->expand( $definitions );
 
 		$fields = array();
 
@@ -74,7 +127,8 @@ final class BoxRegistry {
 
 		$box = new Box( $id, $args, $fields );
 
-		$this->boxes[ $id ] = $box;
+		$this->boxes[ $id ]       = $box;
+		$this->definitions[ $id ] = $definitions;
 
 		// El índice se reconstruye a la próxima consulta.
 		$this->field_index = null;

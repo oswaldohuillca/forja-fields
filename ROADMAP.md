@@ -83,7 +83,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] `group`
 - [x] `repeater` (tabla, añadir, quitar, reordenar y límites en servidor; sin paginación ni plegado)
 - [x] `flexible_content` (capas, orden y límites; sin renombrar ni desactivar capas)
-- [ ] `clone`
+- [x] `clone` (resuelto al registrar: conjuntos reutilizables, `seamless`, `group`, prefijos)
 
 ## Transversales
 
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 136 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 156 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -143,5 +143,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Un valor inválido no sobrescribe el guardado | Si alguien se salta el `required` del navegador o manda un adjunto que no existe, su envío se ignora y se avisa, en vez de borrar un dato bueno. |
 | Se adopta la redacción de ACF en los textos visibles | Los editores ya la conocen, y de paso el comparador puede exigir igualdad byte a byte. |
 | Pestañas y acordeones se resuelven en el servidor | ACF los monta con JavaScript reestructurando el DOM. Como aquí el renderer conoce la lista completa de campos, puede emitir la estructura final directamente y dejar al JS sólo abrir y cerrar. |
+| El `clone` se resuelve al registrar, no al pintar | En ACF el clon existe en tiempo de ejecución porque los campos viven en la base de datos y sólo se pueden referenciar por clave. Declarados por código, la sustitución se hace una vez: al terminar no queda ningún campo `clone`, y el renderer, el guardado y la lectura no saben que existió. |
+| Un `clone` sin prefijo deja las claves intactas | Es lo que permite partir un ACF existente en conjuntos reutilizables sin migrar ni un metadato: el campo se sigue leyendo por su nombre propio. |
+| En modo `seamless` los campos heredan las condiciones del clon | Al desaparecer el clon, ACF pierde sus reglas de visibilidad. Aquí pasan a los campos que no tengan las suyas, que es lo que se espera al escribir «muestra este bloque sólo si…». |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |
