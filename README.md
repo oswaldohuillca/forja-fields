@@ -201,6 +201,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `time_picker` | `return_format`, `min`, `max` | Control nativo; se guarda como `H:i:s` |
 | `date_time_picker` | `return_format`, `min`, `max` | Control nativo; se guarda como `Y-m-d H:i:s` |
 | `color_picker` | `enable_opacity`, `palette` | Selector del núcleo; hexadecimal, o `rgba()` con opacidad |
+| `wysiwyg` | `tabs`, `toolbar`, `rows`, `media_upload` | TinyMCE; funciona también dentro de repetidores |
 | `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
 | `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
@@ -373,6 +374,32 @@ tipo nativo:
 Un `number` sin rellenar devuelve `null` y no `0` a propósito: el cero es un
 valor legítimo, y confundirlos impediría distinguir «no lo tocaron» de
 «pusieron cero».
+
+### Editor enriquecido
+
+```php
+array(
+	'type'    => 'wysiwyg',
+	'name'    => 'cuerpo',
+	'label'   => 'Cuerpo',
+	'toolbar' => 'basic',   // full (por defecto) o basic
+	'tabs'    => 'all',     // all, visual o text
+)
+```
+
+Devuelve el HTML **tal como se guardó**, sin aplicar `wpautop()` ni los filtros
+de `the_content`: eso es decisión de la plantilla.
+
+```php
+echo wp_kses_post( wpautop( forja_get_field( 'cuerpo' ) ) );
+```
+
+A quien no tenga permiso de `unfiltered_html` se le filtra el contenido con
+`wp_kses_post()` al guardar, el mismo criterio que aplica WordPress al contenido
+de una entrada.
+
+Funciona **dentro de un repetidor**, incluidas las filas que se añaden sobre la
+marcha.
 
 ### Fechas y horas
 

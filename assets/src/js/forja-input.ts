@@ -15,6 +15,7 @@ import { initMedia } from './modules/media';
 import { initRepeater } from './modules/repeater';
 import { initColorPicker } from './modules/color';
 import { initConditions } from './modules/conditions';
+import { initEditors } from './modules/editor';
 import { initFlexible } from './modules/flexible';
 import { initTabs } from './modules/tabs';
 import { initAccordion } from './modules/accordion';
@@ -51,5 +52,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	forEach( '.acf-tab-wrap', initTabs );
 	forEach( '.acf-accordion', initAccordion );
 
+	initEditors();
 	initConditions();
 } );

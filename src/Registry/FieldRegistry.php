@@ -45,6 +45,7 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\Checkbox::class );
 		$this->register( \Forja\Fields\ButtonGroup::class );
 		$this->register( \Forja\Fields\TrueFalse::class );
+		$this->register( \Forja\Fields\Wysiwyg::class );
 		$this->register( \Forja\Fields\DatePicker::class );
 		$this->register( \Forja\Fields\TimePicker::class );
 		$this->register( \Forja\Fields\DateTimePicker::class );

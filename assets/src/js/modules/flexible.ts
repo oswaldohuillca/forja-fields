@@ -7,6 +7,7 @@
 
 import { initColorPicker } from './color';
 import { refreshConditions } from './conditions';
+import { prepareEditors } from './editor';
 
 const CLONE_INDEX = 'acfcloneindex';
 
@@ -139,6 +140,7 @@ function addLayout(
 	values.insertBefore( row, before );
 	renumber( field );
 	refreshConditions( row );
+	prepareEditors( row );
 
 	for ( const picker of row.querySelectorAll< HTMLElement >(
 		'.acf-color-picker'

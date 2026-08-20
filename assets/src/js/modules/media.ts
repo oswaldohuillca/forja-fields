@@ -6,37 +6,6 @@
  * presentación que se repinta al seleccionar.
  */
 
-/** Adjunto tal como lo devuelve el modal de medios. */
-interface Attachment {
-	id: number;
-	url?: string;
-	alt?: string;
-	title?: string;
-	filename?: string;
-	filesizeHumanReadable?: string;
-	icon?: string;
-	sizes?: Record< string, { url: string } >;
-}
-
-/** Superficie mínima de `wp.media` que necesitamos. */
-interface MediaFrame {
-	on( event: string, handler: () => void ): void;
-	open(): void;
-	state(): {
-		get( key: string ): { first(): { toJSON(): Attachment } | undefined };
-	};
-}
-
-declare global {
-	interface Window {
-		wp?: {
-			media?: ( ( args: Record< string, unknown > ) => MediaFrame ) & {
-				editAttachment?: ( id: number ) => void;
-			};
-		};
-	}
-}
-
 /**
  * Abre el modal de medios y devuelve el adjunto elegido.
  *
@@ -45,7 +14,7 @@ declare global {
  */
 function openPicker(
 	field: HTMLElement,
-	onPick: ( attachment: Attachment ) => void
+	onPick: ( attachment: WpAttachment ) => void
 ): void {
 	const media = window.wp?.media;
 
@@ -81,7 +50,7 @@ function openPicker(
  * @param size       Nombre del tamaño.
  * @return URL de la imagen.
  */
-function previewUrl( attachment: Attachment, size: string ): string {
+function previewUrl( attachment: WpAttachment, size: string ): string {
 	return attachment.sizes?.[ size ]?.url ?? attachment.url ?? '';
 }
 
@@ -101,7 +70,7 @@ export function initMedia( field: HTMLElement ): void {
 
 	const isImage = field.classList.contains( 'acf-image-uploader' );
 
-	const paint = ( attachment: Attachment | null ): void => {
+	const paint = ( attachment: WpAttachment | null ): void => {
 		if ( ! attachment ) {
 			input.value = '';
 			field.classList.remove( 'has-value' );

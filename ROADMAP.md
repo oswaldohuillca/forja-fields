@@ -69,7 +69,7 @@ infraestructura.
 - [~] Familia `wp.media`: `image` y `file` hechos; falta `gallery`
 - [ ] Familia `select2`: `post_object`, `page_link`, `relationship`, `taxonomy`, `user`
 - [x] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
-- [ ] `wysiwyg` (TinyMCE)
+- [x] `wysiwyg` (TinyMCE, funcional también dentro de repetidores)
 - [ ] `link`
 - [ ] `oembed`
 - [ ] `icon_picker`
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 98 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 103 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| El `wysiwyg` no usa `wp_editor()` | Esa función ata la configuración del editor al identificador del control, y dentro de un repetidor se duplicaría. Se emite un textarea pelado y el JavaScript arranca TinyMCE con `wp.editor.initialize()`, que es la API pensada para editores que aparecen después de cargar. |
 | Fechas y horas con controles nativos, no con jQuery UI | `date`, `time` y `datetime-local` no añaden dependencias, funcionan en móvil y ya vienen traducidos. El formato de almacenamiento sigue siendo el de ACF, así que se convierte en ambos sentidos. |
 | Las fechas se interpretan con `createFromFormat`, no con `strtotime` | `strtotime` acepta casi cualquier cosa: «2026-13-01» pasaría desplazándose a enero del año siguiente. |
 | Las condiciones se resuelven en el navegador, no en el servidor | Tienen que reaccionar mientras se escribe. El servidor sólo emite las reglas como JSON en `data-conditions`. |

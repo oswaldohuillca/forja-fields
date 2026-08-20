@@ -11,6 +11,7 @@
 
 import { initColorPicker } from './color';
 import { refreshConditions } from './conditions';
+import { prepareEditors } from './editor';
 
 const CLONE_INDEX = 'acfcloneindex';
 
@@ -154,6 +155,7 @@ function addRow( repeater: HTMLElement, before: HTMLTableRowElement | null ): vo
 	// La fila entra nueva al DOM: sus campos condicionales aún no se han
 	// evaluado nunca.
 	refreshConditions( row );
+	prepareEditors( row );
 
 	for ( const picker of row.querySelectorAll< HTMLElement >(
 		'.acf-color-picker'

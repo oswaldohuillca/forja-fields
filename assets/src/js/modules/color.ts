@@ -8,23 +8,6 @@
  * depende de jQuery. WordPress ya lo carga en el escritorio.
  */
 
-interface WpColorPickerOptions {
-	defaultColor?: string | false;
-	palettes?: string[] | boolean;
-	change?: ( event: unknown, ui: { color: { toString(): string } } ) => void;
-	clear?: () => void;
-}
-
-type JQueryLike = ( ( selector: HTMLElement ) => {
-	wpColorPicker?: ( options: WpColorPickerOptions ) => void;
-} ) & { fn?: Record< string, unknown > };
-
-declare global {
-	interface Window {
-		jQuery?: JQueryLike;
-	}
-}
-
 /**
  * Prepara un selector de color.
  *
@@ -49,10 +32,10 @@ export function initColorPicker( field: HTMLElement ): void {
 
 	const palette = text.dataset.palette;
 
-	const options: WpColorPickerOptions = {
+	const options: Record< string, unknown > = {
 		defaultColor: false,
 		palettes: palette ? palette.split( ',' ).map( ( c ) => c.trim() ) : true,
-		change: ( _event, ui ) => {
+		change: ( _event: unknown, ui: { color: { toString(): string } } ) => {
 			hidden.value = ui.color.toString();
 			hidden.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 		},
