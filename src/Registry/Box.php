@@ -37,23 +37,30 @@ final class Box {
 	private array $args;
 
 	/**
-	 * Campos ya instanciados.
+	 * Campos ya instanciados, o null si aún no se han construido.
 	 *
-	 * @var array<int, Field>
+	 * @var array<int, Field>|null
 	 */
-	private array $fields;
+	private ?array $fields = null;
+
+	/**
+	 * Construye los campos la primera vez que se piden.
+	 *
+	 * @var callable(): array<int, Field>
+	 */
+	private $factory;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param string               $id     Identificador único.
-	 * @param array<string, mixed> $args   Configuración de la caja.
-	 * @param array<int, Field>    $fields Campos instanciados.
+	 * @param string               $id      Identificador único.
+	 * @param array<string, mixed> $args    Configuración de la caja.
+	 * @param callable             $factory Sin argumentos; devuelve `array<int, Field>`.
 	 */
-	public function __construct( string $id, array $args, array $fields ) {
-		$this->id     = $id;
-		$this->args   = array_merge( self::defaults(), $args );
-		$this->fields = $fields;
+	public function __construct( string $id, array $args, callable $factory ) {
+		$this->id      = $id;
+		$this->args    = array_merge( self::defaults(), $args );
+		$this->factory = $factory;
 	}
 
 	/**
@@ -103,9 +110,20 @@ final class Box {
 	/**
 	 * Campos que contiene.
 	 *
+	 * Los campos no se construyen al declarar la caja, sino la primera vez que
+	 * se piden. El motivo es `clone`: un clon puede apuntar a un conjunto o a
+	 * otra caja, y exigir que la fuente estuviera declarada antes convertía el
+	 * orden del `functions.php` —que suele ser accidental— en algo que rompe.
+	 * Aplazarlo hasta el primer uso deja que todo se declare en cualquier orden,
+	 * porque para entonces el registro ya está completo.
+	 *
 	 * @return array<int, Field> Campos.
 	 */
 	public function fields(): array {
+		if ( null === $this->fields ) {
+			$this->fields = ( $this->factory )();
+		}
+
 		return $this->fields;
 	}
 

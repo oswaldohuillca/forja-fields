@@ -163,7 +163,7 @@ final class CloneResolver {
 			if ( null === $resolved ) {
 				throw new \InvalidArgumentException(
 					sprintf(
-						'Forja: el clon apunta a «%s», que no es ningún conjunto ni ninguna caja registrada. Recuerda que la fuente debe declararse antes que quien la clona.',
+						'Forja: el clon apunta a «%s», que no es ningún conjunto ni ninguna caja. Comprueba el identificador y que se declare en «forja/register_boxes»; el orden entre ambos da igual.',
 						esc_html( $source )
 					)
 				);
@@ -176,17 +176,73 @@ final class CloneResolver {
 			throw new \InvalidArgumentException( 'Forja: un campo «clone» necesita la clave «clone» con un conjunto de campos.' );
 		}
 
-		$fields = $this->walk( $source, $depth + 1, $trail );
+		$fields = $this->override( $this->walk( $source, $depth + 1, $trail ), $spec );
 
 		// En modo «group» el clon sí deja rastro: se convierte en un grupo, que
 		// ya prefija las claves de sus hijos por sí mismo. No hace falta tocar
 		// los nombres, y por eso `prefix_name` sólo aplica al modo seamless.
 		if ( 'group' === ( $spec['display'] ?? 'seamless' ) ) {
+			if ( ! empty( $spec['prefix_name'] ) ) {
+				throw new \InvalidArgumentException( 'Forja: «prefix_name» no tiene efecto con «display» a group, porque el grupo ya antepone su nombre a las claves. Quita una de las dos.' );
+			}
+
 			return array( $this->as_group( $spec, $fields ) );
 		}
 
 		return array_map(
 			fn ( array $field ): array => $this->apply( $field, $spec ),
+			$fields
+		);
+	}
+
+	/**
+	 * Aplica los ajustes que el clon declare sobre campos concretos.
+	 *
+	 * Es lo que separa a `clone` de compartir una variable de PHP, y lo que ACF
+	 * no puede ofrecer: allí los campos viven en la base de datos y una copia no
+	 * se puede retocar sin duplicar el grupo entero. Aquí basta con nombrar el
+	 * campo y las claves que cambian:
+	 *
+	 *     'overrides' => array(
+	 *         'ancho' => array( 'label' => 'Anchura', 'required' => true ),
+	 *     )
+	 *
+	 * Los nombres son los del conjunto de origen, antes de cualquier prefijo.
+	 *
+	 * @param array<int, array<string, mixed>> $fields Campos clonados.
+	 * @param array<string, mixed>             $spec   Definición del clon.
+	 * @return array<int, array<string, mixed>> Campos ajustados.
+	 * @throws \InvalidArgumentException Si un ajuste nombra un campo que el conjunto no trae.
+	 */
+	private function override( array $fields, array $spec ): array {
+		$overrides = $spec['overrides'] ?? array();
+
+		if ( ! is_array( $overrides ) || array() === $overrides ) {
+			return $fields;
+		}
+
+		$known = array_column( $fields, 'name' );
+
+		// Un nombre que no existe casi siempre es una errata, y en silencio se
+		// traduciría en «el ajuste no se aplicó» sin ninguna pista de por qué.
+		$unknown = array_diff( array_keys( $overrides ), $known );
+
+		if ( array() !== $unknown ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Forja: «overrides» nombra campos que el conjunto clonado no trae: %1$s. Disponibles: %2$s.',
+					esc_html( implode( ', ', $unknown ) ),
+					esc_html( implode( ', ', $known ) )
+				)
+			);
+		}
+
+		return array_map(
+			static function ( array $field ) use ( $overrides ): array {
+				$changes = $overrides[ $field['name'] ?? '' ] ?? null;
+
+				return is_array( $changes ) ? array_merge( $field, $changes ) : $field;
+			},
 			$fields
 		);
 	}
@@ -206,7 +262,7 @@ final class CloneResolver {
 
 		$group = $spec;
 
-		unset( $group['clone'], $group['display'], $group['prefix_name'], $group['prefix_label'] );
+		unset( $group['clone'], $group['display'], $group['prefix_name'], $group['prefix_label'], $group['overrides'] );
 
 		$group['type']       = 'group';
 		$group['sub_fields'] = $fields;

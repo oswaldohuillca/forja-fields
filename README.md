@@ -215,7 +215,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `repeater` | `sub_fields`, `min`, `max`, `button_label` | Lista de filas; compatible con los datos de ACF |
 | `group` | `sub_fields`, `layout` | Subcampos bajo un nombre común, sin repetición |
 | `flexible_content` | `layouts`, `min`, `max`, `button_label` | Filas de distinta forma, a elegir por el editor |
-| `clone` | `clone`, `display`, `prefix_name`, `prefix_label` | Incorpora un conjunto de campos declarado aparte |
+| `clone` | `clone`, `display`, `prefix_name`, `prefix_label`, `overrides` | Incorpora un conjunto de campos declarado aparte |
 
 Todos aceptan además `readonly` y `disabled`.
 
@@ -382,9 +382,10 @@ add_action( 'forja/register_boxes', function () {
 } );
 ```
 
-El conjunto tiene que declararse **antes** que la caja que lo usa. Si no, Forja
-lanza una excepción con el identificador que no encontró en lugar de dejar la
-caja a medias.
+El orden de declaración **no importa**: los campos de una caja se construyen la
+primera vez que alguien los pide, no al registrarla, así que el conjunto puede
+declararse después. Si el identificador no existe, Forja lanza una excepción
+diciendo cuál falta y en qué caja estaba.
 
 Un conjunto no se pinta en ninguna parte por sí mismo: no tiene título ni
 destino. Existe sólo para clonarse. También puedes clonar **otra caja** por su
@@ -406,7 +407,7 @@ caja, sí hacen falta claves distintas, y ahí entran las dos opciones de prefij
 | Opción | Efecto |
 |---|---|
 | `display` | `seamless` (por defecto) inserta los campos en el sitio del clon. `group` los envuelve en un campo `group`, con su etiqueta y su borde. |
-| `prefix_name` | Antepone el nombre del clon a la clave: `ficha_seo_titulo`. Sólo aplica a `seamless`; en `group` la clave ya la prefija el grupo. |
+| `prefix_name` | Antepone el nombre del clon a la clave: `ficha_seo_titulo`. Sólo vale con `seamless`: combinarlo con `group` es un error, porque el grupo ya antepone su nombre. |
 | `prefix_label` | Antepone la etiqueta del clon a la de cada campo: «SEO Título». |
 
 ```php
@@ -425,6 +426,32 @@ array(
 	'prefix_name' => true,      // movil_ancho, movil_alto
 ),
 ```
+
+#### Ajustar campos sueltos
+
+Rara vez el conjunto encaja tal cual en los dos sitios. Con `overrides` cambias
+lo que haga falta de un campo concreto, sin duplicar el conjunto:
+
+```php
+array(
+	'type'      => 'clone',
+	'clone'     => 'medidas',
+	'overrides' => array(
+		'ancho' => array( 'label' => 'Anchura útil', 'required' => true ),
+	),
+)
+```
+
+Las claves son los nombres **del conjunto de origen**, antes de cualquier
+prefijo. Nombrar un campo que el conjunto no trae es un error, y el mensaje
+lista los que sí hay: casi siempre es una errata, y en silencio se traduciría en
+un ajuste que no se aplica sin decir por qué.
+
+Funciona igual con `display => 'group'`.
+
+Esto es lo que hace que `clone` valga más que una variable de PHP, y lo que ACF
+no puede ofrecer: allí los campos viven en la base de datos y retocar una copia
+obliga a duplicar el grupo entero.
 
 #### Lo que hereda cada copia
 
@@ -451,9 +478,9 @@ $medidas = array(
 );
 ```
 
-Si eso te vale, úsalo: es más directo y no depende del orden de registro. `clone`
-aporta lo que una variable no da — los prefijos, el envoltorio en grupo, y poder
-referenciar una caja ya registrada por su identificador.
+Si eso te vale, úsalo: es más directo. `clone` aporta lo que una variable no da
+— los `overrides`, los prefijos, el envoltorio en grupo y poder referenciar una
+caja por su identificador.
 
 ### Tipos que devuelve cada campo
 

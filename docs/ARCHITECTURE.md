@@ -197,38 +197,63 @@ maquinaria del `class-acf-field-clone.php`: claves compuestas
 lógica condicional del navegador siga encontrando su objetivo.
 
 Aquí los campos se declaran por código, así que el clon se puede expandir **una
-sola vez, en `BoxRegistry::register()`**, sobre las definiciones en crudo y antes
-de instanciar nada. Al terminar `CloneResolver::expand()` no queda ningún campo
-de tipo `clone` en el árbol: el renderer, el guardado y la lectura no saben que
-existió. Nada de lo anterior hace falta.
+sola vez**, sobre las definiciones en crudo y antes de instanciar nada. Al
+terminar `CloneResolver::expand()` no queda ningún campo de tipo `clone` en el
+árbol: el renderer, el guardado y la lectura no saben que existió. Nada de lo
+anterior hace falta.
 
 `CloneResolver` no conoce ninguno de los dos registros. Recibe en el constructor
 una función que traduce un identificador en definiciones, y `BoxRegistry` la
 compone para que busque primero entre los conjuntos reutilizables y después
-entre las cajas ya registradas. Por eso las definiciones expandidas de cada caja
-se conservan en `BoxRegistry::$definitions`: clonar necesita el array en crudo,
-no las instancias de `Field`, porque cada copia puede renombrarse o prefijarse
-antes de construirse.
+entre las cajas registradas. Las definiciones de cada caja se guardan sin tocar
+en `BoxRegistry::$definitions`: clonar necesita el array en crudo, no instancias
+de `Field`, porque cada copia puede ajustarse, renombrarse o prefijarse antes de
+construirse.
 
-Consecuencias que conviene tener presentes:
+#### Por qué los campos se construyen bajo demanda
 
-- **El orden de registro importa.** La fuente debe declararse antes que quien la
-  clona. Es el precio de resolver en el momento del registro; a cambio, un
-  identificador mal escrito falla con una excepción legible en vez de dejar la
-  caja a medias.
+La primera versión expandía al registrar, dentro de `BoxRegistry::register()`.
+Funcionaba, pero imponía una regla difícil de recordar: la fuente tenía que
+declararse antes que quien la clonaba. El orden dentro de un `functions.php`
+largo es accidental, no una decisión, y esa regla convertía mover un bloque de
+sitio en un fallo fatal.
+
+Ahora `Box` guarda las definiciones y una función que las convierte en campos, y
+`Box::fields()` la ejecuta la primera vez que se la llama, cacheando el
+resultado. Para entonces `forja/register_boxes` ya terminó y el registro está
+completo, así que **el orden deja de importar**. El cambio quedó dentro de `Box`:
+los nueve puntos del paquete que consumen `Box::fields()` no se tocaron.
+
+El precio es que los errores de declaración salen a la luz al pintar la pantalla
+y no al arrancar, y que la traza apunta a quien pidió los campos en vez de a la
+línea que los declaró. Por eso `BoxRegistry::build()` captura la excepción y la
+relanza añadiendo el identificador de la caja: sin ese dato no habría por dónde
+empezar a buscar.
+
+#### Lo demás que conviene tener presente
+
 - **Sin prefijo, las claves no cambian.** Un campo clonado guarda bajo su propio
   nombre, así que un sitio con datos de ACF se puede reorganizar en conjuntos
   reutilizables sin migrar ni un metadato.
+- **`overrides` es lo que justifica el campo.** Ajustar la etiqueta o el carácter
+  obligatorio de un campo concreto sin duplicar el conjunto es justo lo que ACF
+  no puede hacer, porque allí una copia no se retoca sin duplicar el grupo. Un
+  nombre que no existe en el conjunto lanza un error con la lista de los que sí:
+  en silencio sería un ajuste que no se aplica sin decir por qué.
 - **En `seamless` las condiciones se heredan.** Al desaparecer el clon, ACF
   pierde sus reglas de visibilidad; aquí pasan a los campos que no tengan las
   suyas. Es una divergencia deliberada.
-- **Los ciclos se cortan.** Un conjunto que se clona a sí mismo se detecta por el
+- **Las combinaciones sin sentido fallan.** `prefix_name` junto a
+  `display => 'group'` no hace nada, porque el grupo ya antepone su nombre a las
+  claves. Se lanza un error en vez de ignorarlo: una opción declarada que no
+  surte efecto se paga meses después.
+- **Los ciclos se cortan.** Dos cajas que se clonan mutuamente se detectan por el
   rastro de referencias visitadas, y hay además un tope de anidamiento.
 
 En muchos casos el clon no es necesario: compartir una lista de campos entre dos
-cajas es una variable de PHP. Lo que `clone` aporta y una variable no es el
-prefijado de claves y etiquetas, el envoltorio en un `group`, y poder
-referenciar una caja ya registrada por su identificador.
+cajas es una variable de PHP. Lo que `clone` aporta y una variable no son los
+`overrides`, el prefijado de claves y etiquetas, el envoltorio en un `group` y
+poder referenciar una caja por su identificador.
 
 ### Un nonce por caja, y su ausencia significa «no toques nada»
 

@@ -325,6 +325,171 @@ it( 'exige un nombre cuando el clon se convierte en grupo', function () {
 	);
 } )->throws( InvalidArgumentException::class, 'name' );
 
+it( 'ajusta un campo concreto sin duplicar el conjunto', function () {
+	$fields = $this->resolver->expand(
+		array(
+			array(
+				'type'      => 'clone',
+				'clone'     => 'seo',
+				'overrides' => array(
+					'titulo' => array(
+						'label'    => 'Titular',
+						'required' => true,
+					),
+				),
+			),
+		)
+	);
+
+	expect( $fields[0]['label'] )->toBe( 'Titular' )
+		->and( $fields[0]['required'] )->toBeTrue()
+		->and( $fields[0]['type'] )->toBe( 'text' )
+		->and( $fields[1]['label'] )->toBe( 'Descripción' );
+} );
+
+it( 'ajusta también los campos que van dentro de un grupo', function () {
+	$fields = $this->resolver->expand(
+		array(
+			array(
+				'type'      => 'clone',
+				'name'      => 'ficha',
+				'clone'     => 'seo',
+				'display'   => 'group',
+				'overrides' => array(
+					'titulo' => array( 'label' => 'Titular' ),
+				),
+			),
+		)
+	);
+
+	expect( $fields[0]['sub_fields'][0]['label'] )->toBe( 'Titular' );
+} );
+
+it( 'aplica los ajustes antes de prefijar, usando los nombres del conjunto', function () {
+	$fields = $this->resolver->expand(
+		array(
+			array(
+				'type'         => 'clone',
+				'name'         => 'ficha',
+				'label'        => 'Ficha',
+				'clone'        => 'seo',
+				'prefix_name'  => true,
+				'prefix_label' => true,
+				'overrides'    => array(
+					'titulo' => array( 'label' => 'Titular' ),
+				),
+			),
+		)
+	);
+
+	expect( $fields[0]['name'] )->toBe( 'ficha_titulo' )
+		->and( $fields[0]['label'] )->toBe( 'Ficha Titular' );
+} );
+
+it( 'avisa cuando un ajuste nombra un campo que no existe', function () {
+	$this->resolver->expand(
+		array(
+			array(
+				'type'      => 'clone',
+				'clone'     => 'seo',
+				'overrides' => array( 'titulazo' => array( 'label' => 'X' ) ),
+			),
+		)
+	);
+} )->throws( InvalidArgumentException::class, 'titulazo' );
+
+it( 'no deja combinar prefix_name con display a group', function () {
+	$this->resolver->expand(
+		array(
+			array(
+				'type'        => 'clone',
+				'name'        => 'ficha',
+				'clone'       => 'seo',
+				'display'     => 'group',
+				'prefix_name' => true,
+			),
+		)
+	);
+} )->throws( InvalidArgumentException::class, 'prefix_name' );
+
+it( 'clona una caja que se registró después', function () {
+	$registry = new BoxRegistry( new FieldRegistry() );
+
+	// El orden es el contrario al que hacía falta antes: primero quien clona.
+	$registry->register(
+		'destino',
+		array(
+			'fields' => array( array( 'type' => 'clone', 'clone' => 'origen' ) ),
+		)
+	);
+
+	$registry->register(
+		'origen',
+		array(
+			'fields' => array( array( 'type' => 'text', 'name' => 'heredado' ) ),
+		)
+	);
+
+	$nombres = array_map(
+		static fn ( $field ): string => $field->name(),
+		$registry->get( 'destino' )->fields()
+	);
+
+	expect( $nombres )->toBe( array( 'heredado' ) );
+} );
+
+it( 'clona un conjunto declarado después de la caja', function () {
+	$registry = new BoxRegistry( new FieldRegistry() );
+
+	$registry->register(
+		'caja',
+		array(
+			'fields' => array( array( 'type' => 'clone', 'clone' => 'tardio' ) ),
+		)
+	);
+
+	$registry->sets()->register( 'tardio', array( array( 'type' => 'text', 'name' => 'tarde' ) ) );
+
+	expect( $registry->get( 'caja' )->fields()[0]->name() )->toBe( 'tarde' );
+} );
+
+it( 'corta dos cajas que se clonan mutuamente', function () {
+	$registry = new BoxRegistry( new FieldRegistry() );
+
+	$registry->register( 'a', array( 'fields' => array( array( 'type' => 'clone', 'clone' => 'b' ) ) ) );
+	$registry->register( 'b', array( 'fields' => array( array( 'type' => 'clone', 'clone' => 'a' ) ) ) );
+
+	$registry->get( 'a' )->fields();
+} )->throws( InvalidArgumentException::class, 'ciclo' );
+
+it( 'dice en qué caja estaba el clon roto', function () {
+	$registry = new BoxRegistry( new FieldRegistry() );
+
+	$registry->register(
+		'caja_con_errata',
+		array(
+			'fields' => array( array( 'type' => 'clone', 'clone' => 'no_existe' ) ),
+		)
+	);
+
+	$registry->get( 'caja_con_errata' )->fields();
+} )->throws( InvalidArgumentException::class, 'caja_con_errata' );
+
+it( 'construye los campos una sola vez', function () {
+	$registry = new BoxRegistry( new FieldRegistry() );
+
+	$registry->register(
+		'caja',
+		array(
+			'fields' => array( array( 'type' => 'text', 'name' => 'uno' ) ),
+		)
+	);
+
+	$box = $registry->get( 'caja' );
+
+	expect( $box->fields()[0] )->toBe( $box->fields()[0] );
+} );
+
 it( 'clona desde una caja registrada, y las claves quedan como si se hubieran escrito a mano', function () {
 	$registry = new BoxRegistry( new FieldRegistry() );
 

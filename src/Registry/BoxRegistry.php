@@ -40,11 +40,11 @@ final class BoxRegistry {
 	private FieldSets $sets;
 
 	/**
-	 * Definiciones ya expandidas de cada caja, indexadas por identificador.
+	 * Definiciones declaradas de cada caja, tal como llegaron.
 	 *
-	 * Se conservan además de los campos instanciados porque un `clone` puede
-	 * apuntar a una caja anterior, y clonar necesita las definiciones en crudo:
-	 * cada copia puede renombrarse o prefijarse antes de construirse.
+	 * Se guardan sin tocar porque los campos se construyen bajo demanda, y
+	 * porque un `clone` que apunte a esta caja necesita el array en crudo: cada
+	 * copia puede renombrarse, prefijarse o ajustarse antes de instanciarse.
 	 *
 	 * @var array<string, array<int, array<string, mixed>>>
 	 */
@@ -85,8 +85,9 @@ final class BoxRegistry {
 	 * práctica —los identificadores no suelen chocar— pero se documenta para que
 	 * sea predecible.
 	 *
-	 * Las definiciones de una caja se devuelven ya expandidas, así que clonar
-	 * una caja que a su vez clonaba otra no vuelve a resolver nada.
+	 * Las definiciones se devuelven en crudo, sin expandir: si la caja de origen
+	 * contenía a su vez un clon, se resuelve al vuelo. Los ciclos —dos cajas que
+	 * se clonan mutuamente— los corta el rastro de referencias del expansor.
 	 *
 	 * @return CloneResolver Expansor listo para usar.
 	 */
@@ -114,26 +115,56 @@ final class BoxRegistry {
 		$definitions = (array) ( $args['fields'] ?? array() );
 		unset( $args['fields'] );
 
-		// Los clones se resuelven aquí, antes de instanciar nada: a partir de
-		// esta línea el resto del paquete trabaja con una lista de campos
-		// normales y no sabe que existía un `clone`.
-		$definitions = $this->resolver()->expand( $definitions );
-
-		$fields = array();
-
-		foreach ( $definitions as $definition ) {
-			$fields[] = $this->fields->make( $definition );
-		}
-
-		$box = new Box( $id, $args, $fields );
-
-		$this->boxes[ $id ]       = $box;
 		$this->definitions[ $id ] = $definitions;
+
+		$box = new Box( $id, $args, fn (): array => $this->build( $id ) );
+
+		$this->boxes[ $id ] = $box;
 
 		// El índice se reconstruye a la próxima consulta.
 		$this->field_index = null;
 
 		return $box;
+	}
+
+	/**
+	 * Construye los campos de una caja, expandiendo antes sus clones.
+	 *
+	 * Se llama la primera vez que alguien pide los campos, no al registrar. Para
+	 * entonces todas las cajas y conjuntos ya están declarados, así que un clon
+	 * puede apuntar a algo que se registró después.
+	 *
+	 * @param string $id Identificador de la caja.
+	 * @return array<int, Field> Campos instanciados.
+	 * @throws \InvalidArgumentException Si la configuración de la caja es inválida.
+	 */
+	private function build( string $id ): array {
+		try {
+			$definitions = $this->resolver()->expand( $this->definitions[ $id ] ?? array() );
+
+			$fields = array();
+
+			foreach ( $definitions as $definition ) {
+				$fields[] = $this->fields->make( $definition );
+			}
+
+			return $fields;
+		} catch ( \InvalidArgumentException $error ) {
+			// El mensaje original describe el campo, pero no dice dónde estaba.
+			// Al construirse de forma diferida, la traza apunta a la pantalla que
+			// pidió los campos, no a la línea que los declaró, así que sin el
+			// identificador de la caja no hay por dónde empezar a buscar.
+			throw new \InvalidArgumentException(
+				sprintf(
+					/* translators: 1: identificador de la caja, 2: mensaje de error original. */
+					'%1$s (en la caja «%2$s»)',
+					esc_html( $error->getMessage() ),
+					esc_html( $id )
+				),
+				0,
+				$error // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Es la excepción anterior encadenada, no un mensaje que se imprima.
+			);
+		}
 	}
 
 	/**
