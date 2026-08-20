@@ -130,7 +130,7 @@ forja_the_field( 'bajada' );
 |---|---|---|
 | `title` | `''` | Título del metabox |
 | `object_type` | `'post'` | `post`, `term`, `user`, `comment` u `option` |
-| `object_subtypes` | `array()` | Post types o taxonomías; vacío significa todos |
+| `object_subtypes` | `array()` | Post types, taxonomías o roles según `object_type`; vacío significa todos |
 | `templates` | `array()` | Slugs de plantilla; usa `'default'` para la plantilla por defecto |
 | `object_ids` | `array()` | Identificadores concretos de objeto |
 | `condition` | `null` | Función que recibe el objeto y devuelve si la caja aplica |
@@ -474,6 +474,40 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Taxonomías y usuarios
+
+Los campos no viven sólo en las entradas. Cambiando `object_type` aparecen en
+otras pantallas del escritorio, con la misma declaración:
+
+```php
+// En las categorías. Se guarda en termmeta.
+forja_register_box( 'ficha_categoria', array(
+	'title'           => 'Ficha de la categoría',
+	'object_type'     => 'term',
+	'object_subtypes' => array( 'category' ),
+	'fields'          => array( /* ... */ ),
+) );
+
+// En el perfil. `object_subtypes` filtra aquí por ROL.
+forja_register_box( 'perfil_autor', array(
+	'title'           => 'Datos de autor',
+	'object_type'     => 'user',
+	'object_subtypes' => array( 'author', 'editor' ),
+	'fields'          => array( /* ... */ ),
+) );
+```
+
+Se leen indicando el tipo de objeto:
+
+```php
+forja_get_field( 'cabecera', $term_id, 'term' );
+forja_get_field( 'cargo', $user_id, 'user' );
+```
+
+Funcionan todos los tipos de campo, compuestos incluidos. En las taxonomías hay
+dos pantallas: la de alta, donde los campos van apilados, y la de edición, donde
+van como filas de la tabla del escritorio.
 
 ### Páginas de opciones
 

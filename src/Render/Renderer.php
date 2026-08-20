@@ -40,9 +40,10 @@ final class Renderer {
 	 * @param array<string, mixed> $values       Valores actuales, indexados por nombre de campo.
 	 * @param string               $input_prefix Prefijo del atributo «name» de los controles.
 	 * @param string               $instruction  Dónde colocar las instrucciones: label o field.
+	 * @param string               $element      Envoltorio de cada campo: div, tr o td.
 	 * @return void
 	 */
-	public function render_fields( array $fields, array $values, string $input_prefix, string $instruction = 'label' ): void {
+	public function render_fields( array $fields, array $values, string $input_prefix, string $instruction = 'label', string $element = 'div' ): void {
 		$layout = Layout::parse( $fields );
 		$group  = '';
 
@@ -64,7 +65,7 @@ final class Renderer {
 			$field = $node['field'];
 			$value = $values[ $field->name() ] ?? $field->default_value();
 
-			$this->render_field_wrap( $field, $value, $input_prefix, $instruction, $extra );
+			$this->render_field_wrap( $field, $value, $input_prefix, $instruction, $extra, $element );
 		}
 	}
 
@@ -76,39 +77,52 @@ final class Renderer {
 	 * @param string                $input_prefix Prefijo del atributo «name».
 	 * @param string                $instruction  Dónde colocar las instrucciones.
 	 * @param array<string, string> $extra        Atributos adicionales del envoltorio.
-	 * @param string                $element      Etiqueta del envoltorio: div o td.
+	 * @param string                $element      Envoltorio: div, tr o td.
 	 * @return void
 	 */
 	public function render_field_wrap( Field $field, mixed $value, string $input_prefix, string $instruction = 'label', array $extra = array(), string $element = 'div' ): void {
 		$wrapper = array_merge( $this->wrapper_attributes( $field ), $extra );
 
-		// Dentro de una tabla el envoltorio es una celda. Su etiqueta ya vive
-		// en la cabecera de la columna, así que aquí se omite: es lo que hace
-		// ACF y de ello depende el ancho de la columna.
-		$element  = 'td' === $element ? 'td' : 'div';
-		$in_table = 'td' === $element;
+		/*
+		 * Cada envoltorio lleva el suyo dentro, igual que en ACF:
+		 *
+		 * - `div` es lo habitual, con dos `div` dentro.
+		 * - `tr` sirve para las `form-table` del escritorio —perfil de usuario,
+		 *   edición de término— y sus hijos son celdas.
+		 * - `td` es una celda de la tabla de un repetidor. Ahí la etiqueta se
+		 *   omite: ya vive en la cabecera de la columna, y de eso depende el
+		 *   ancho.
+		 */
+		$inner = match ( $element ) {
+			'tr'    => 'td',
+			'td'    => 'div',
+			default => 'div',
+		};
+
+		$element  = in_array( $element, array( 'tr', 'td' ), true ) ? $element : 'div';
+		$labelled = 'td' !== $element;
 
 		printf( '<%s %s>', esc_attr( $element ), Html::attributes( $wrapper ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 
-		if ( ! $in_table ) {
-			echo '<div class="acf-label">';
+		if ( $labelled ) {
+			printf( '<%s class="acf-label">', esc_attr( $inner ) );
 			$this->render_label( $field );
 
 			if ( 'label' === $instruction ) {
 				$this->render_instructions( $field );
 			}
 
-			echo '</div>';
+			printf( '</%s>', esc_attr( $inner ) );
 		}
 
-		echo '<div class="acf-input">';
+		printf( '<%s class="acf-input">', esc_attr( $inner ) );
 		$field->render_input( $value, $input_prefix . '[' . $field->name() . ']' );
 
-		if ( ! $in_table && 'field' === $instruction ) {
+		if ( $labelled && 'field' === $instruction ) {
 			$this->render_instructions( $field );
 		}
 
-		echo '</div>';
+		printf( '</%s>', esc_attr( $inner ) );
 
 		printf( '</%s>', esc_attr( $element ) );
 	}

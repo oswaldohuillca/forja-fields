@@ -55,9 +55,32 @@ final class Assets {
 	 * @return void
 	 */
 	public function enqueue( string $hook_suffix ): void {
-		$screens = array( 'post.php', 'post-new.php' );
+		$screens = array(
+			// Entradas y CPTs.
+			'post.php',
+			'post-new.php',
+			// Taxonomías: listado con el formulario de alta, y edición.
+			'edit-tags.php',
+			'term.php',
+			// Perfiles.
+			'profile.php',
+			'user-edit.php',
+			'user-new.php',
+		);
 
-		if ( ! in_array( $hook_suffix, $screens, true ) ) {
+		/**
+		 * Filtra las pantallas donde se cargan los assets.
+		 *
+		 * Las páginas de opciones tienen un sufijo que depende de su slug, así
+		 * que se detectan aparte.
+		 *
+		 * @param array<int, string> $screens Sufijos de pantalla.
+		 */
+		$screens = (array) apply_filters( 'forja/asset_screens', $screens );
+
+		$is_options_page = str_contains( $hook_suffix, '_page_forja-' );
+
+		if ( ! $is_options_page && ! in_array( $hook_suffix, $screens, true ) ) {
 			return;
 		}
 

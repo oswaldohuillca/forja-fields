@@ -132,6 +132,24 @@ final class BoxRegistry {
 	}
 
 	/**
+	 * Devuelve todas las cajas de un tipo de objeto.
+	 *
+	 * A diferencia de `for_subtype()`, no mira los subtipos. Lo usan los
+	 * contextos que necesitan filtrar por su cuenta: el de usuarios, por
+	 * ejemplo, compara los subtipos contra los roles de la persona, y un
+	 * subtipo vacío no significa lo mismo que «sin filtro».
+	 *
+	 * @param string $object_type Tipo de objeto: post, term, user, comment u option.
+	 * @return array<string, Box> Cajas del tipo indicado.
+	 */
+	public function for_object_type( string $object_type ): array {
+		return array_filter(
+			$this->boxes,
+			static fn ( Box $box ): bool => $box->get( 'object_type' ) === $object_type
+		);
+	}
+
+	/**
 	 * Filtra las cajas que aplican a un tipo y subtipo de objeto.
 	 *
 	 * Deliberadamente no evalúa plantilla, identificador ni condición: eso

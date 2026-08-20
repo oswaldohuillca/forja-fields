@@ -91,8 +91,8 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
 - [ ] Modo oscuro (port de `acf-dark.scss`)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
-- [ ] Contexto de taxonomías
-- [ ] Contexto de usuarios
+- [x] Contexto de taxonomías (alta y edición de términos)
+- [x] Contexto de usuarios (perfil, con filtrado por rol)
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
@@ -128,6 +128,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Una regla que apunta a un campo inexistente nunca se cumple | Un nombre mal escrito oculta el campo y se nota, en lugar de pasar desapercibido dejándolo siempre visible. |
 | Cada tipo devuelve su tipo nativo, no la cadena de la base de datos | `number` devuelve int o float, `true_false` bool, los medios int. Un `true_false` devolviendo «'0'» es una trampa: en PHP es una cadena no vacía. |
 | Un `number` sin rellenar devuelve null, no cero | El cero es un valor legítimo; confundirlos impide distinguir «no lo tocaron» de «pusieron cero». |
+| Los contextos comparten una clase base | Leer, sanear, validar y escribir es idéntico en las cuatro pantallas; sólo cambian los hooks y dónde se pinta. Al escribir el tercero ya se repetía tres veces. |
+| En usuarios, `object_subtypes` filtra por rol | Es el subtipo natural de un usuario. Basta con que uno de sus roles encaje. |
 | Los compuestos devuelven sus errores al escribir | `Composite::write_value()` devuelve mensajes en vez de void. Un compuesto que no valida no escribe nada, igual que un campo simple. |
 | El repetidor guarda en el formato de ACF, no serializado | Una clave por subcampo y fila (`banner_0_titulo`). Permite leer lo que ya hay en un sitio existente sin migrar, y deja cada subcampo consultable con `meta_query`. |
 | Reordenar usa la API nativa de arrastrar y soltar | Evita jQuery UI, que es la única razón por la que ACF lo necesita. |

@@ -11,6 +11,8 @@ namespace Forja;
 
 use Forja\Context\OptionsContext;
 use Forja\Context\PostContext;
+use Forja\Context\TermContext;
+use Forja\Context\UserContext;
 use Forja\Registry\BoxRegistry;
 use Forja\Registry\FieldRegistry;
 use Forja\Render\Renderer;
@@ -104,9 +106,18 @@ final class Plugin {
 
 		( new Assets( $this->paths ) )->register_hooks();
 
-		( new PostContext( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
+		// Cada pantalla del escritorio donde pueden aparecer campos tiene su
+		// contexto; todos comparten la misma mecánica de leer y guardar.
+		$contexts = array(
+			PostContext::class,
+			TermContext::class,
+			UserContext::class,
+			OptionsContext::class,
+		);
 
-		( new OptionsContext( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
+		foreach ( $contexts as $context ) {
+			( new $context( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
+		}
 	}
 
 	/**
