@@ -224,11 +224,14 @@ final class PostContext {
 
 				if ( $field instanceof Composite ) {
 					if ( array_key_exists( $name, $submitted ) ) {
-						$field->write_value(
-							$submitted[ $name ],
-							static fn ( string $key ): mixed => $storage->get( $post_id, $key ),
-							static fn ( string $key, mixed $value ): bool => $storage->update( $post_id, $key, $value ),
-							static fn ( string $key ): bool => $storage->delete( $post_id, $key )
+						$errors = array_merge(
+							$errors,
+							$field->write_value(
+								$submitted[ $name ],
+								static fn ( string $key ): mixed => $storage->get( $post_id, $key ),
+								static fn ( string $key, mixed $value ): bool => $storage->update( $post_id, $key, $value ),
+								static fn ( string $key ): bool => $storage->delete( $post_id, $key )
+							)
 						);
 					}
 

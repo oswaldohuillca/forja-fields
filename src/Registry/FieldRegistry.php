@@ -47,6 +47,7 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\TrueFalse::class );
 		$this->register( \Forja\Fields\Image::class );
 		$this->register( \Forja\Fields\File::class );
+		$this->register( \Forja\Fields\Group::class );
 		$this->register( \Forja\Fields\Repeater::class );
 		$this->register( \Forja\Fields\Message::class );
 		$this->register( \Forja\Fields\Separator::class );

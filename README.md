@@ -203,6 +203,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
 | `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
 | `repeater` | `sub_fields`, `min`, `max`, `button_label` | Lista de filas; compatible con los datos de ACF |
+| `group` | `sub_fields`, `layout` | Subcampos bajo un nombre común, sin repetición |
 
 Todos aceptan además `readonly` y `disabled`.
 
@@ -275,6 +276,35 @@ banner_1_titulo   => 'Segunda'
 Es decir: un sitio que ya tenga repetidores de ACF se lee sin migrar nada. Y
 cada subcampo sigue siendo consultable con `meta_query`, cosa que se perdería
 serializando un array.
+
+### Grupo
+
+Un repetidor de una sola fila: agrupa subcampos bajo un nombre común.
+
+```php
+array(
+	'type'       => 'group',
+	'name'       => 'direccion',
+	'label'      => 'Dirección',
+	'sub_fields' => array(
+		array( 'type' => 'text',   'name' => 'calle',  'label' => 'Calle' ),
+		array( 'type' => 'number', 'name' => 'numero', 'label' => 'Número' ),
+	),
+)
+```
+
+Se almacena como `direccion_calle` y `direccion_numero`, el formato de ACF. En
+la plantilla devuelve un array indexado por nombre de subcampo:
+
+```php
+$direccion = forja_get_field( 'direccion' );
+
+echo esc_html( $direccion['calle'] );
+```
+
+`layout` acepta `block` (etiquetas arriba, por defecto) o `row` (a la
+izquierda). A diferencia del acordeón, que sólo agrupa visualmente, aquí el
+nombre del grupo forma parte de la clave.
 
 ### Validación
 

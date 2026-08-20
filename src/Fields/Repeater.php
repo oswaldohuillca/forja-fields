@@ -148,22 +148,58 @@ final class Repeater extends Field implements Composite {
 	 * @param callable $get       Función que devuelve el valor de una clave.
 	 * @param callable $set       Función que guarda el valor de una clave.
 	 * @param callable $delete    Función que borra una clave.
-	 * @return void
+	 * @return array<int, string> Mensajes de error; vacío si todo fue bien.
 	 */
-	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): void {
+	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): array {
 		$previous = (int) $get( $this->name() );
 		$rows     = is_array( $submitted ) ? $submitted : array();
 
 		// La fila plantilla que clona el JavaScript nunca se guarda.
 		unset( $rows[ self::CLONE_INDEX ] );
 
+		$rows  = array_values( array_filter( $rows, 'is_array' ) );
+		$count = count( $rows );
+		$min   = (int) $this->get( 'min', 0 );
+		$max   = (int) $this->get( 'max', 0 );
+		$label = (string) $this->get( 'label', $this->name() );
+
+		// Los límites los respeta el JavaScript, pero eso sólo vale para quien
+		// use el formulario; aquí se comprueban de verdad.
+		if ( $min > 0 && $count < $min ) {
+			return array(
+				sprintf(
+					/* translators: 1: etiqueta del campo, 2: número mínimo de filas. */
+					_n(
+						'%1$s necesita al menos %2$d fila.',
+						'%1$s necesita al menos %2$d filas.',
+						$min,
+						'forja-fields'
+					),
+					$label,
+					$min
+				),
+			);
+		}
+
+		if ( $max > 0 && $count > $max ) {
+			return array(
+				sprintf(
+					/* translators: 1: etiqueta del campo, 2: número máximo de filas. */
+					_n(
+						'%1$s admite como mucho %2$d fila.',
+						'%1$s admite como mucho %2$d filas.',
+						$max,
+						'forja-fields'
+					),
+					$label,
+					$max
+				),
+			);
+		}
+
 		$index = 0;
 
 		foreach ( $rows as $row ) {
-			if ( ! is_array( $row ) ) {
-				continue;
-			}
-
 			foreach ( $this->sub_fields as $sub_field ) {
 				$name = $sub_field->name();
 
@@ -186,6 +222,8 @@ final class Repeater extends Field implements Composite {
 		}
 
 		$set( $this->name(), $index );
+
+		return array();
 	}
 
 	/**

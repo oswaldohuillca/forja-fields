@@ -35,11 +35,14 @@ interface Composite {
 	/**
 	 * Escribe el valor completo del campo.
 	 *
+	 * Devuelve los errores encontrados. Un campo que no valide no debe escribir
+	 * nada: se conserva lo que hubiera, igual que con los campos simples.
+	 *
 	 * @param mixed    $submitted Valor crudo enviado por el navegador.
 	 * @param callable $get       Devuelve el valor de una clave.
 	 * @param callable $set       Guarda el valor de una clave.
 	 * @param callable $delete    Borra una clave.
-	 * @return void
+	 * @return array<int, string> Mensajes de error; vacío si todo fue bien.
 	 */
-	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): void;
+	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): array;
 }

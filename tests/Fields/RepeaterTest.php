@@ -165,3 +165,57 @@ it( 'no almacena su valor con la clave a secas', function () {
 	// Ocupa muchas claves, así que la capa genérica no debe tocarlo.
 	expect( $this->field->stores_value() )->toBeFalse();
 } );
+
+describe( 'límites de filas', function () {
+	beforeEach( function () {
+		$this->limitado = forja_test_field(
+			array(
+				'type'       => 'repeater',
+				'name'       => 'banner',
+				'label'      => 'Banner',
+				'min'        => 2,
+				'max'        => 3,
+				'sub_fields' => array( array( 'type' => 'text', 'name' => 'titulo' ) ),
+			)
+		);
+	} );
+
+	it( 'rechaza menos filas de las exigidas', function () {
+		$errors = $this->limitado->write_value(
+			array( array( 'titulo' => 'Sola' ) ),
+			$this->get,
+			$this->set,
+			$this->delete
+		);
+
+		// El JavaScript ya impide bajar del mínimo, pero eso sólo vale para
+		// quien use el formulario.
+		expect( $errors )->toHaveCount( 1 )
+			->and( $errors[0] )->toContain( 'Banner' )
+			->and( $this->store )->toBe( array() );
+	} );
+
+	it( 'rechaza más filas de las permitidas', function () {
+		$errors = $this->limitado->write_value(
+			array_fill( 0, 4, array( 'titulo' => 'Fila' ) ),
+			$this->get,
+			$this->set,
+			$this->delete
+		);
+
+		expect( $errors )->toHaveCount( 1 )
+			->and( $this->store )->toBe( array() );
+	} );
+
+	it( 'acepta un número de filas dentro de los límites', function () {
+		$errors = $this->limitado->write_value(
+			array( array( 'titulo' => 'Una' ), array( 'titulo' => 'Dos' ) ),
+			$this->get,
+			$this->set,
+			$this->delete
+		);
+
+		expect( $errors )->toBe( array() )
+			->and( $this->store['banner'] )->toBe( 2 );
+	} );
+} );
