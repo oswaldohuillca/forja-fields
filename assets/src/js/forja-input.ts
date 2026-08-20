@@ -13,6 +13,7 @@ import { syncSwitch } from './modules/switch';
 import { trackSelected } from './modules/choices';
 import { initMedia } from './modules/media';
 import { initRepeater } from './modules/repeater';
+import { initColorPicker } from './modules/color';
 import { initConditions } from './modules/conditions';
 import { initFlexible } from './modules/flexible';
 import { initTabs } from './modules/tabs';
@@ -44,6 +45,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		trackSelected
 	);
 	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
+	forEach( '.acf-color-picker', initColorPicker );
 	forEach( '.acf-repeater', initRepeater );
 	forEach( '.acf-flexible-content', initFlexible );
 	forEach( '.acf-tab-wrap', initTabs );

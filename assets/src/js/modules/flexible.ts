@@ -5,6 +5,7 @@
  * una plantilla por capa: al añadir hay que elegir cuál.
  */
 
+import { initColorPicker } from './color';
 import { refreshConditions } from './conditions';
 
 const CLONE_INDEX = 'acfcloneindex';
@@ -138,6 +139,12 @@ function addLayout(
 	values.insertBefore( row, before );
 	renumber( field );
 	refreshConditions( row );
+
+	for ( const picker of row.querySelectorAll< HTMLElement >(
+		'.acf-color-picker'
+	) ) {
+		initColorPicker( picker );
+	}
 }
 
 /**

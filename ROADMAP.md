@@ -68,7 +68,7 @@ infraestructura.
 
 - [~] Familia `wp.media`: `image` y `file` hechos; falta `gallery`
 - [ ] Familia `select2`: `post_object`, `page_link`, `relationship`, `taxonomy`, `user`
-- [ ] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
+- [x] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
 - [ ] `wysiwyg` (TinyMCE)
 - [ ] `link`
 - [ ] `oembed`
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 85 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 98 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Fechas y horas con controles nativos, no con jQuery UI | `date`, `time` y `datetime-local` no añaden dependencias, funcionan en móvil y ya vienen traducidos. El formato de almacenamiento sigue siendo el de ACF, así que se convierte en ambos sentidos. |
+| Las fechas se interpretan con `createFromFormat`, no con `strtotime` | `strtotime` acepta casi cualquier cosa: «2026-13-01» pasaría desplazándose a enero del año siguiente. |
 | Las condiciones se resuelven en el navegador, no en el servidor | Tienen que reaccionar mientras se escribe. El servidor sólo emite las reglas como JSON en `data-conditions`. |
 | Una regla que apunta a un campo inexistente nunca se cumple | Un nombre mal escrito oculta el campo y se nota, en lugar de pasar desapercibido dejándolo siempre visible. |
 | Cada tipo devuelve su tipo nativo, no la cadena de la base de datos | `number` devuelve int o float, `true_false` bool, los medios int. Un `true_false` devolviendo «'0'» es una trampa: en PHP es una cadena no vacía. |
