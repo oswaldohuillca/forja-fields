@@ -2,6 +2,11 @@
 <ruleset name="Forja">
 	<description>Estándares de código de WordPress aplicados a Forja.</description>
 
+	<!--
+		Sólo el código que se ejecuta dentro de WordPress. `tools/` queda fuera
+		a propósito: son scripts de línea de comandos, y los sniffs de escapado
+		de salida y de WP_Filesystem no tienen sentido ahí.
+	-->
 	<file>src</file>
 	<file>includes</file>
 	<file>bootstrap.php</file>

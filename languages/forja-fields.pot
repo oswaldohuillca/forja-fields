@@ -1,0 +1,164 @@
+# Plantilla de traducción de Forja.
+# Generada con tools/make-pot.php; no la edites a mano.
+#
+# Ojo: los msgid están en español, no en inglés. El paquete se escribe en
+# español y sus textos visibles reproducen los de ACF para que el markup sea
+# idéntico. Traducir es, por tanto, español → idioma destino.
+msgid ""
+msgstr ""
+"Project-Id-Version: Forja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: forja-fields\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. translators: 1: etiqueta del campo, 2: número máximo de filas.
+#: src/Fields/FlexibleContent.php:277 src/Fields/Repeater.php:188
+msgid "%1$s admite como mucho %2$d fila."
+msgid_plural "%1$s admite como mucho %2$d filas."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: etiqueta del campo, 2: número máximo de imágenes.
+#: src/Fields/Gallery.php:124
+msgid "%1$s admite como mucho %2$d imagen."
+msgid_plural "%1$s admite como mucho %2$d imágenes."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: etiqueta del campo, 2: número mínimo de filas.
+#: src/Fields/FlexibleContent.php:263 src/Fields/Repeater.php:172
+msgid "%1$s necesita al menos %2$d fila."
+msgid_plural "%1$s necesita al menos %2$d filas."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: etiqueta del campo, 2: número mínimo de imágenes.
+#: src/Fields/Gallery.php:110
+msgid "%1$s necesita al menos %2$d imagen."
+msgid_plural "%1$s necesita al menos %2$d imágenes."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: etiqueta del campo.
+#: src/Validation/Validator.php:39
+msgid "%s es obligatorio."
+msgstr ""
+
+#: src/Fields/Select.php:95
+msgid "- Selecciona -"
+msgstr ""
+
+#: src/Context/OptionsContext.php:98
+msgid "Ajustes guardados."
+msgstr ""
+
+#: src/Fields/File.php:61
+msgid "Archivo seleccionado. Pulsa tabulador para acceder a sus opciones."
+msgstr ""
+
+#: src/Fields/FlexibleContent.php:446 src/Fields/Repeater.php:394
+msgid "Arrastra para reordenar"
+msgstr ""
+
+#: src/Fields/FlexibleContent.php:456
+msgid "Añadir"
+msgstr ""
+
+#: src/Fields/Gallery.php:200
+msgid "Añadir a la galería"
+msgstr ""
+
+#: src/Fields/File.php:90
+msgid "Añadir archivo"
+msgstr ""
+
+#: src/Fields/FlexibleContent.php:354 src/Fields/Repeater.php:317 src/Fields/Repeater.php:417
+msgid "Añadir fila"
+msgstr ""
+
+#: src/Fields/Image.php:144
+msgid "Añadir imagen"
+msgstr ""
+
+#: src/Fields/IconPicker.php:137
+msgid "Buscar un icono"
+msgstr ""
+
+#: src/Fields/IconPicker.php:136
+msgid "Buscar un icono…"
+msgstr ""
+
+#: src/Fields/Link.php:132 src/Fields/MediaField.php:80
+msgid "Editar"
+msgstr ""
+
+#: src/Context/OptionsContext.php:119
+msgid "Guardar ajustes"
+msgstr ""
+
+#: src/Fields/Image.php:127
+msgid "Imagen seleccionada. Pulsa tabulador para acceder a sus opciones."
+msgstr ""
+
+#: src/Context/OptionsContext.php:140
+msgid "La comprobación de seguridad falló. Vuelve a intentarlo."
+msgstr ""
+
+#: src/Fields/File.php:89
+msgid "Ningún archivo seleccionado"
+msgstr ""
+
+#: src/Fields/TrueFalse.php:107
+msgid "No"
+msgstr ""
+
+#: src/Fields/Image.php:143
+msgid "No hay ninguna imagen seleccionada"
+msgstr ""
+
+#: src/Fields/Oembed.php:100
+msgid "No se pudo incrustar esta dirección."
+msgstr ""
+
+#: src/Fields/File.php:76
+msgid "Nombre del archivo"
+msgstr ""
+
+#: src/Fields/Oembed.php:83
+msgid "Pega la dirección del contenido a incrustar"
+msgstr ""
+
+#. translators: %s: etiqueta del botón para añadir.
+#: src/Fields/FlexibleContent.php:371
+msgid "Pulsa «%s» para empezar a construir el contenido."
+msgstr ""
+
+#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109
+msgid "Quitar"
+msgstr ""
+
+#: src/Fields/Repeater.php:418
+msgid "Quitar fila"
+msgstr ""
+
+#: src/Fields/Link.php:131
+msgid "Se abre en una pestaña nueva"
+msgstr ""
+
+#: src/Fields/Link.php:118
+msgid "Seleccionar enlace"
+msgstr ""
+
+#: src/Fields/TrueFalse.php:106
+msgid "Sí"
+msgstr ""
+
+#: src/Fields/File.php:79
+msgid "Tamaño del archivo"
+msgstr ""
+
+#: src/Context/PostContext.php:192
+msgid "no se guardaron algunos campos."
+msgstr ""

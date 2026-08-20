@@ -46,6 +46,7 @@ Antes de dar por cerrado un bloque de trabajo:
 bun run typecheck
 bun run build
 composer lint                                   # PHPCS con WordPress-Extra
+composer make-pot                               # plantilla de traducción
 docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
     php vendor/bin/pest                         # suite de integración
 

@@ -871,6 +871,34 @@ docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
 Si tu WordPress no está en `/var/www/html`, indícalo con la variable de entorno
 `FORJA_WP_LOAD`.
 
+Cubren desde el saneado de cada tipo hasta el ciclo de guardado completo —envío,
+nonce, permisos, validación y escritura— en entradas, términos y usuarios. Ese
+último bloque es el que comprueba las garantías que ninguna pieza suelta puede
+demostrar por sí misma: que un envío sin nonce no borra nada, que un valor
+inválido conserva el anterior, y que un repetidor más corto limpia las filas que
+sobran.
+
+### Traducciones
+
+Las cadenas usan el dominio `forja-fields`. La plantilla se regenera con:
+
+```bash
+docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
+    composer make-pot
+```
+
+Escribe `languages/forja-fields.pot` y **sale con error** si encuentra una
+cadena con otro dominio o construida dinámicamente: en ambos casos esa cadena no
+se traduciría nunca. Un test lo ejecuta en cada pasada, así que la plantilla no
+se queda atrás sin que nadie lo note.
+
+Una advertencia: los `msgid` están **en español**, no en inglés. Los textos
+visibles reproducen los de ACF para que el markup sea idéntico, y el WordPress
+de referencia está en español. Traducir es, por tanto, español → idioma destino.
+Es válido en gettext, aunque no sea la convención de wordpress.org.
+
+Para traducir, coloca el `.mo` en `languages/forja-fields-{locale}.mo`.
+
 ### Comprobar la paridad con ACF
 
 Con Secure Custom Fields presente en la instalación, esta herramienta pinta los

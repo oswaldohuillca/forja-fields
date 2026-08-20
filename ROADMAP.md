@@ -89,14 +89,13 @@ de los editores, así que tiene prioridad dentro de esta capa.
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
-- [ ] Modo oscuro (port de `acf-dark.scss`)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
 - [x] Contexto de taxonomías (alta y edición de términos)
 - [x] Contexto de usuarios (perfil, con filtrado por rol)
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
-- [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 166 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [x] Internacionalización: dominio `forja-fields` verificado y `languages/forja-fields.pot` generado con `composer make-pot`
+- [x] Tests con Pest: 187 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
 
 ---
 
@@ -149,5 +148,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | El `clone` se expande una vez y desaparece | En ACF el clon existe en tiempo de ejecución porque los campos viven en la base de datos y sólo se pueden referenciar por clave. Declarados por código, la sustitución se hace una vez: al terminar no queda ningún campo `clone`, y el renderer, el guardado y la lectura no saben que existió. |
 | Un `clone` sin prefijo deja las claves intactas | Es lo que permite partir un ACF existente en conjuntos reutilizables sin migrar ni un metadato: el campo se sigue leyendo por su nombre propio. |
 | En modo `seamless` los campos heredan las condiciones del clon | Al desaparecer el clon, ACF pierde sus reglas de visibilidad. Aquí pasan a los campos que no tengan las suyas, que es lo que se espera al escribir «muestra este bloque sólo si…». |
+| Los `msgid` están en español, no en inglés | Los textos visibles reproducen los de ACF para que el markup sea idéntico, y el WordPress de referencia está en español. Gettext admite cualquier idioma de origen y el paquete no va al directorio de wordpress.org, así que traducir es español → destino. Pasarlos a inglés sería tocar 45 llamadas y arriesgar el comparador. |
+| El `.pot` se genera con una herramienta del repo | El contenedor no trae wp-cli ni gettext, y añadir cualquiera de los dos por un archivo que se regenera de tarde en tarde no compensa. `tools/make-pot.php` usa el tokenizador de PHP, que es el enfoque de wp-cli, sobre una superficie de una decena de funciones. |
+| No hay modo oscuro | WordPress no tiene. El `acf-dark.scss` de ACF vive en `third-party.php` y se engancha a `doing_dark_mode`, un hook del plugin Dark Mode de un tercero, descontinuado y nunca integrado en el núcleo. Los esquemas de color del núcleo (Medianoche, Ectoplasma) oscurecen el menú, no el área de contenido donde están los campos. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |

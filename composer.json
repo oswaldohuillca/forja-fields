@@ -43,6 +43,7 @@
     "scripts": {
         "lint": "phpcs",
         "lint:fix": "phpcbf",
-        "test": "pest"
+        "test": "pest",
+        "make-pot": "php tools/make-pot.php"
     }
 }
