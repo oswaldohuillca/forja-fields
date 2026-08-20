@@ -139,6 +139,19 @@ final class IconPicker extends Field {
 
 		echo '<div class="acf-icon-picker-results" role="listbox"></div>';
 
+		/*
+		 * El paginador lo rellena el JavaScript, pero sus textos vienen de aquí:
+		 * ninguna cadena visible vive en el TypeScript, para que todas las
+		 * traducciones estén en un solo sitio y `tools/make-pot.php` las vea.
+		 */
+		printf(
+			'<div class="acf-icon-picker-pager" data-page-label="%s" data-prev-label="%s" data-next-label="%s"></div>',
+			/* translators: %d: número de página. */
+			esc_attr__( 'Página %d', 'forja-fields' ),
+			esc_attr__( 'Página anterior', 'forja-fields' ),
+			esc_attr__( 'Página siguiente', 'forja-fields' )
+		);
+
 		echo '</div>';
 	}
 

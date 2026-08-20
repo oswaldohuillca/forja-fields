@@ -75,6 +75,52 @@
 		}
 	}
 
+	& .acf-icon-picker-pager {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 2px;
+		margin-top: 8px;
+
+		/* Con una sola página el paginador no se pinta. */
+		&:empty {
+			display: none;
+		}
+	}
+
+	& .acf-icon-picker-page {
+		min-width: 26px;
+		padding: 3px 6px;
+		border: 1px solid transparent;
+		border-radius: var(--forja-radius-sm);
+		background: none;
+		color: var(--forja-color-primary);
+		font-size: 12px;
+		line-height: 1.4;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--forja-color-primary);
+			background: var(--forja-blue-50);
+			outline: none;
+		}
+
+		/* La página actual no es un destino: se muestra como texto. */
+		&.-current {
+			color: var(--forja-gray-700);
+			font-weight: 600;
+			cursor: default;
+		}
+	}
+
+	& .acf-icon-picker-gap {
+		padding: 0 2px;
+		color: var(--forja-gray-400);
+		font-size: 12px;
+	}
+
 	&.-loading .acf-icon-picker-results {
 		opacity: 0.5;
 	}

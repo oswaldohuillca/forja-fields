@@ -135,6 +135,19 @@ msgstr ""
 msgid "Pulsa «%s» para empezar a construir el contenido."
 msgstr ""
 
+#. translators: %d: número de página.
+#: src/Fields/IconPicker.php:150
+msgid "Página %d"
+msgstr ""
+
+#: src/Fields/IconPicker.php:151
+msgid "Página anterior"
+msgstr ""
+
+#: src/Fields/IconPicker.php:152
+msgid "Página siguiente"
+msgstr ""
+
 #: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109
 msgid "Quitar"
 msgstr ""

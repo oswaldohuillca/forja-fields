@@ -617,6 +617,12 @@ Busca sobre [Iconify](https://iconify.design), que reúne más de 200.000 iconos
 navegador, igual que hace [icones.js.org](https://icones.js.org). Sin proceso de
 build ni endpoint propio.
 
+Se piden los 999 resultados que admite la API como máximo y se muestran
+paginados de 96 en 96, igual que hace el propio buscador de Iconify. El límite
+importa más de lo que parece: **pidiendo pocos, la API reparte un icono por
+colección** en vez de devolver los mejores, y una búsqueda como «home» acababa
+mostrando `reicon:home2` o `selfhst:homer` en lugar de `material-symbols:home`.
+
 En la plantilla, el icono se incrusta como SVG en línea:
 
 ```php

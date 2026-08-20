@@ -88,7 +88,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 ## Transversales
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
-- [x] Tests de navegador con Playwright: 7 casos sobre el arranque de los campos en filas añadidas desde el navegador
+- [x] Tests de navegador con Playwright: 10 casos sobre el arranque de campos en filas nuevas y el buscador de iconos
 - [ ] Ampliar los tests de navegador: arrastrar y soltar, contenido flexible, condicionales en vivo, selector de iconos
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
@@ -157,5 +157,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | La inicialización de los campos vive en un solo sitio | Había dos listas: dieciséis comportamientos al cargar la página y tres en las filas que se añaden después. Un `image` dentro de un repetidor funcionaba en la primera fila y no en las siguientes. `modules/fields.ts` la centraliza; duplicarla vuelve a abrir la misma clase de fallo. |
 | Los tests de navegador prueban sobre una taxonomía | El editor de bloques mete los metaboxes en un cajón plegable cuyo control cambia de nombre y estructura entre versiones. La pantalla de términos es clásica, y el código que se prueba es el mismo. |
 | Un test de comportamiento tiene que fallar sin el arreglo | El del interruptor pasaba en ambos casos: la casilla la conmuta el `label` por sí sola. Se comprueba la clase `-on`, que es lo que aporta el JavaScript. Un test que no puede fallar por el motivo que dice no es una red. |
+| El buscador de iconos pide el máximo de resultados y pagina | Con un límite bajo la API de Iconify **reparte** un icono por colección en vez de devolver los mejores: `limit=60` para «home» daba `reicon:home2`, `arcticons:homee`, `selfhst:homer`… Con `limit=999` —su tope, el mismo con el que trabaja icon-sets.iconify.design— devuelve la lista bien ordenada. Se pagina de 96 en 96 para no meter mil nodos por campo. |
+| Una búsqueda nueva cancela la anterior | El antirrebote no impide que dos consultas estén en vuelo, y ganaba la que contestara la última, no la más reciente. Se aborta la anterior y se descarta cualquier respuesta que no sea la de la última búsqueda pedida. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |
