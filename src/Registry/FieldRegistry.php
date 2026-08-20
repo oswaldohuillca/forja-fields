@@ -45,6 +45,8 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\Checkbox::class );
 		$this->register( \Forja\Fields\ButtonGroup::class );
 		$this->register( \Forja\Fields\TrueFalse::class );
+		$this->register( \Forja\Fields\Image::class );
+		$this->register( \Forja\Fields\File::class );
 		$this->register( \Forja\Fields\Message::class );
 		$this->register( \Forja\Fields\Separator::class );
 		$this->register( \Forja\Fields\Tab::class );

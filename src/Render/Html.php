@@ -23,14 +23,22 @@ final class Html {
 	 * `value=""` o un `placeholder=""` sobrante no cambia nada visualmente,
 	 * pero ensucia el markup y rompe la comparación con el original.
 	 *
+	 * Algunos atributos son ganchos que el JavaScript lee siempre y deben
+	 * emitirse aunque estén vacíos; para esos está `$keep_empty`.
+	 *
 	 * @param array<string, string|int|bool|null> $attributes Pares atributo => valor.
+	 * @param array<int, string>                  $keep_empty Claves que se emiten aunque vayan vacías.
 	 * @return string Atributos listos para interpolar en una etiqueta.
 	 */
-	public static function attributes( array $attributes ): string {
+	public static function attributes( array $attributes, array $keep_empty = array() ): string {
 		$parts = array();
 
 		foreach ( $attributes as $name => $value ) {
-			if ( false === $value || null === $value || '' === (string) $value ) {
+			if ( false === $value || null === $value ) {
+				continue;
+			}
+
+			if ( '' === (string) $value && ! in_array( $name, $keep_empty, true ) ) {
 				continue;
 			}
 

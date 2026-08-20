@@ -43,6 +43,13 @@ add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 
 do_action( 'init' );
 
+/*
+ * Sin un usuario con permiso para subir archivos, ACF degrada los campos de
+ * medios a un `<input type="file">` básico. Aquí interesa comparar contra el
+ * modal de medios, que es lo que ve un editor de verdad.
+ */
+wp_set_current_user( 1 );
+
 /**
  * Sustituye los identificadores propios de cada implementación.
  *
@@ -79,6 +86,19 @@ function forja_normalize( string $html, string $name, string $id ): string {
 
 		// ACF deja `class=""` cuando no hay clases; Forja omite los vacíos.
 		'/ class=""/' => '',
+
+		/*
+		 * Texto visible: Forja traduce sus cadenas y ACF las suyas. Son
+		 * diferencias de idioma, no de estructura.
+		 */
+		'/ (title|aria-label)="[^"]*"/' => '',
+
+		/*
+		 * Forja añade `rel="noopener"` a los enlaces que abren pestaña nueva.
+		 * Es una mejora deliberada sobre el original, no una desviación que
+		 * haya que corregir.
+		 */
+		'/ rel="noopener"/' => '',
 
 		// Espaciado: ACF mete saltos de línea entre etiquetas, Forja no.
 		'/>\s+</'  => '><',
@@ -147,6 +167,14 @@ $cases = array(
 	'true_false (ui)' => array(
 		'forja' => array( 'type' => 'true_false', 'name' => 'campo', 'label' => 'Etiqueta', 'ui' => true, 'ui_on_text' => 'Sí', 'ui_off_text' => 'No' ),
 		'acf'   => array( 'type' => 'true_false', 'ui' => 1, 'ui_on_text' => 'Sí', 'ui_off_text' => 'No' ),
+	),
+	'image'        => array(
+		'forja' => array( 'type' => 'image', 'name' => 'campo', 'label' => 'Etiqueta' ),
+		'acf'   => array( 'type' => 'image' ),
+	),
+	'file'         => array(
+		'forja' => array( 'type' => 'file', 'name' => 'campo', 'label' => 'Etiqueta' ),
+		'acf'   => array( 'type' => 'file' ),
 	),
 	'separator'    => array(
 		'forja' => array( 'type' => 'separator', 'name' => 'campo', 'label' => 'Etiqueta' ),

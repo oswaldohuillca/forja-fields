@@ -20,6 +20,7 @@
 @import "./fields/text.css";
 @import "./fields/url.css";
 @import "./fields/range.css";
+@import "./fields/media.css";
 @import "./fields/choice.css";
 @import "./fields/button-group.css";
 @import "./fields/true-false.css";

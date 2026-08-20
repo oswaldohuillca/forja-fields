@@ -1,0 +1,273 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Imagen y archivo
+ *--------------------------------------------------------------------------*/
+
+/*
+ * El contenedor alterna entre dos vistas según tenga valor o no. No hay
+ * JavaScript decidiendo qué mostrar: se conmuta con la clase `has-value`.
+ */
+.show-if-value {
+	display: none;
+}
+
+.hide-if-value {
+	display: block;
+}
+
+.has-value .show-if-value {
+	display: block;
+}
+
+.has-value .hide-if-value {
+	display: none;
+}
+
+/* Botonera flotante de editar y quitar. */
+.acf-actions {
+	text-align: right;
+	z-index: 1;
+
+	&.-hover {
+		position: absolute;
+		display: none;
+		top: 0;
+		right: 0;
+		padding: 5px;
+		z-index: 1050;
+	}
+
+	html[dir="rtl"] &.-hover {
+		right: auto;
+		left: 0;
+	}
+}
+
+/*
+ * Los iconos usan la fuente Dashicons, que el admin de WordPress ya carga.
+ * Es el mismo mecanismo que ACF emplea fuera de sus propias pantallas.
+ */
+.acf-icon {
+	display: inline-block;
+	height: 28px;
+	width: 28px;
+	border: 1px solid transparent;
+	border-radius: 100%;
+	font-size: 20px;
+	line-height: 21px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: top;
+	box-sizing: border-box;
+
+	&::before {
+		font-family: dashicons, sans-serif;
+		display: inline-block;
+		line-height: 1;
+		font-weight: 400;
+		font-style: normal;
+		text-decoration: inherit;
+		text-transform: none;
+		text-rendering: auto;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	&.-pencil::before {
+		content: "\f464";
+	}
+
+	&.-cancel::before {
+		content: "\f335";
+		margin: -1px 0 0 -1px;
+	}
+
+	&.dark {
+		border-color: transparent !important;
+		background: #23282d;
+		color: #eee;
+	}
+}
+
+a.acf-icon.dark {
+	&:hover {
+		background: #191e23;
+		color: #00b9eb;
+	}
+
+	&.-cancel:hover {
+		color: #d54e21;
+	}
+}
+
+/*----------------------------------------------------------------------------
+ *  Imagen
+ *--------------------------------------------------------------------------*/
+
+.acf-image-uploader {
+	position: relative;
+
+	&::after {
+		display: block;
+		clear: both;
+		content: "";
+	}
+
+	& p {
+		margin: 0;
+	}
+
+	& .image-wrap {
+		position: relative;
+		float: left;
+
+		&.show-if-value {
+			& .acf-actions {
+				display: block;
+				opacity: 0;
+				text-align: right;
+				z-index: 1;
+
+				&.-hover a:focus {
+					outline: 2px solid #0073aa;
+					outline-offset: 2px;
+					border-radius: 2px;
+				}
+			}
+
+			&:hover .acf-actions,
+			&:focus-within .acf-actions {
+				opacity: 1;
+			}
+		}
+
+		&:focus {
+			outline: 2px solid #0073aa;
+			outline-offset: 2px;
+		}
+
+		& img {
+			max-width: 100%;
+			max-height: 100%;
+			width: auto;
+			height: auto;
+			display: block;
+			min-width: 30px;
+			min-height: 30px;
+			background: #f1f1f1;
+			margin: 0;
+			padding: 0;
+
+			&[src$=".svg"] {
+				min-height: 100px;
+				min-width: 100px;
+			}
+		}
+	}
+
+	& input.button {
+		width: auto;
+	}
+
+	html[dir="rtl"] & .image-wrap {
+		float: right;
+	}
+}
+
+/*----------------------------------------------------------------------------
+ *  Archivo
+ *--------------------------------------------------------------------------*/
+
+.acf-file-uploader {
+	position: relative;
+
+	& p {
+		margin: 0;
+	}
+
+	& .file-wrap {
+		border: 1px solid var(--forja-wp-card-border);
+		min-height: 84px;
+		position: relative;
+		background: #fff;
+
+		&:focus {
+			outline: 2px solid #0073aa;
+			outline-offset: 2px;
+		}
+	}
+
+	& .file-icon {
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		padding: 10px;
+		background: #f1f1f1;
+		border-right: 1px solid var(--forja-wp-card-border-1);
+
+		& img {
+			display: block;
+			padding: 0;
+			margin: 0;
+			max-width: 48px;
+		}
+	}
+
+	& .file-info {
+		padding: 10px;
+		margin-left: 69px;
+
+		& p {
+			margin: 0 0 2px;
+			font-size: 13px;
+			line-height: 1.4em;
+			word-break: break-all;
+		}
+
+		& a {
+			text-decoration: none;
+		}
+	}
+
+	&.has-value {
+		& .acf-actions {
+			display: block;
+			opacity: 0;
+			text-align: right;
+			z-index: 1;
+
+			&.-hover a:focus {
+				outline: 2px solid #0073aa;
+				outline-offset: 2px;
+				border-radius: 2px;
+			}
+		}
+
+		&:hover .acf-actions,
+		&:focus-within .acf-actions {
+			opacity: 1;
+		}
+	}
+
+	&:hover .acf-actions {
+		display: block;
+	}
+
+	html[dir="rtl"] & {
+		& .file-icon {
+			left: auto;
+			right: 0;
+			border-left: 1px solid #e5e5e5;
+			border-right: none;
+		}
+
+		& .file-info {
+			margin-right: 69px;
+			margin-left: 0;
+		}
+	}
+}

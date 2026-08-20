@@ -47,6 +47,10 @@ final class Assets {
 	/**
 	 * Encola los assets en las pantallas donde puede haber campos.
 	 *
+	 * Forja sólo encola si encuentra su propio build. Cuando el tema importa
+	 * los fuentes en su bundle —que es el modo recomendado— no hay build en el
+	 * paquete y aquí no se hace nada, así que no se duplica el CSS.
+	 *
 	 * @param string $hook_suffix Pantalla actual de administración.
 	 * @return void
 	 */
@@ -57,45 +61,28 @@ final class Assets {
 			return;
 		}
 
+		/**
+		 * Permite desactivar el encolado propio de Forja.
+		 *
+		 * Devuelve false desde el tema si compilas los fuentes de Forja dentro
+		 * de tu propio bundle. Sirve para desactivarlo de forma explícita
+		 * aunque el paquete traiga artefactos compilados.
+		 *
+		 * @param bool $enqueue Si Forja debe encolar sus propios assets.
+		 */
+		if ( ! apply_filters( 'forja/enqueue_assets', true ) ) {
+			return;
+		}
+
 		$css = 'assets/build/css/forja-input.css';
 		$js  = 'assets/build/js/forja-input.js';
 
 		if ( ! is_readable( $this->paths->dir( $css ) ) ) {
-			$this->warn_missing_build();
-
 			return;
 		}
 
 		$this->enqueue_style( 'forja-input', $css );
 		$this->enqueue_script( 'forja-input', $js );
-	}
-
-	/**
-	 * Avisa de que faltan los assets compilados.
-	 *
-	 * Sin este aviso el fallo es mudo: los campos se pintan pero sin estilos,
-	 * y cuesta relacionarlo con un `bun run build` que no se ejecutó o con un
-	 * paquete publicado sin los artefactos dentro.
-	 *
-	 * @return void
-	 */
-	private function warn_missing_build(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		add_action(
-			'admin_notices',
-			static function (): void {
-				printf(
-					'<div class="notice notice-warning"><p><strong>Forja:</strong> %s</p></div>',
-					esc_html__(
-						'faltan los assets compilados, así que los campos se verán sin estilos. Ejecuta «bun run build» en el paquete.',
-						'forja-fields'
-					)
-				);
-			}
-		);
 	}
 
 	/**

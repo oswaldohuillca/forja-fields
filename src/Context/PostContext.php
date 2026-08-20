@@ -13,6 +13,7 @@ use Forja\Registry\Box;
 use Forja\Registry\BoxRegistry;
 use Forja\Render\Renderer;
 use Forja\Storage\StorageFactory;
+use Forja\Validation\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,16 +51,25 @@ final class PostContext {
 	private StorageFactory $storage;
 
 	/**
+	 * Validador de los valores enviados.
+	 *
+	 * @var Validator
+	 */
+	private Validator $validator;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param BoxRegistry    $boxes    Registro de cajas.
-	 * @param Renderer       $renderer Renderizador de campos.
-	 * @param StorageFactory $storage  Fábrica de almacenamiento.
+	 * @param BoxRegistry    $boxes     Registro de cajas.
+	 * @param Renderer       $renderer  Renderizador de campos.
+	 * @param StorageFactory $storage   Fábrica de almacenamiento.
+	 * @param Validator      $validator Validador de los valores enviados.
 	 */
-	public function __construct( BoxRegistry $boxes, Renderer $renderer, StorageFactory $storage ) {
-		$this->boxes    = $boxes;
-		$this->renderer = $renderer;
-		$this->storage  = $storage;
+	public function __construct( BoxRegistry $boxes, Renderer $renderer, StorageFactory $storage, Validator $validator ) {
+		$this->boxes     = $boxes;
+		$this->renderer  = $renderer;
+		$this->storage   = $storage;
+		$this->validator = $validator;
 	}
 
 	/**
@@ -70,6 +80,7 @@ final class PostContext {
 	public function register_hooks(): void {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save' ), 10, 2 );
+		add_action( 'admin_notices', array( $this, 'render_errors' ) );
 	}
 
 	/**
@@ -175,6 +186,7 @@ final class PostContext {
 		}
 
 		$storage = $this->storage->for( 'post' );
+		$errors  = array();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Cada caja valida su propio nonce más abajo.
 		$submitted = wp_unslash( $_POST[ self::INPUT_PREFIX ] ?? array() );
@@ -210,9 +222,90 @@ final class PostContext {
 					continue;
 				}
 
-				$storage->update( $post_id, $name, $field->sanitize( $submitted[ $name ] ) );
+				$value = $field->sanitize( $submitted[ $name ] );
+				$error = $this->validator->validate( $field, $value );
+
+				if ( '' !== $error ) {
+					// No se sobrescribe lo que ya había. Si alguien se salta el
+					// `required` del navegador, el efecto es que su envío se
+					// ignora, no que borre un dato bueno.
+					$errors[] = $error;
+					continue;
+				}
+
+				$storage->update( $post_id, $name, $value );
 			}
 		}
+
+		$this->store_errors( $post_id, $errors );
+	}
+
+	/**
+	 * Guarda los errores para mostrarlos tras la redirección.
+	 *
+	 * @param int                $post_id Identificador de la entrada.
+	 * @param array<int, string> $errors  Mensajes de error.
+	 * @return void
+	 */
+	private function store_errors( int $post_id, array $errors ): void {
+		$key = $this->errors_key( $post_id );
+
+		if ( array() === $errors ) {
+			delete_transient( $key );
+
+			return;
+		}
+
+		set_transient( $key, $errors, MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Pinta los errores de la última grabación.
+	 *
+	 * @return void
+	 */
+	public function render_errors(): void {
+		$post_id = (int) get_the_ID();
+
+		if ( $post_id <= 0 ) {
+			return;
+		}
+
+		$key    = $this->errors_key( $post_id );
+		$errors = get_transient( $key );
+
+		if ( ! is_array( $errors ) || array() === $errors ) {
+			return;
+		}
+
+		delete_transient( $key );
+
+		$items = implode(
+			'',
+			array_map(
+				static fn ( string $error ): string => '<li>' . esc_html( $error ) . '</li>',
+				$errors
+			)
+		);
+
+		printf(
+			'<div class="notice notice-error"><p><strong>Forja:</strong> %s</p><ul class="ul-disc">%s</ul></div>',
+			esc_html__( 'no se guardaron algunos campos.', 'forja-fields' ),
+			wp_kses_post( $items )
+		);
+	}
+
+	/**
+	 * Clave del transitorio donde viajan los errores.
+	 *
+	 * Va por usuario para que dos editores trabajando a la vez no se crucen
+	 * los avisos.
+	 *
+	 * @param int $post_id Identificador de la entrada.
+	 * @return string Clave del transitorio.
+	 */
+	private function errors_key( int $post_id ): string {
+		return 'forja_errors_' . get_current_user_id() . '_' . $post_id;
 	}
 
 	/**

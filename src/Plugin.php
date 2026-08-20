@@ -14,6 +14,7 @@ use Forja\Registry\BoxRegistry;
 use Forja\Registry\FieldRegistry;
 use Forja\Render\Renderer;
 use Forja\Storage\StorageFactory;
+use Forja\Validation\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -102,7 +103,7 @@ final class Plugin {
 
 		( new Assets( $this->paths ) )->register_hooks();
 
-		( new PostContext( $this->boxes(), $this->renderer(), $this->storage() ) )->register_hooks();
+		( new PostContext( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
 	}
 
 	/**

@@ -33,11 +33,57 @@ Y en el `functions.php` del tema:
 require_once get_stylesheet_directory() . '/vendor/autoload.php';
 ```
 
-Eso es todo. Forja se arranca sola: el autoload de Composer incluye su
-`bootstrap.php`, que la engancha a WordPress en `after_setup_theme`.
+Forja se arranca sola: el autoload de Composer incluye su `bootstrap.php`, que
+la engancha a WordPress en `after_setup_theme`.
 
-Los assets compilados viajan dentro del paquete, así que `composer install` en un
-servidor de despliegue no necesita Bun ni Node.
+### Los assets los compila tu tema
+
+Forja **no distribuye CSS ni JavaScript compilados**. En su lugar, importas sus
+fuentes desde el bundle del tema. Así sale un único archivo, sin CSS duplicado y
+con tu pipeline al mando.
+
+En el `vite.config.ts` del tema, un atajo hacia los fuentes del paquete:
+
+```ts
+resolve: {
+    alias: {
+        'apros-forja': resolve( import.meta.dirname, 'vendor/apros/forja/assets/src' ),
+    },
+},
+```
+
+En la entrada de administración del tema:
+
+```ts
+// assets/src/admin.ts
+import 'apros-forja/js/forja-input';  // arrastra también el CSS de los campos
+
+import './admin.css';                  // tus estilos propios, después
+```
+
+Y en el `functions.php`, encola tu bundle y desactiva el de Forja:
+
+```php
+add_filter( 'forja/enqueue_assets', '__return_false' );
+
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		return;
+	}
+
+	$url = get_stylesheet_directory_uri();
+
+	wp_enqueue_style( 'tema-admin', $url . '/assets/build/css/admin.css' );
+	wp_enqueue_script( 'tema-admin', $url . '/assets/build/js/admin.js', array(), null, true );
+} );
+```
+
+El tema `wp-content/themes/forja-test` de este repositorio está montado
+exactamente así y sirve de referencia.
+
+> Si tu tema no tiene bundler, ejecuta `bun run build` dentro del paquete: Forja
+> detecta sus propios artefactos y los encola por su cuenta, sin necesidad del
+> filtro ni de importar nada.
 
 ## Uso
 
@@ -91,7 +137,7 @@ forja_the_field( 'bajada' );
 | `context` | `'normal'` | Contexto de `add_meta_box()` |
 | `priority` | `'default'` | Prioridad de `add_meta_box()` |
 | `instruction_placement` | `'label'` | `label` o `field` |
-| `label_placement` | `'top'` | `top` o `left` (el CSS de `left` aún no está portado) |
+| `label_placement` | `'top'` | `top` o `left` |
 
 ### Cómo elegir el destino
 
@@ -150,12 +196,36 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `checkbox` | `choices`, `layout` | Guarda un array |
 | `button_group` | `choices`, `layout`, `allow_null` | Radios estilizados como botones segmentados |
 | `true_false` | `message`, `ui`, `ui_on_text`, `ui_off_text` | Guarda `1` o `0`; con `ui` pinta el interruptor |
+| `image` | `preview_size`, `library`, `mime_types` | Guarda el ID del adjunto; se valida contra la mediateca |
+| `file` | `library`, `mime_types` | Guarda el ID del adjunto |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
 | `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
 
 Todos aceptan además `readonly` y `disabled`.
+
+### Validación
+
+`required` no se queda en el atributo HTML: el servidor lo comprueba de nuevo al
+guardar. Si un valor no pasa la validación **no se escribe**, de modo que un
+envío manipulado no puede borrar un dato bueno, y el editor ve un aviso con lo
+que se rechazó.
+
+Los campos de medios validan además que el identificador corresponda a un
+adjunto existente y que su tipo encaje con `mime_types`.
+
+Para reglas propias:
+
+```php
+add_filter( 'forja/validate_field', function ( string $error, $value, $field ) {
+	if ( 'titular' === $field->name() && mb_strlen( (string) $value ) < 10 ) {
+		return 'El titular necesita al menos 10 caracteres.';
+	}
+
+	return $error;
+}, 10, 3 );
+```
 
 ### Pestañas y acordeones
 
@@ -243,21 +313,11 @@ Sirve como test de regresión: si un cambio se desvía del original, sale ahí.
 
 ## Publicar una versión
 
-> **Antes de publicar:** `assets/build/` está en `.gitignore`, así que **los
-> assets compilados no viajan en el paquete**. Quien lo instale con Composer
-> recibiría los campos sin estilos. Hay que resolverlo de una de estas dos
-> formas antes de la primera publicación real.
->
-> 1. **Versionar los artefactos.** Quita `assets/build/` del `.gitignore` y
->    haz `bun run build` antes de cada etiqueta. Es lo más simple y lo que
->    hacen la mayoría de paquetes de WordPress.
-> 2. **Construir al publicar.** Deja el `.gitignore` como está y añade un flujo
->    de CI que compile y adjunte los artefactos al publicar la etiqueta.
-
-Pasos:
+Lo que se distribuye son los **fuentes**: `assets/build/` está en `.gitignore` a
+propósito, porque es el tema quien compila.
 
 ```bash
-bun run build                       # assets al día
+bun run typecheck                   # tipos
 composer lint                       # estándares de código
 git tag -a v0.2.0 -m "Forja 0.2.0"
 git push origin main --tags

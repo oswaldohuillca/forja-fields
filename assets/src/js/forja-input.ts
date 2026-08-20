@@ -11,6 +11,7 @@ import { markGridPositions } from './modules/grid';
 import { syncRange } from './modules/range';
 import { syncSwitch } from './modules/switch';
 import { trackSelected } from './modules/choices';
+import { initMedia } from './modules/media';
 import { initTabs } from './modules/tabs';
 import { initAccordion } from './modules/accordion';
 
@@ -39,6 +40,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		'.acf-radio-list, .acf-checkbox-list, .acf-button-group',
 		trackSelected
 	);
+	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
 	forEach( '.acf-tab-wrap', initTabs );
 	forEach( '.acf-accordion', initAccordion );
 } );

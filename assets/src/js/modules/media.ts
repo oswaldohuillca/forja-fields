@@ -1,0 +1,180 @@
+/**
+ * Campos de imagen y archivo.
+ *
+ * Usan el modal de medios del núcleo, `wp.media`. El campo guarda sólo el
+ * identificador del adjunto; todo lo demás —miniatura, nombre, tamaño— es
+ * presentación que se repinta al seleccionar.
+ */
+
+/** Adjunto tal como lo devuelve el modal de medios. */
+interface Attachment {
+	id: number;
+	url?: string;
+	alt?: string;
+	title?: string;
+	filename?: string;
+	filesizeHumanReadable?: string;
+	icon?: string;
+	sizes?: Record< string, { url: string } >;
+}
+
+/** Superficie mínima de `wp.media` que necesitamos. */
+interface MediaFrame {
+	on( event: string, handler: () => void ): void;
+	open(): void;
+	state(): {
+		get( key: string ): { first(): { toJSON(): Attachment } | undefined };
+	};
+}
+
+declare global {
+	interface Window {
+		wp?: {
+			media?: ( ( args: Record< string, unknown > ) => MediaFrame ) & {
+				editAttachment?: ( id: number ) => void;
+			};
+		};
+	}
+}
+
+/**
+ * Abre el modal de medios y devuelve el adjunto elegido.
+ *
+ * @param field  Contenedor del campo.
+ * @param onPick Se invoca con el adjunto seleccionado.
+ */
+function openPicker(
+	field: HTMLElement,
+	onPick: ( attachment: Attachment ) => void
+): void {
+	const media = window.wp?.media;
+
+	if ( ! media ) {
+		return;
+	}
+
+	const mimeTypes = field.dataset.mime_types ?? '';
+
+	const frame = media( {
+		multiple: false,
+		library: mimeTypes ? { type: mimeTypes.split( ',' ) } : {},
+	} );
+
+	frame.on( 'select', () => {
+		const selected = frame.state().get( 'selection' ).first();
+
+		if ( selected ) {
+			onPick( selected.toJSON() );
+		}
+	} );
+
+	frame.open();
+}
+
+/**
+ * Devuelve la URL de la vista previa en el tamaño pedido.
+ *
+ * El modal no siempre entrega todos los tamaños; si falta el solicitado se
+ * cae a la URL original.
+ *
+ * @param attachment Adjunto seleccionado.
+ * @param size       Nombre del tamaño.
+ * @return URL de la imagen.
+ */
+function previewUrl( attachment: Attachment, size: string ): string {
+	return attachment.sizes?.[ size ]?.url ?? attachment.url ?? '';
+}
+
+/**
+ * Conecta un campo de medios con el modal.
+ *
+ * @param field Contenedor `.acf-image-uploader` o `.acf-file-uploader`.
+ */
+export function initMedia( field: HTMLElement ): void {
+	const input = field.querySelector< HTMLInputElement >(
+		'input[type="hidden"][data-name="id"]'
+	);
+
+	if ( ! input ) {
+		return;
+	}
+
+	const isImage = field.classList.contains( 'acf-image-uploader' );
+
+	const paint = ( attachment: Attachment | null ): void => {
+		if ( ! attachment ) {
+			input.value = '';
+			field.classList.remove( 'has-value' );
+
+			return;
+		}
+
+		input.value = String( attachment.id );
+		field.classList.add( 'has-value' );
+
+		if ( isImage ) {
+			const img = field.querySelector< HTMLImageElement >(
+				'img[data-name="image"]'
+			);
+
+			if ( img ) {
+				img.src = previewUrl(
+					attachment,
+					field.dataset.preview_size ?? 'medium'
+				);
+				img.alt = attachment.alt ?? '';
+			}
+
+			return;
+		}
+
+		const set = ( name: string, text: string ): void => {
+			const node = field.querySelector< HTMLElement >(
+				`[data-name="${ name }"]`
+			);
+
+			if ( node ) {
+				node.textContent = text;
+			}
+		};
+
+		set( 'title', attachment.title ?? '' );
+		set( 'filename', attachment.filename ?? '' );
+		set( 'filesize', attachment.filesizeHumanReadable ?? '' );
+
+		const icon = field.querySelector< HTMLImageElement >(
+			'img[data-name="icon"]'
+		);
+
+		if ( icon && attachment.icon ) {
+			icon.src = attachment.icon;
+		}
+
+		const link = field.querySelector< HTMLAnchorElement >(
+			'a[data-name="filename"]'
+		);
+
+		if ( link && attachment.url ) {
+			link.href = attachment.url;
+		}
+	};
+
+	field.addEventListener( 'click', ( event: Event ) => {
+		const target = ( event.target as HTMLElement ).closest< HTMLElement >(
+			'[data-name]'
+		);
+
+		switch ( target?.dataset.name ) {
+			case 'add':
+			case 'edit':
+				event.preventDefault();
+				openPicker( field, paint );
+				break;
+
+			case 'remove':
+				event.preventDefault();
+				paint( null );
+				break;
+		}
+	} );
+}

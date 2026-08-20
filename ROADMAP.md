@@ -11,11 +11,9 @@ Convención:
 
 ---
 
-## Capa 0 — Cimientos
+## Capa 0 — Cimientos ✅
 
 Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
-
-**Queda una decisión pendiente sobre la distribución de los assets; ver el final de la lista.**
 
 - [x] Estructura de carpetas del paquete
 - [x] `composer.json` de tipo `library`, con PSR-4 (`Forja\` → `src/`) y `files` (`bootstrap.php`)
@@ -40,7 +38,7 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 - [x] CSS de `.acf-fields.-left` portado (`label_placement => 'left'`)
 - [x] PHPCS con WordPress-Extra y WordPress-Docs: 35 archivos sin errores ni avisos
 - [x] Repositorio con la etiqueta `v0.1.0` y pasos de publicación documentados en el README
-- [ ] **Decidir cómo se distribuyen los assets compilados**: hoy `assets/build/` está en `.gitignore`, así que un `composer require` entregaría el paquete sin CSS ni JS. Ver «Publicar una versión» en el README
+- [x] Distribución de assets resuelta: el paquete entrega fuentes y el tema los compila en su bundle (`forja/enqueue_assets`)
 
 ## Capa 1 — Campos sin dependencias de JS ✅
 
@@ -68,7 +66,7 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 Aquí entra el JS de verdad. Conviene abordarlos por familia, porque comparten
 infraestructura.
 
-- [ ] Familia `wp.media`: `image`, `file`, `gallery`
+- [~] Familia `wp.media`: `image` y `file` hechos; falta `gallery`
 - [ ] Familia `select2`: `post_object`, `page_link`, `relationship`, `taxonomy`, `user`
 - [ ] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
 - [ ] `wysiwyg` (TinyMCE)
@@ -92,7 +90,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
 - [ ] Lógica condicional entre campos (port de `_acf-condition.js`)
 - [ ] Modo oscuro (port de `acf-dark.scss`)
-- [ ] Validación de campos requeridos en servidor y cliente
+- [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
 - [ ] Contexto de taxonomías
 - [ ] Contexto de usuarios
 - [ ] Páginas de opciones
@@ -109,7 +107,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Decisión | Motivo |
 |---|---|
 | Librería de Composer, no plugin | Se consume desde el `functions.php` del tema. Los campos y el código que los usa se versionan juntos y nadie puede desactivarlos desde el escritorio. |
-| Los assets compilados deben viajar en el paquete | Quien instala con Composer no ejecuta Bun ni Vite. **Pendiente de resolver:** hoy `assets/build/` está en `.gitignore`. |
+| El paquete distribuye fuentes, no artefactos | El tema importa `assets/src` en su propio bundle: un solo archivo, sin CSS duplicado y con el pipeline del proyecto al mando. El filtro `forja/enqueue_assets` desactiva el encolado propio de Forja. Si el paquete trae un build (`bun run build`), lo encola él, para temas sin bundler. |
 | `Paths` en lugar de `plugin_dir_url()` | El paquete vive en el `vendor/` de un tema, no en `WP_PLUGIN_DIR`. |
 | Gana la versión más alta si hay varias copias | El tema y otro plugin pueden traer cada uno la suya; Composer no deduplica entre `vendor/` distintos. |
 | Sin panel de administración para crear campos | Los grupos se declaran por código, estilo CMB2. Elimina ~8.600 líneas de CSS y las 25 clases de reglas de ubicación de ACF. |
@@ -120,6 +118,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Un valor inválido no sobrescribe el guardado | Si alguien se salta el `required` del navegador o manda un adjunto que no existe, su envío se ignora y se avisa, en vez de borrar un dato bueno. |
+| Se adopta la redacción de ACF en los textos visibles | Los editores ya la conocen, y de paso el comparador puede exigir igualdad byte a byte. |
 | Pestañas y acordeones se resuelven en el servidor | ACF los monta con JavaScript reestructurando el DOM. Como aquí el renderer conoce la lista completa de campos, puede emitir la estructura final directamente y dejar al JS sólo abrir y cerrar. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |
