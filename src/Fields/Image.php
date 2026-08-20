@@ -53,6 +53,42 @@ final class Image extends MediaField {
 	}
 
 	/**
+	 * Añade el ancho, el alto y las URLs de cada tamaño registrado.
+	 *
+	 * @param int $id Identificador del adjunto.
+	 * @return array<string, mixed>|null Datos del adjunto, o null si no existe.
+	 */
+	protected function attachment_array( int $id ): ?array {
+		$data = parent::attachment_array( $id );
+
+		if ( null === $data ) {
+			return null;
+		}
+
+		$full = wp_get_attachment_image_src( $id, 'full' );
+
+		$data['width']  = $full ? (int) $full[1] : 0;
+		$data['height'] = $full ? (int) $full[2] : 0;
+		$data['sizes']  = array();
+
+		foreach ( array_keys( wp_get_registered_image_subsizes() ) as $size ) {
+			$src = wp_get_attachment_image_src( $id, $size );
+
+			if ( ! $src ) {
+				continue;
+			}
+
+			$data['sizes'][ $size ] = array(
+				'url'    => (string) $src[0],
+				'width'  => (int) $src[1],
+				'height' => (int) $src[2],
+			);
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Pinta la vista previa y el selector.
 	 *
 	 * @param mixed  $value      Identificador del adjunto.

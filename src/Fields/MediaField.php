@@ -34,6 +34,8 @@ abstract class MediaField extends Field {
 				'library'       => 'all',
 				// Tipos MIME permitidos, separados por comas.
 				'mime_types'    => '',
+				// Qué devuelve forja_get_field(): id, url o array.
+				'return_format' => 'id',
 			)
 		);
 	}
@@ -77,6 +79,70 @@ abstract class MediaField extends Field {
 			. '</div>',
 			esc_attr__( 'Editar', 'forja-fields' ),
 			esc_attr__( 'Quitar', 'forja-fields' )
+		);
+	}
+
+	/**
+	 * Da forma al valor según `return_format`.
+	 *
+	 * Lo almacenado es siempre el identificador del adjunto; esto sólo decide
+	 * en qué forma llega a la plantilla.
+	 *
+	 * Cada formato tiene su propio valor para «sin rellenar», elegido para que
+	 * el tipo devuelto sea siempre el mismo:
+	 *
+	 * - `id` devuelve un entero, y `0` cuando no hay nada.
+	 * - `url` devuelve una cadena, vacía cuando no hay nada. Se evita `null`
+	 *   porque pasarlo a `esc_url()` está obsoleto desde PHP 8.1.
+	 * - `array` devuelve null, que es lo único razonable para «no hay datos».
+	 *
+	 * @param mixed $value Identificador almacenado.
+	 * @return int|string|array<string, mixed>|null Identificador, URL o datos del adjunto.
+	 */
+	public function format_value( mixed $value ): mixed {
+		$id     = (int) $value;
+		$format = (string) $this->get( 'return_format', 'id' );
+
+		if ( $id <= 0 ) {
+			return match ( $format ) {
+				'url'   => '',
+				'array' => null,
+				default => 0,
+			};
+		}
+
+		$url = wp_get_attachment_url( $id );
+
+		return match ( $format ) {
+			'url'   => false === $url ? '' : $url,
+			'array' => $this->attachment_array( $id ),
+			default => $id,
+		};
+	}
+
+	/**
+	 * Datos del adjunto para el formato «array».
+	 *
+	 * @param int $id Identificador del adjunto.
+	 * @return array<string, mixed>|null Datos del adjunto, o null si no existe.
+	 */
+	protected function attachment_array( int $id ): ?array {
+		if ( 'attachment' !== get_post_type( $id ) ) {
+			return null;
+		}
+
+		$path = (string) get_attached_file( $id );
+
+		return array(
+			'id'          => $id,
+			'url'         => (string) wp_get_attachment_url( $id ),
+			'title'       => (string) get_the_title( $id ),
+			'filename'    => (string) wp_basename( $path ),
+			'filesize'    => is_readable( $path ) ? (int) filesize( $path ) : 0,
+			'mime_type'   => (string) get_post_mime_type( $id ),
+			'alt'         => (string) get_post_meta( $id, '_wp_attachment_image_alt', true ),
+			'description' => (string) get_post_field( 'post_content', $id ),
+			'caption'     => (string) get_post_field( 'post_excerpt', $id ),
 		);
 	}
 

@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Forja\Registry;
 
+use Forja\Fields\Field;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -29,6 +31,13 @@ final class BoxRegistry {
 	 * @var FieldRegistry
 	 */
 	private FieldRegistry $fields;
+
+	/**
+	 * Índice de campos por nombre, construido bajo demanda.
+	 *
+	 * @var array<string, Field>|null
+	 */
+	private ?array $field_index = null;
 
 	/**
 	 * Constructor.
@@ -67,6 +76,9 @@ final class BoxRegistry {
 
 		$this->boxes[ $id ] = $box;
 
+		// El índice se reconstruye a la próxima consulta.
+		$this->field_index = null;
+
 		return $box;
 	}
 
@@ -87,6 +99,36 @@ final class BoxRegistry {
 	 */
 	public function get( string $id ): ?Box {
 		return $this->boxes[ $id ] ?? null;
+	}
+
+	/**
+	 * Busca un campo declarado por su nombre.
+	 *
+	 * Lo usa la API de lectura para saber cómo dar forma al valor almacenado.
+	 * Se construye un índice perezoso porque `forja_get_field()` se llama
+	 * muchas veces por página y recorrer todas las cajas cada vez sería
+	 * innecesario.
+	 *
+	 * Si dos cajas declaran un campo con el mismo nombre gana la primera
+	 * registrada, que es también la que escribe en esa clave de metadatos.
+	 *
+	 * @param string $name Nombre del campo.
+	 * @return Field|null Campo declarado, o null si no existe.
+	 */
+	public function find_field( string $name ): ?Field {
+		if ( null === $this->field_index ) {
+			$this->field_index = array();
+
+			foreach ( $this->boxes as $box ) {
+				foreach ( $box->fields() as $field ) {
+					if ( ! isset( $this->field_index[ $field->name() ] ) ) {
+						$this->field_index[ $field->name() ] = $field;
+					}
+				}
+			}
+		}
+
+		return $this->field_index[ $name ] ?? null;
 	}
 
 	/**

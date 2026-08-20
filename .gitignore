@@ -7,6 +7,9 @@
 # compilados tienen que viajar dentro del paquete.
 # (no ignorar /assets/build/)
 
+# Caché de la suite de tests
+/.phpunit.cache/
+
 # Entorno
 .DS_Store
 *.log

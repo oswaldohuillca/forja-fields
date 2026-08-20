@@ -196,14 +196,42 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `checkbox` | `choices`, `layout` | Guarda un array |
 | `button_group` | `choices`, `layout`, `allow_null` | Radios estilizados como botones segmentados |
 | `true_false` | `message`, `ui`, `ui_on_text`, `ui_off_text` | Guarda `1` o `0`; con `ui` pinta el interruptor |
-| `image` | `preview_size`, `library`, `mime_types` | Guarda el ID del adjunto; se valida contra la mediateca |
-| `file` | `library`, `mime_types` | Guarda el ID del adjunto |
+| `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
+| `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
 | `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
 
 Todos aceptan además `readonly` y `disabled`.
+
+### Qué devuelve un campo de medios
+
+Se almacena **siempre el identificador del adjunto**, que es lo que sobrevive a
+que cambie la URL o se regeneren los tamaños. `return_format` sólo decide en qué
+forma llega a la plantilla:
+
+| Valor | Devuelve | Cuando está vacío |
+|---|---|---|
+| `id` (por defecto) | `int` con el identificador | `0` |
+| `url` | `string` con la URL del archivo | `''` |
+| `array` | `array` con `id`, `url`, `title`, `filename`, `filesize`, `mime_type`, `alt`, `description` y `caption`; en imágenes además `width`, `height` y `sizes` | `null` |
+
+Cada formato tiene su propio valor para «sin rellenar», elegido para que el tipo
+devuelto no cambie según haya dato o no.
+
+```php
+array( 'type' => 'image', 'name' => 'portada', 'return_format' => 'array' )
+```
+
+```php
+$img = forja_get_field( 'portada' );
+
+echo '<img src="' . esc_url( $img['sizes']['large']['url'] ) . '" alt="' . esc_attr( $img['alt'] ) . '">';
+```
+
+Si necesitas el valor crudo pese al formato declarado, usa
+`forja_get_field_raw()`.
 
 ### Validación
 
@@ -284,6 +312,7 @@ bun run build
 | `bun run watch` | Recompila al guardar |
 | `bun run typecheck` | Comprueba los tipos sin emitir nada |
 | `composer lint` | Revisa los estándares de código de WordPress |
+| `composer test` | Ejecuta la suite de Pest |
 
 Para probar los cambios contra un tema real sin publicar en Packagist, usa un
 repositorio de tipo `path` en el `composer.json` del tema:
@@ -298,6 +327,21 @@ repositorio de tipo `path` en el `composer.json` del tema:
 ```
 
 El `wp-content/themes/forja-test` de este repositorio es exactamente eso.
+
+### Tests
+
+La suite usa [Pest](https://pestphp.com) y son tests de **integración**: cargan
+un WordPress real en lugar de simularlo. El código se apoya en una docena de
+funciones del núcleo, y simularlas costaría más que ejecutarlas, además de
+probar los dobles en vez del comportamiento.
+
+```bash
+docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
+    php vendor/bin/pest
+```
+
+Si tu WordPress no está en `/var/www/html`, indícalo con la variable de entorno
+`FORJA_WP_LOAD`.
 
 ### Comprobar la paridad con ACF
 

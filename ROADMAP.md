@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [ ] Páginas de opciones
 - [ ] Compatibilidad de datos con ACF/SCF para los campos compuestos
 - [ ] Internacionalización y archivo `.pot`
-- [ ] Tests de PHP (PHPUnit) y tests de integración de guardado
+- [~] Tests con Pest: 45 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Tests de integración con Pest, no unitarios con dobles | El código se apoya en una docena de funciones del núcleo de WordPress; simularlas costaría más que ejecutarlas y probaría los dobles en vez del comportamiento. |
 | Un valor inválido no sobrescribe el guardado | Si alguien se salta el `required` del navegador o manda un adjunto que no existe, su envío se ignora y se avisa, en vez de borrar un dato bueno. |
 | Se adopta la redacción de ACF en los textos visibles | Los editores ya la conocen, y de paso el comparador puede exigir igualdad byte a byte. |
 | Pestañas y acordeones se resuelven en el servidor | ACF los monta con JavaScript reestructurando el DOM. Como aquí el renderer conoce la lista completa de campos, puede emitir la estructura final directamente y dejar al JS sólo abrir y cerrar. |

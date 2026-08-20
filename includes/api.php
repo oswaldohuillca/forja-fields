@@ -89,6 +89,39 @@ function forja_get_field( string $name, int|string|null $object_id = null, strin
 		return null;
 	}
 
+	$value = forja()->storage()->for( $object_type )->get( $object_id, $name );
+	$field = forja()->boxes()->find_field( $name );
+
+	// Una clave que no corresponda a ningún campo declarado se devuelve tal
+	// cual: puede ser un metadato de otro origen.
+	return null === $field ? $value : $field->format_value( $value );
+}
+
+/**
+ * Lee el valor de un campo sin darle formato.
+ *
+ * Devuelve exactamente lo que hay en la base de datos, sin aplicar
+ * `return_format`. Útil cuando necesitas el identificador crudo aunque el
+ * campo esté declarado para devolver otra cosa.
+ *
+ * @param string          $name        Nombre del campo.
+ * @param int|string|null $object_id   Objeto contenedor.
+ * @param string          $object_type Tipo de objeto.
+ * @return mixed Valor almacenado, o null si no existe.
+ */
+function forja_get_field_raw( string $name, int|string|null $object_id = null, string $object_type = 'post' ): mixed {
+	if ( null === $object_id && 'post' === $object_type ) {
+		$object_id = get_the_ID();
+
+		if ( ! $object_id ) {
+			$object_id = get_queried_object_id();
+		}
+	}
+
+	if ( ! $object_id ) {
+		return null;
+	}
+
 	return forja()->storage()->for( $object_type )->get( $object_id, $name );
 }
 
@@ -101,5 +134,13 @@ function forja_get_field( string $name, int|string|null $object_id = null, strin
  * @return void
  */
 function forja_the_field( string $name, int|string|null $object_id = null, string $object_type = 'post' ): void {
-	echo esc_html( (string) forja_get_field( $name, $object_id, $object_type ) );
+	$value = forja_get_field( $name, $object_id, $object_type );
+
+	// Un campo declarado con `return_format => array` no se puede imprimir
+	// como texto; en ese caso no se pinta nada en lugar de emitir «Array».
+	if ( ! is_scalar( $value ) ) {
+		return;
+	}
+
+	echo esc_html( (string) $value );
 }

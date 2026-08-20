@@ -59,12 +59,31 @@ final class MetaStorage implements Storage {
 	 * @param int|string $object_id Identificador del objeto contenedor.
 	 * @param string     $key       Clave de almacenamiento.
 	 * @param mixed      $value     Valor a guardar.
-	 * @return bool True si la escritura se realizó.
+	 * @return bool True si lo almacenado coincide con el valor pedido.
 	 */
 	public function update( int|string $object_id, string $key, mixed $value ): bool {
-		// `update_metadata()` devuelve false cuando el valor no cambia; para
-		// nuestro contrato eso sigue siendo un guardado correcto.
-		return false !== update_metadata( $this->meta_type, (int) $object_id, $key, $value );
+		$object_id = (int) $object_id;
+
+		if ( false !== update_metadata( $this->meta_type, $object_id, $key, $value ) ) {
+			return true;
+		}
+
+		/*
+		 * `update_metadata()` devuelve false por dos motivos distintos: porque
+		 * la escritura falló, o porque el valor ya era ese. Sólo el primero es
+		 * un error, así que se distingue leyendo lo almacenado.
+		 *
+		 * La comparación va sobre la forma serializada porque WordPress guarda
+		 * todo como cadena: un entero 11 vuelve como «11», y compararlos en
+		 * estricto daría un falso negativo.
+		 */
+		if ( ! metadata_exists( $this->meta_type, $object_id, $key ) ) {
+			return false;
+		}
+
+		$stored = get_metadata( $this->meta_type, $object_id, $key, true );
+
+		return (string) maybe_serialize( $stored ) === (string) maybe_serialize( $value );
 	}
 
 	/**

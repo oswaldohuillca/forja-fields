@@ -114,6 +114,20 @@ abstract class Field {
 	}
 
 	/**
+	 * Transforma el valor almacenado antes de entregarlo a la plantilla.
+	 *
+	 * Es la pieza simétrica de `sanitize()`: uno normaliza lo que entra y el
+	 * otro da forma a lo que sale. Lo que se guarda no cambia nunca; esto sólo
+	 * afecta a lo que devuelve `forja_get_field()`.
+	 *
+	 * @param mixed $value Valor tal como está almacenado.
+	 * @return mixed Valor listo para usar en la plantilla.
+	 */
+	public function format_value( mixed $value ): mixed {
+		return $value;
+	}
+
+	/**
 	 * Sanea el valor recibido del formulario.
 	 *
 	 * @param mixed $raw Valor crudo enviado por el navegador.
