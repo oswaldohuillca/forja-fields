@@ -15,6 +15,8 @@ Convención:
 
 Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 
+**Queda una decisión pendiente sobre la distribución de los assets; ver el final de la lista.**
+
 - [x] Estructura de carpetas del paquete
 - [x] `composer.json` de tipo `library`, con PSR-4 (`Forja\` → `src/`) y `files` (`bootstrap.php`)
 - [x] Composer instalado en el contenedor Docker
@@ -34,10 +36,11 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 - [x] Contexto de posts: `add_meta_box()` + guardado con nonce por caja
 - [x] API pública: `forja_register_box()`, `forja_get_field()`, `forja_the_field()`
 - [x] Campos `text` y `textarea` funcionando de punta a punta
-- [ ] Comparar la paridad visual en el navegador contra SCF, lado a lado
-- [ ] Portar el CSS de `.acf-fields.-left` (`label_placement => 'left'`); hoy la opción se acepta pero no tiene estilos
-- [ ] Configurar PHPCS con WordPress-Extra y dejar el código sin avisos
-- [ ] Publicar el paquete (Packagist o repositorio VCS privado) y fijar versiones con etiquetas
+- [x] Paridad comprobada contra SCF: 14 casos de campo con markup idéntico (`tools/compare-with-scf.php`)
+- [x] CSS de `.acf-fields.-left` portado (`label_placement => 'left'`)
+- [x] PHPCS con WordPress-Extra y WordPress-Docs: 35 archivos sin errores ni avisos
+- [x] Repositorio con la etiqueta `v0.1.0` y pasos de publicación documentados en el README
+- [ ] **Decidir cómo se distribuyen los assets compilados**: hoy `assets/build/` está en `.gitignore`, así que un `composer require` entregaría el paquete sin CSS ni JS. Ver «Publicar una versión» en el README
 
 ## Capa 1 — Campos sin dependencias de JS ✅
 
@@ -106,7 +109,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Decisión | Motivo |
 |---|---|
 | Librería de Composer, no plugin | Se consume desde el `functions.php` del tema. Los campos y el código que los usa se versionan juntos y nadie puede desactivarlos desde el escritorio. |
-| Los assets compilados se versionan | Quien instala el paquete con Composer no ejecuta Bun ni Vite. |
+| Los assets compilados deben viajar en el paquete | Quien instala con Composer no ejecuta Bun ni Vite. **Pendiente de resolver:** hoy `assets/build/` está en `.gitignore`. |
 | `Paths` en lugar de `plugin_dir_url()` | El paquete vive en el `vendor/` de un tema, no en `WP_PLUGIN_DIR`. |
 | Gana la versión más alta si hay varias copias | El tema y otro plugin pueden traer cada uno la suya; Composer no deduplica entre `vendor/` distintos. |
 | Sin panel de administración para crear campos | Los grupos se declaran por código, estilo CMB2. Elimina ~8.600 líneas de CSS y las 25 clases de reglas de ubicación de ACF. |

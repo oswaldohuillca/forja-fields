@@ -57,8 +57,45 @@ final class Assets {
 			return;
 		}
 
-		$this->enqueue_style( 'forja-input', 'assets/build/css/forja-input.css' );
-		$this->enqueue_script( 'forja-input', 'assets/build/js/forja-input.js' );
+		$css = 'assets/build/css/forja-input.css';
+		$js  = 'assets/build/js/forja-input.js';
+
+		if ( ! is_readable( $this->paths->dir( $css ) ) ) {
+			$this->warn_missing_build();
+
+			return;
+		}
+
+		$this->enqueue_style( 'forja-input', $css );
+		$this->enqueue_script( 'forja-input', $js );
+	}
+
+	/**
+	 * Avisa de que faltan los assets compilados.
+	 *
+	 * Sin este aviso el fallo es mudo: los campos se pintan pero sin estilos,
+	 * y cuesta relacionarlo con un `bun run build` que no se ejecutó o con un
+	 * paquete publicado sin los artefactos dentro.
+	 *
+	 * @return void
+	 */
+	private function warn_missing_build(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		add_action(
+			'admin_notices',
+			static function (): void {
+				printf(
+					'<div class="notice notice-warning"><p><strong>Forja:</strong> %s</p></div>',
+					esc_html__(
+						'faltan los assets compilados, así que los campos se verán sin estilos. Ejecuta «bun run build» en el paquete.',
+						'forja-fields'
+					)
+				);
+			}
+		);
 	}
 
 	/**

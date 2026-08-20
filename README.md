@@ -229,6 +229,51 @@ repositorio de tipo `path` en el `composer.json` del tema:
 
 El `wp-content/themes/forja-test` de este repositorio es exactamente eso.
 
+### Comprobar la paridad con ACF
+
+Con Secure Custom Fields presente en la instalación, esta herramienta pinta los
+mismos campos con las dos implementaciones y compara el markup resultante:
+
+```bash
+docker exec -w /var/www/html acf-wordpress-1 \
+    php wp-content/packages/forja/tools/compare-with-scf.php
+```
+
+Sirve como test de regresión: si un cambio se desvía del original, sale ahí.
+
+## Publicar una versión
+
+> **Antes de publicar:** `assets/build/` está en `.gitignore`, así que **los
+> assets compilados no viajan en el paquete**. Quien lo instale con Composer
+> recibiría los campos sin estilos. Hay que resolverlo de una de estas dos
+> formas antes de la primera publicación real.
+>
+> 1. **Versionar los artefactos.** Quita `assets/build/` del `.gitignore` y
+>    haz `bun run build` antes de cada etiqueta. Es lo más simple y lo que
+>    hacen la mayoría de paquetes de WordPress.
+> 2. **Construir al publicar.** Deja el `.gitignore` como está y añade un flujo
+>    de CI que compile y adjunte los artefactos al publicar la etiqueta.
+
+Pasos:
+
+```bash
+bun run build                       # assets al día
+composer lint                       # estándares de código
+git tag -a v0.2.0 -m "Forja 0.2.0"
+git push origin main --tags
+```
+
+Para consumirlo sin Packagist, basta con declarar el repositorio en el tema:
+
+```json
+{
+    "repositories": [
+        { "type": "vcs", "url": "git@github.com:apros/forja.git" }
+    ],
+    "require": { "apros/forja": "^0.2" }
+}
+```
+
 ## Documentación
 
 - [ROADMAP.md](ROADMAP.md) — plan de trabajo y estado de cada fase
