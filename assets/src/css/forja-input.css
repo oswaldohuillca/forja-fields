@@ -22,6 +22,7 @@
 @import "./fields/range.css";
 @import "./fields/media.css";
 @import "./fields/gallery.css";
+@import "./fields/icon.css";
 @import "./fields/link.css";
 @import "./fields/oembed.css";
 @import "./fields/repeater.css";

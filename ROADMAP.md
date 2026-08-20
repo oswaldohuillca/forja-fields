@@ -72,7 +72,7 @@ infraestructura.
 - [x] `wysiwyg` (TinyMCE, con tablas opcionales, funcional dentro de repetidores)
 - [x] `link` (modal de enlaces del núcleo)
 - [x] `oembed` (vista previa vía el endpoint REST del núcleo)
-- [ ] `icon_picker`
+- [x] `icon_picker` (Iconify, sin build ni catálogo empaquetado)
 - [ ] `google_map`
 
 ## Capa 3 — Campos compuestos
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 125 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 136 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| El selector de iconos usa Iconify por API, sin empaquetar catálogo | Las colecciones completas pasan de 100 MB. La API permite CORS y sirve cada icono en ~150 bytes con caché inmutable de una semana, así que el navegador busca directamente, como hace icones.js.org. Sin build ni endpoint propio. |
+| En la parte pública el SVG se incrusta, no se pide con JavaScript | El componente web de Iconify añadiría una dependencia para el visitante y una petición por icono en cada carga. Se descarga una vez, se guarda en un transitorio y se incrusta: sin JavaScript, sin salto de maquetado e indexable. |
 | Un campo puede aportar sus propias reglas de validación | `Field::validate()`. El validador se ocupa de `required`, que es común; lo que sólo tiene sentido para un tipo —cuántas imágenes admite una galería— vive en el tipo. |
 | La galería descarta al leer los adjuntos borrados | Un identificador huérfano obligaría a comprobarlo en cada iteración de la plantilla. WordPress cachea los objetos, y una galería tiene pocas imágenes. |
 | El `oembed` guarda la dirección, no el HTML | El markup de un proveedor cambia con el tiempo; guardarlo dejaría el sitio con vídeos rotos. Se resuelve al pintar. |

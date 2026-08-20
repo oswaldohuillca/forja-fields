@@ -1,0 +1,81 @@
+/*----------------------------------------------------------------------------
+ *  Selector de icono
+ *--------------------------------------------------------------------------*/
+
+.acf-icon-picker {
+	position: relative;
+
+	& .acf-icon-picker-search {
+		width: 100%;
+	}
+
+	& .acf-icon-picker-preview {
+		display: none;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 8px;
+		padding: 8px;
+		border: 1px solid var(--forja-wp-card-border);
+		border-radius: var(--forja-radius-sm);
+		background: #fff;
+
+		& img {
+			width: 32px;
+			height: 32px;
+			display: block;
+		}
+
+		& code {
+			flex: 1;
+			font-size: 12px;
+			background: none;
+			color: var(--forja-gray-600);
+		}
+	}
+
+	/* Sin icono elegido no hay nada que previsualizar ni que quitar. */
+	&.-value .acf-icon-picker-preview {
+		display: flex;
+	}
+
+	& .acf-icon-picker-results {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+		gap: 4px;
+		margin-top: 8px;
+		max-height: 220px;
+		overflow-y: auto;
+
+		/* Sin resultados no debe quedar un hueco vacío. */
+		&:empty {
+			display: none;
+		}
+	}
+
+	& .acf-icon-picker-result {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 8px;
+		border: 1px solid transparent;
+		border-radius: var(--forja-radius-sm);
+		background: none;
+		cursor: pointer;
+
+		& img {
+			width: 24px;
+			height: 24px;
+		}
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--forja-color-primary);
+			background: var(--forja-blue-50);
+			outline: none;
+		}
+	}
+
+	&.-loading .acf-icon-picker-results {
+		opacity: 0.5;
+	}
+}

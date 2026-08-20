@@ -157,6 +157,80 @@ function forja_get_field_raw( string $name, int|string|null $object_id = null, s
 }
 
 /**
+ * Devuelve el markup de un icono, listo para incrustar.
+ *
+ * Cada tipo se pinta como corresponde:
+ *
+ * - `iconify` y `dashicons` se resuelven a un SVG en línea, cacheado. No añade
+ *   JavaScript en la parte pública ni provoca salto de maquetado.
+ * - `media_library` y `url` se pintan como una imagen.
+ *
+ * @param mixed  $icon    Valor de un campo `icon_picker`, o un nombre de Iconify.
+ * @param string $classes Clases CSS para el elemento resultante.
+ * @return string Markup del icono, o cadena vacía.
+ */
+function forja_get_icon_svg( mixed $icon, string $classes = '' ): string {
+	// Un nombre suelto es la forma corta: forja_get_icon_svg( 'mdi:home' ).
+	if ( is_string( $icon ) ) {
+		$icon = array(
+			'type'  => 'iconify',
+			'value' => $icon,
+		);
+	}
+
+	if ( ! is_array( $icon ) || empty( $icon['value'] ) ) {
+		return '';
+	}
+
+	$type  = (string) ( $icon['type'] ?? 'iconify' );
+	$value = (string) $icon['value'];
+
+	if ( 'media_library' === $type ) {
+		return wp_get_attachment_image( (int) $value, 'full', false, array( 'class' => $classes ) );
+	}
+
+	if ( 'url' === $type ) {
+		return sprintf(
+			'<img src="%s" alt="" class="%s" />',
+			esc_url( $value ),
+			esc_attr( $classes )
+		);
+	}
+
+	// Los dashicons de ACF se resuelven por la colección homónima de Iconify.
+	$name = 'dashicons' === $type ? 'dashicons:' . $value : $value;
+	$svg  = \Forja\Icons\Iconify::svg( $name );
+
+	if ( '' === $svg || '' === $classes ) {
+		return $svg;
+	}
+
+	// El SVG viene sin clase; se le añade la pedida sin volver a parsearlo.
+	return (string) preg_replace(
+		'/^<svg /',
+		sprintf( '<svg class="%s" ', esc_attr( $classes ) ),
+		$svg,
+		1
+	);
+}
+
+/**
+ * Imprime el icono de un campo.
+ *
+ * @param string          $name      Nombre del campo.
+ * @param string          $classes   Clases CSS para el elemento resultante.
+ * @param int|string|null $object_id Objeto contenedor.
+ * @return void
+ */
+function forja_the_icon( string $name, string $classes = '', int|string|null $object_id = null ): void {
+	$icon = forja_get_field( $name, $object_id );
+
+	// El SVG ya viene saneado por Iconify::svg(); wp_kses_post no admite
+	// etiquetas SVG, así que se imprime tal cual.
+	echo forja_get_icon_svg( $icon, $classes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Saneado en Iconify::svg().
+}
+
+/**
  * Imprime el valor de un campo, escapado como texto.
  *
  * @param string          $name        Nombre del campo.

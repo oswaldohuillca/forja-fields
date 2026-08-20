@@ -55,6 +55,7 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\Image::class );
 		$this->register( \Forja\Fields\File::class );
 		$this->register( \Forja\Fields\Gallery::class );
+		$this->register( \Forja\Fields\IconPicker::class );
 		$this->register( \Forja\Fields\Group::class );
 		$this->register( \Forja\Fields\Repeater::class );
 		$this->register( \Forja\Fields\FlexibleContent::class );

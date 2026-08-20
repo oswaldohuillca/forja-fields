@@ -207,6 +207,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
 | `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
 | `gallery` | `preview_size`, `min`, `max`, `mime_types`, `return_format` | Lista ordenada de imágenes |
+| `icon_picker` | `collections`, `return_format` | Buscador sobre Iconify; guarda `mdi:home` |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
@@ -477,6 +478,47 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Iconos
+
+```php
+array(
+	'type'        => 'icon_picker',
+	'name'        => 'icono',
+	'label'       => 'Icono',
+	'collections' => array( 'mdi', 'tabler' ),  // vacío = todas
+)
+```
+
+Busca sobre [Iconify](https://iconify.design), que reúne más de 200.000 iconos.
+**No se empaqueta ningún catálogo**: el buscador consulta la API desde el
+navegador, igual que hace [icones.js.org](https://icones.js.org). Sin proceso de
+build ni endpoint propio.
+
+En la plantilla, el icono se incrusta como SVG en línea:
+
+```php
+forja_the_icon( 'icono', 'w-6 h-6' );
+```
+
+El SVG se descarga **una sola vez** y se guarda en un transitorio. Son unos 150
+bytes y usa `currentColor`, así que hereda el color del CSS. Deliberadamente no
+se usa el componente web de Iconify: añadiría una dependencia de JavaScript para
+el visitante y una petición por icono en cada carga.
+
+Se guarda con la misma forma que ACF, así que un sitio existente con
+`dashicons`, adjuntos o URLs se sigue leyendo:
+
+```php
+array( 'type' => 'iconify', 'value' => 'mdi:home' )
+```
+
+Los dashicons de ACF se resuelven por la colección homónima de Iconify, sin
+tratarlos aparte.
+
+> **Servicio externo.** Las búsquedas del escritorio van a `api.iconify.design`.
+> Iconify es autoalojable; el filtro `forja/iconify_api` apunta a tu instancia
+> si necesitas que no salga nada del servidor.
 
 ### Galería
 
