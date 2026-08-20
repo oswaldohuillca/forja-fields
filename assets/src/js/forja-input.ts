@@ -1,65 +1,21 @@
 /**
  * Punto de entrada del JavaScript de administración.
  *
- * Sólo importa los módulos y los engancha a los elementos correspondientes.
- * Cada comportamiento vive en su propio archivo bajo `modules/`.
+ * La lista de comportamientos vive en `modules/fields.ts`, no aquí, porque la
+ * comparten la carga inicial y las filas que se añaden después. Tenerla en dos
+ * sitios ya provocó que un campo de imagen funcionara en la primera fila de un
+ * repetidor y no en las siguientes.
  */
 
 import '../css/forja-input.css';
 
-import { markGridPositions } from './modules/grid';
-import { syncRange } from './modules/range';
-import { syncSwitch } from './modules/switch';
-import { trackSelected } from './modules/choices';
-import { initGallery } from './modules/gallery';
-import { initIconPicker } from './modules/icon';
-import { initLink } from './modules/link';
-import { initMedia } from './modules/media';
-import { initOembed } from './modules/oembed';
-import { initRepeater } from './modules/repeater';
-import { initColorPicker } from './modules/color';
+import { initFields } from './modules/fields';
 import { initConditions } from './modules/conditions';
-import { initEditors } from './modules/editor';
-import { initFlexible } from './modules/flexible';
-import { initTabs } from './modules/tabs';
-import { initAccordion } from './modules/accordion';
-
-/**
- * Aplica una función a todos los elementos que casen con un selector.
- *
- * @param selector Selector CSS.
- * @param apply    Función a aplicar sobre cada elemento.
- */
-function forEach(
-	selector: string,
-	apply: ( element: HTMLElement ) => void
-): void {
-	for ( const element of document.querySelectorAll< HTMLElement >(
-		selector
-	) ) {
-		apply( element );
-	}
-}
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	forEach( '.acf-fields', markGridPositions );
-	forEach( '.acf-range-wrap', syncRange );
-	forEach( '.acf-true-false', syncSwitch );
-	forEach(
-		'.acf-radio-list, .acf-checkbox-list, .acf-button-group',
-		trackSelected
-	);
-	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
-	forEach( '.acf-color-picker', initColorPicker );
-	forEach( '.acf-gallery', initGallery );
-	forEach( '.acf-icon-picker', initIconPicker );
-	forEach( '.acf-link', initLink );
-	forEach( '.acf-oembed', initOembed );
-	forEach( '.acf-repeater', initRepeater );
-	forEach( '.acf-flexible-content', initFlexible );
-	forEach( '.acf-tab-wrap', initTabs );
-	forEach( '.acf-accordion', initAccordion );
+	initFields( document );
 
-	initEditors();
+	// Escucha en el documento, así que se engancha una sola vez y cubre también
+	// lo que se añada más tarde.
 	initConditions();
 } );

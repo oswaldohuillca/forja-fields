@@ -10,6 +10,11 @@
 # Caché de la suite de tests
 /.phpunit.cache/
 
+# Playwright
+/test-results/
+/playwright-report/
+/tests/e2e/.auth/
+
 # Entorno
 .DS_Store
 *.log

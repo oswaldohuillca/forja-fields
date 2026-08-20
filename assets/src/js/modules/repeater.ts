@@ -9,9 +9,7 @@
  * es una dependencia menos y el comportamiento es equivalente.
  */
 
-import { initColorPicker } from './color';
-import { refreshConditions } from './conditions';
-import { prepareEditors } from './editor';
+import { initClonedRow } from './fields';
 
 const CLONE_INDEX = 'acfcloneindex';
 
@@ -152,16 +150,9 @@ function addRow( repeater: HTMLElement, before: HTMLTableRowElement | null ): vo
 	body.insertBefore( row, before );
 	renumber( repeater );
 
-	// La fila entra nueva al DOM: sus campos condicionales aún no se han
-	// evaluado nunca.
-	refreshConditions( row );
-	prepareEditors( row );
-
-	for ( const picker of row.querySelectorAll< HTMLElement >(
-		'.acf-color-picker'
-	) ) {
-		initColorPicker( picker );
-	}
+	// La fila entra nueva al DOM y no la ha tocado nadie: hay que arrancarle
+	// todos los comportamientos, no sólo unos cuantos.
+	initClonedRow( row );
 
 	row.querySelector< HTMLInputElement | HTMLTextAreaElement >(
 		'input:not([type="hidden"]), textarea, select'

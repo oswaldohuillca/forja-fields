@@ -878,6 +878,31 @@ demostrar por sí misma: que un envío sin nonce no borra nada, que un valor
 inválido conserva el anterior, y que un repetidor más corto limpia las filas que
 sobran.
 
+### Tests de navegador
+
+Pest y el comparador miran lo que emite el servidor. Ninguno ejecuta el
+TypeScript del paquete, y ahí es donde vive la mitad del comportamiento: si un
+botón deja de responder, el markup sigue siendo correcto y nadie se entera.
+
+Eso lo cubre Playwright, contra el WordPress de desarrollo y el tema
+`forja-test`:
+
+```bash
+# Una vez: crea el usuario con el que entran los tests
+docker exec -w /var/www/html acf-wordpress-1 \
+    php wp-content/packages/forja/tools/e2e-user.php
+
+bun run test:e2e        # o test:e2e:ui para verlos correr
+```
+
+Se configuran con variables de entorno: `FORJA_E2E_URL` (por defecto
+`http://localhost:8080`), `FORJA_E2E_USER`, `FORJA_E2E_PASS` y `FORJA_E2E_TERM`.
+
+Prueban sobre la pantalla de una **categoría**, no sobre la de entradas. El
+editor de bloques esconde los metaboxes en un cajón plegable cuyo control cambia
+de estructura entre versiones; la de taxonomías es clásica y el código que
+interesa —clonar una fila y arrancarle los campos— es exactamente el mismo.
+
 ### Traducciones
 
 Las cadenas usan el dominio `forja-fields`. La plantilla se regenera con:

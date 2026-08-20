@@ -130,6 +130,10 @@ afterEach( function () {
 	if ( ! empty( $this->post_id ) ) {
 		wp_delete_post( $this->post_id, true );
 	}
+
+	if ( ! empty( $this->term_id ) ) {
+		wp_delete_term( $this->term_id, 'category' );
+	}
 } );
 
 it( 'guarda lo enviado y lo devuelve con su tipo nativo', function () {
@@ -583,16 +587,18 @@ it( 'guarda en un término con la misma mecánica', function () {
 
 	$term = wp_insert_term( 'Forja ' . wp_generate_password( 6, false ), 'category' );
 
+	// Se apunta para borrarlo en afterEach: si una aserción falla, un borrado
+	// al final del test no llega a ejecutarse y el término queda huérfano.
+	$this->term_id = (int) $term['term_id'];
+
 	// El contexto de términos nombra su nonce de otra forma; enviarlo con el
 	// nombre de las entradas haría que la caja se saltara en silencio.
 	forja_test_submit( 'taxonomia', array( 'color' => 'Rojo' ), 'forja_term_nonce_' );
 
 	$context = new TermContext( $registry, new Renderer(), new StorageFactory(), new Validator() );
-	$context->save( (int) $term['term_id'], (int) $term['term_taxonomy_id'], 'category' );
+	$context->save( $this->term_id, (int) $term['term_taxonomy_id'], 'category' );
 
-	expect( get_term_meta( (int) $term['term_id'], 'color', true ) )->toBe( 'Rojo' );
-
-	wp_delete_term( (int) $term['term_id'], 'category' );
+	expect( get_term_meta( $this->term_id, 'color', true ) )->toBe( 'Rojo' );
 } );
 
 it( 'guarda en un usuario con la misma mecánica', function () {

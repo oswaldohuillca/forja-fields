@@ -49,6 +49,7 @@ composer lint                                   # PHPCS con WordPress-Extra
 composer make-pot                               # plantilla de traducción
 docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
     php vendor/bin/pest                         # suite de integración
+bun run test:e2e                                # Playwright, el único que ejecuta el TS
 
 # Paridad de markup contra ACF, caso a caso
 docker exec -w /var/www/html acf-wordpress-1 \
@@ -65,3 +66,7 @@ contenedor. Bun y Vite corren en el anfitrión.
 - Un archivo de CSS y de TypeScript por responsabilidad: añadir un tipo de campo
   no debe obligar a tocar un archivo compartido.
 - Los tests son de integración contra un WordPress real, no unitarios con dobles.
+- **Un comportamiento nuevo del navegador necesita un test de Playwright.** Pest
+  y el comparador sólo ven markup: si un botón deja de responder, los dos siguen
+  en verde. Antes de dar por bueno un test así, comprueba que **falla sin el
+  arreglo**; si pasa en ambos casos, no está probando lo que dice.

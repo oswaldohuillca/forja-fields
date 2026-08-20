@@ -88,6 +88,9 @@ de los editores, así que tiene prioridad dentro de esta capa.
 ## Transversales
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
+- [x] Tests de navegador con Playwright: 7 casos sobre el arranque de los campos en filas añadidas desde el navegador
+- [ ] Ampliar los tests de navegador: arrastrar y soltar, contenido flexible, condicionales en vivo, selector de iconos
+- [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
 - [x] Contexto de taxonomías (alta y edición de términos)
@@ -151,5 +154,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Los `msgid` están en español, no en inglés | Los textos visibles reproducen los de ACF para que el markup sea idéntico, y el WordPress de referencia está en español. Gettext admite cualquier idioma de origen y el paquete no va al directorio de wordpress.org, así que traducir es español → destino. Pasarlos a inglés sería tocar 45 llamadas y arriesgar el comparador. |
 | El `.pot` se genera con una herramienta del repo | El contenedor no trae wp-cli ni gettext, y añadir cualquiera de los dos por un archivo que se regenera de tarde en tarde no compensa. `tools/make-pot.php` usa el tokenizador de PHP, que es el enfoque de wp-cli, sobre una superficie de una decena de funciones. |
 | No hay modo oscuro | WordPress no tiene. El `acf-dark.scss` de ACF vive en `third-party.php` y se engancha a `doing_dark_mode`, un hook del plugin Dark Mode de un tercero, descontinuado y nunca integrado en el núcleo. Los esquemas de color del núcleo (Medianoche, Ectoplasma) oscurecen el menú, no el área de contenido donde están los campos. |
+| La inicialización de los campos vive en un solo sitio | Había dos listas: dieciséis comportamientos al cargar la página y tres en las filas que se añaden después. Un `image` dentro de un repetidor funcionaba en la primera fila y no en las siguientes. `modules/fields.ts` la centraliza; duplicarla vuelve a abrir la misma clase de fallo. |
+| Los tests de navegador prueban sobre una taxonomía | El editor de bloques mete los metaboxes en un cajón plegable cuyo control cambia de nombre y estructura entre versiones. La pantalla de términos es clásica, y el código que se prueba es el mismo. |
+| Un test de comportamiento tiene que fallar sin el arreglo | El del interruptor pasaba en ambos casos: la casilla la conmuta el `label` por sí sola. Se comprueba la clase `-on`, que es lo que aporta el JavaScript. Un test que no puede fallar por el motivo que dice no es una red. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |

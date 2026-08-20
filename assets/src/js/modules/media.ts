@@ -60,9 +60,20 @@ function previewUrl( attachment: WpAttachment, size: string ): string {
  * @param field Contenedor `.acf-image-uploader` o `.acf-file-uploader`.
  */
 export function initMedia( field: HTMLElement ): void {
-	const input = field.querySelector< HTMLInputElement >(
-		'input[type="hidden"][data-name="id"]'
-	);
+	/*
+	 * El campo de archivo marca su input oculto con `data-name="id"` y el de
+	 * imagen no, porque el markup reproduce el de ACF y allí tampoco lo lleva.
+	 * Exigir el atributo dejaba a las imágenes sin ningún escuchador: el botón
+	 * «Añadir imagen» no hacía nada, en ninguna fila ni pantalla.
+	 *
+	 * Se busca primero el marcado y se cae al primer oculto del contenedor, que
+	 * es lo que hace ACF.
+	 */
+	const input =
+		field.querySelector< HTMLInputElement >(
+			'input[type="hidden"][data-name="id"]'
+		) ??
+		field.querySelector< HTMLInputElement >( 'input[type="hidden"]' );
 
 	if ( ! input ) {
 		return;
