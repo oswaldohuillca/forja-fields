@@ -10,7 +10,12 @@
 
 declare( strict_types = 1 );
 
-defined( 'ABSPATH' ) || exit;
+/*
+ * Este archivo no lleva la guarda de `ABSPATH` a propósito: sólo declara
+ * funciones, y `bootstrap.php` lo carga siempre para que el paquete sea
+ * utilizable también desde un script de línea de comandos. Declararlas no
+ * ejecuta nada; cada una usa WordPress sólo cuando se la llama.
+ */
 
 /**
  * Instancia única del plugin.

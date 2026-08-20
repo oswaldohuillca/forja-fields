@@ -201,7 +201,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `time_picker` | `return_format`, `min`, `max` | Control nativo; se guarda como `H:i:s` |
 | `date_time_picker` | `return_format`, `min`, `max` | Control nativo; se guarda como `Y-m-d H:i:s` |
 | `color_picker` | `enable_opacity`, `palette` | Selector del núcleo; hexadecimal, o `rgba()` con opacidad |
-| `wysiwyg` | `tabs`, `toolbar`, `rows`, `media_upload` | TinyMCE; funciona también dentro de repetidores |
+| `wysiwyg` | `tabs`, `toolbar`, `rows`, `media_upload`, `table` | TinyMCE; funciona también dentro de repetidores |
 | `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
 | `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
@@ -400,6 +400,24 @@ de una entrada.
 
 Funciona **dentro de un repetidor**, incluidas las filas que se añaden sobre la
 marcha.
+
+#### Tablas
+
+WordPress empaqueta TinyMCE pero **no** su plugin `table` — es justo lo que
+añaden extensiones como «Advanced Editor Tools». Forja incluye el plugin oficial
+de la misma versión, así que basta con pedirlo:
+
+```php
+array( 'type' => 'wysiwyg', 'name' => 'cuerpo', 'table' => true )
+```
+
+Añade a la barra los botones de insertar tabla y editar filas y celdas. El HTML
+resultante sobrevive al saneado: `wp_kses_post()` admite tablas con sus
+atributos habituales.
+
+El archivo vive en `assets/vendor/tinymce/table/`, bajo LGPL 2.1 y sin
+modificar. Su versión debe coincidir con la de TinyMCE que traiga WordPress; el
+README de esa carpeta explica cómo comprobarlo al actualizar.
 
 ### Fechas y horas
 

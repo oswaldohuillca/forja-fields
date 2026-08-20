@@ -46,6 +46,9 @@ declare global {
 			editor?: {
 				initialize: ( id: string, settings: WpEditorSettings ) => void;
 				remove: ( id: string ) => void;
+				getDefaultSettings?: () => {
+					tinymce?: Record< string, unknown >;
+				};
 			};
 		};
 

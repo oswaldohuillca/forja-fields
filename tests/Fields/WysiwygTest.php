@@ -60,3 +60,34 @@ it( 'traslada la configuración al markup para que la lea el JavaScript', functi
 		->and( $html )->toContain( 'data-toolbar="basic"' )
 		->and( $html )->toContain( 'data-media="0"' );
 } );
+
+describe( 'tablas', function () {
+	it( 'no las ofrece si no se piden', function () {
+		$html = forja_test_render( forja_test_field( array( 'type' => 'wysiwyg' ) ), '' );
+
+		expect( $html )->toContain( 'data-table="0"' )
+			->and( $html )->not->toContain( 'data-table-plugin' );
+	} );
+
+	it( 'pasa la URL del plugin cuando se piden', function () {
+		// El filtro `mce_external_plugins` no sirve: sólo lo aplica
+		// `wp_editor()`, y estos editores se arrancan desde JavaScript.
+		$html = forja_test_render(
+			forja_test_field( array( 'type' => 'wysiwyg', 'table' => true ) ),
+			''
+		);
+
+		expect( $html )->toContain( 'data-table="1"' )
+			->and( $html )->toContain( 'assets/vendor/tinymce/table/plugin.min.js' );
+	} );
+
+	it( 'conserva el HTML de una tabla al sanear', function () {
+		wp_set_current_user( 0 );
+
+		$field = forja_test_field( array( 'type' => 'wysiwyg', 'table' => true ) );
+		$table = '<table><thead><tr><th>Uno</th></tr></thead><tbody><tr><td>Dos</td></tr></tbody></table>';
+
+		// `wp_kses_post()` admite tablas con sus atributos habituales.
+		expect( $field->sanitize( $table ) )->toBe( $table );
+	} );
+} );

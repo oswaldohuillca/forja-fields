@@ -23,19 +23,20 @@
 declare( strict_types = 1 );
 
 /*
- * Aquí NO se usa el habitual `defined( 'ABSPATH' ) || exit;`.
+ * Aquí NO se usa el habitual `defined( 'ABSPATH' ) || exit;`, ni tampoco un
+ * `return` temprano.
  *
- * Composer incluye este archivo desde `vendor/autoload.php`, así que lo carga
- * cualquier herramienta de línea de comandos del proyecto —phpcs, phpunit, un
- * script propio— fuera de WordPress. Un `exit` ahí las mata en silencio, sin
- * mensaje y con código 0, que es un fallo muy desagradable de diagnosticar.
+ * Composer lleva el registro de los archivos de autoload en
+ * `$GLOBALS['__composer_autoload_files']`, que es **global entre
+ * autoloaders**: dos `vendor/` distintos con el mismo paquete comparten el
+ * identificador, así que este archivo se incluye una única vez en toda la
+ * petición. Si esa vez ocurriera antes de que WordPress esté cargado —una
+ * herramienta de línea de comandos, otro paquete que arranque antes— y
+ * saliéramos aquí, ya no habría segunda oportunidad: el paquete nunca
+ * arrancaría.
  *
- * Con `return` el archivo tampoco hace nada fuera de WordPress, pero deja
- * seguir al proceso.
+ * Por eso se registra siempre y sólo se difiere lo que necesita WordPress.
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	return;
-}
 
 if ( ! isset( $GLOBALS['forja_candidates'] ) ) {
 	$GLOBALS['forja_candidates'] = array();
@@ -47,6 +48,10 @@ $GLOBALS['forja_candidates'][] = array(
 );
 
 if ( ! function_exists( 'forja_boot_highest_version' ) ) {
+	// La API son sólo definiciones de función: cargarla fuera de WordPress no
+	// ejecuta nada y deja el paquete utilizable desde un script suelto.
+	require_once __DIR__ . '/includes/api.php';
+
 
 	/**
 	 * Arranca la copia de Forja con la versión más alta.
@@ -67,18 +72,23 @@ if ( ! function_exists( 'forja_boot_highest_version' ) ) {
 
 		$winner = $candidates[0];
 
-		define( 'FORJA_VERSION', $winner['version'] );
-		define( 'FORJA_DIR', $winner['dir'] );
-
-		require_once $winner['dir'] . '/includes/api.php';
+		if ( ! defined( 'FORJA_VERSION' ) ) {
+			define( 'FORJA_VERSION', $winner['version'] );
+			define( 'FORJA_DIR', $winner['dir'] );
+		}
 
 		forja( $winner['dir'] )->boot();
 	}
 
-	/**
+	/*
 	 * Se engancha en `after_setup_theme`, que es el primer momento en el que ya
 	 * se han cargado tanto los plugins como el `functions.php` del tema. Así se
 	 * ven todas las copias antes de elegir.
+	 *
+	 * Sin WordPress delante no hay nada que enganchar, pero las clases y la API
+	 * quedan igualmente disponibles.
 	 */
-	add_action( 'after_setup_theme', 'forja_boot_highest_version', 0 );
+	if ( function_exists( 'add_action' ) ) {
+		add_action( 'after_setup_theme', 'forja_boot_highest_version', 0 );
+	}
 }

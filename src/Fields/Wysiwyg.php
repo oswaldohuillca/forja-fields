@@ -58,6 +58,8 @@ final class Wysiwyg extends Field {
 				'rows'         => 8,
 				// Botón de añadir objeto sobre el editor.
 				'media_upload' => true,
+				// Añade el plugin de tablas de TinyMCE. Ver register_table_plugin().
+				'table'        => false,
 			)
 		);
 	}
@@ -74,7 +76,8 @@ final class Wysiwyg extends Field {
 		// tendría con qué arrancar.
 		wp_enqueue_editor();
 
-		$tabs = (string) $this->get( 'tabs', 'all' );
+		$tables = (bool) $this->get( 'table', false );
+		$tabs   = (string) $this->get( 'tabs', 'all' );
 
 		$attributes = array(
 			'id'             => $this->input_id(),
@@ -85,7 +88,23 @@ final class Wysiwyg extends Field {
 			'data-quicktags' => 'visual' === $tabs ? '0' : '1',
 			'data-toolbar'   => (string) $this->get( 'toolbar', 'full' ),
 			'data-media'     => $this->get( 'media_upload', true ) ? '1' : '0',
+			'data-table'     => $tables ? '1' : '0',
 		);
+
+		/*
+		 * La URL del plugin de tablas viaja en el markup, no por el filtro
+		 * `mce_external_plugins`.
+		 *
+		 * Ese filtro sólo lo aplica `wp_editor()`. Los editores que se arrancan
+		 * desde JavaScript reciben sus ajustes de
+		 * `print_default_editor_scripts()`, que no lo tiene en cuenta, así que
+		 * hay que inyectarlo al llamar a `wp.editor.initialize()`.
+		 */
+		if ( $tables ) {
+			$attributes['data-table-plugin'] = \forja()->paths()->url(
+				'assets/vendor/tinymce/table/plugin.min.js'
+			);
+		}
 
 		echo '<div class="acf-editor-wrap">';
 
@@ -103,7 +122,9 @@ final class Wysiwyg extends Field {
 	 *
 	 * Se sigue el mismo criterio que WordPress aplica al contenido de una
 	 * entrada: quien tiene permiso para publicar HTML sin filtrar lo conserva,
-	 * y al resto se le limita a las etiquetas permitidas.
+	 * y al resto se le limita a las etiquetas permitidas. `wp_kses_post()` ya
+	 * admite tablas con sus atributos habituales, así que el contenido creado
+	 * con el plugin de tablas sobrevive.
 	 *
 	 * @param mixed $raw Valor crudo enviado por el navegador.
 	 * @return mixed HTML saneado.

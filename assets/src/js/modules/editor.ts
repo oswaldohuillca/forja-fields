@@ -7,9 +7,62 @@
  * añadida a un repetidor tenga un editor funcionando.
  */
 
-/** Botones de la barra reducida, los mismos que ofrece ACF. */
+/*
+ * Barras de herramientas.
+ *
+ * Hay que declararlas enteras. Los ajustes que WordPress expone en
+ * `wp.editor.getDefaultSettings()` vienen de `print_default_editor_scripts()`,
+ * pensados para el bloque clásico, y traen una barra mínima —negrita, cursiva,
+ * listas y enlace— que no es la del editor de entradas.
+ */
+
+/** Las dos filas del editor de entradas de WordPress. */
+const FULL_TOOLBAR_1 =
+	'formatselect,bold,italic,bullist,numlist,blockquote,alignleft,aligncenter,alignright,link,wp_more,spellchecker,wp_adv';
+
+const FULL_TOOLBAR_2 =
+	'strikethrough,hr,forecolor,pastetext,removeformat,charmap,outdent,indent,undo,redo,wp_help';
+
+/** Barra reducida, la misma que ofrece ACF. */
 const BASIC_TOOLBAR =
 	'bold,italic,bullist,numlist,blockquote,alignleft,aligncenter,alignright,link,undo,redo';
+
+/**
+ * Barra que aporta el plugin de tablas.
+ *
+ * `table` abre el menú completo —insertar, filas, columnas, propiedades—; los
+ * otros dos son los atajos que más se usan.
+ */
+const TABLE_TOOLBAR = 'table,tablerowprops,tablecellprops';
+
+/**
+ * Compone los ajustes de TinyMCE de un editor.
+ *
+ * @param textarea Área de texto con la configuración en sus atributos.
+ * @return Ajustes para TinyMCE.
+ */
+function tinymceSettings( textarea: HTMLTextAreaElement ): Record< string, unknown > {
+	const basic = textarea.dataset.toolbar === 'basic';
+	const tables = textarea.dataset.table === '1';
+	const plugin = textarea.dataset.tablePlugin;
+
+	const first = basic ? BASIC_TOOLBAR : FULL_TOOLBAR_1;
+	const second = basic ? '' : FULL_TOOLBAR_2;
+
+	const settings: Record< string, unknown > = {
+		wpautop: true,
+		toolbar1: tables && basic ? `${ first },${ TABLE_TOOLBAR }` : first,
+		toolbar2: tables && ! basic ? `${ second },${ TABLE_TOOLBAR }` : second,
+	};
+
+	// El plugin de tablas no lo trae WordPress; se sirve desde el paquete y se
+	// registra aquí porque los ajustes por defecto no lo contemplan.
+	if ( tables && plugin ) {
+		settings.external_plugins = { table: plugin };
+	}
+
+	return settings;
+}
 
 /**
  * Arranca el editor sobre un área de texto.
@@ -26,18 +79,9 @@ export function initEditor( textarea: HTMLTextAreaElement ): void {
 	textarea.dataset.forjaReady = '1';
 
 	const useTinymce = textarea.dataset.tinymce !== '0';
-	const basic = textarea.dataset.toolbar === 'basic';
 
 	editor.initialize( textarea.id, {
-		tinymce: useTinymce
-			? {
-					wpautop: true,
-					// TinyMCE necesita la lista explícita; sin ella la barra
-					// reducida saldría igual que la completa.
-					toolbar1: basic ? BASIC_TOOLBAR : undefined,
-					toolbar2: basic ? '' : undefined,
-			  }
-			: false,
+		tinymce: useTinymce ? tinymceSettings( textarea ) : false,
 		quicktags: textarea.dataset.quicktags !== '0',
 		mediaButtons: textarea.dataset.media !== '0',
 	} );
