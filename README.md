@@ -179,6 +179,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `default_value` | `''` | Valor cuando aún no se ha guardado nada |
 | `placeholder` | `''` | Texto de marcador |
 | `wrapper` | `array()` | `width` en porcentaje, `class` e `id` extra |
+| `conditional_logic` | `array()` | Reglas que deciden si el campo se muestra |
 
 ### Tipos disponibles
 
@@ -368,6 +369,62 @@ tipo nativo:
 Un `number` sin rellenar devuelve `null` y no `0` a propósito: el cero es un
 valor legítimo, y confundirlos impediría distinguir «no lo tocaron» de
 «pusieron cero».
+
+### Lógica condicional
+
+Un campo puede depender del valor de otro. Se admiten tres formas, de la más
+corta a la más explícita:
+
+```php
+// Una regla suelta.
+'conditional_logic' => array( 'field' => 'tipo', 'value' => 'video' ),
+
+// Varias reglas: deben cumplirse TODAS.
+'conditional_logic' => array(
+	array( 'field' => 'tipo', 'value' => 'video' ),
+	array( 'field' => 'avanzado', 'value' => '1' ),
+),
+
+// Grupos alternativos: basta con que UNO se cumpla entero.
+'conditional_logic' => array(
+	array( array( 'field' => 'tipo', 'value' => 'video' ) ),
+	array( array( 'field' => 'tipo', 'value' => 'audio' ) ),
+),
+```
+
+Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
+`!contains`, `empty` y `!empty`. También se aceptan las grafías de ACF
+(`==contains`, `!=empty`, `!==`).
+
+Dentro de un repetidor o de un contenido flexible, una regla mira a su
+**hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
+campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Páginas de opciones
+
+```php
+forja_register_box( 'ajustes_sitio', array(
+	'title'       => 'Ajustes del sitio',
+	'object_type' => 'option',
+	'icon'        => 'dashicons-hammer',
+	'fields'      => array(
+		array( 'type' => 'text',  'name' => 'telefono', 'label' => 'Teléfono' ),
+		array( 'type' => 'image', 'name' => 'logo',     'label' => 'Logotipo' ),
+	),
+) );
+```
+
+Crea su propia pantalla en el escritorio. Opciones adicionales: `capability`
+(por defecto `manage_options`), `menu_title`, `parent_slug` para colgarla de un
+menú existente, `icon`, `position` y `button_label`.
+
+Se leen con un atajo que evita repetir el prefijo:
+
+```php
+forja_get_option( 'telefono', 'ajustes_sitio' );
+```
+
+Funcionan todos los tipos de campo, compuestos incluidos.
 
 ### Validación
 

@@ -251,6 +251,14 @@ final class Renderer {
 			$attributes['data-required'] = '1';
 		}
 
+		$conditions = $field->conditions();
+
+		if ( array() !== $conditions ) {
+			// El JavaScript lo lee para decidir si el campo se ve. Va como JSON
+			// porque la estructura es una lista de grupos con reglas dentro.
+			$attributes['data-conditions'] = (string) wp_json_encode( $conditions );
+		}
+
 		$width = (string) ( $wrapper['width'] ?? '' );
 
 		if ( '' !== $width ) {

@@ -5,6 +5,8 @@
  * una plantilla por capa: al añadir hay que elegir cuál.
  */
 
+import { refreshConditions } from './conditions';
+
 const CLONE_INDEX = 'acfcloneindex';
 
 /**
@@ -135,6 +137,7 @@ function addLayout(
 
 	values.insertBefore( row, before );
 	renumber( field );
+	refreshConditions( row );
 }
 
 /**

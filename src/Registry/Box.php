@@ -81,6 +81,13 @@ final class Box {
 			'instruction_placement' => 'label',
 			// Colocación de la etiqueta: top o left.
 			'label_placement'       => 'top',
+			// Sólo para object_type => option.
+			'capability'            => 'manage_options',
+			'menu_title'            => '',
+			'parent_slug'           => '',
+			'icon'                  => 'dashicons-admin-generic',
+			'position'              => 80,
+			'button_label'          => '',
 		);
 	}
 

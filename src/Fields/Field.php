@@ -60,18 +60,85 @@ abstract class Field {
 	 */
 	protected function defaults(): array {
 		return array(
-			'name'          => '',
-			'label'         => '',
-			'instructions'  => '',
-			'required'      => false,
-			'default_value' => '',
-			'placeholder'   => '',
-			'wrapper'       => array(
+			'name'              => '',
+			'label'             => '',
+			'instructions'      => '',
+			'required'          => false,
+			'default_value'     => '',
+			'placeholder'       => '',
+			'wrapper'           => array(
 				'width' => '',
 				'class' => '',
 				'id'    => '',
 			),
+			// Reglas que deciden si el campo se muestra. Ver conditions().
+			'conditional_logic' => array(),
 		);
+	}
+
+	/**
+	 * Reglas de visibilidad, normalizadas.
+	 *
+	 * Se admiten tres formas, de la más corta a la más explícita:
+	 *
+	 *     // Una regla suelta.
+	 *     'conditional_logic' => array( 'field' => 'tipo', 'value' => 'video' )
+	 *
+	 *     // Varias reglas que deben cumplirse todas.
+	 *     'conditional_logic' => array(
+	 *         array( 'field' => 'tipo', 'value' => 'video' ),
+	 *         array( 'field' => 'activo', 'value' => '1' ),
+	 *     )
+	 *
+	 *     // Grupos alternativos: basta con que uno se cumpla entero.
+	 *     'conditional_logic' => array(
+	 *         array( array( 'field' => 'tipo', 'value' => 'video' ) ),
+	 *         array( array( 'field' => 'tipo', 'value' => 'audio' ) ),
+	 *     )
+	 *
+	 * Siempre se devuelve la forma larga: una lista de grupos en OR, y dentro
+	 * de cada grupo una lista de reglas en AND. Es la misma semántica que ACF.
+	 *
+	 * @return array<int, array<int, array{field: string, operator: string, value: string}>> Grupos de reglas.
+	 */
+	public function conditions(): array {
+		$raw = $this->args['conditional_logic'] ?? array();
+
+		if ( ! is_array( $raw ) || array() === $raw ) {
+			return array();
+		}
+
+		// Una regla suelta: tiene la clave «field» en la raíz.
+		if ( isset( $raw['field'] ) ) {
+			$raw = array( array( $raw ) );
+		} elseif ( isset( $raw[0]['field'] ) ) {
+			// Una lista de reglas: se envuelve como un único grupo AND.
+			$raw = array( $raw );
+		}
+
+		$groups = array();
+
+		foreach ( $raw as $group ) {
+			$rules = array();
+
+			foreach ( (array) $group as $rule ) {
+				if ( ! is_array( $rule ) || ! isset( $rule['field'] ) ) {
+					continue;
+				}
+
+				$rules[] = array(
+					'field'    => (string) $rule['field'],
+					'operator' => (string) ( $rule['operator'] ?? '==' ),
+					'value'    => is_scalar( $rule['value'] ?? '' ) ? (string) ( $rule['value'] ?? '' ) : '',
+				);
+			}
+
+			if ( array() !== $rules ) {
+				$groups[] = $rules;
+			}
+		}
+
+		return $groups;
 	}
 
 	/**

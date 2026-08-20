@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja;
 
+use Forja\Context\OptionsContext;
 use Forja\Context\PostContext;
 use Forja\Registry\BoxRegistry;
 use Forja\Registry\FieldRegistry;
@@ -104,6 +105,8 @@ final class Plugin {
 		( new Assets( $this->paths ) )->register_hooks();
 
 		( new PostContext( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
+
+		( new OptionsContext( $this->boxes(), $this->renderer(), $this->storage(), new Validator() ) )->register_hooks();
 	}
 
 	/**

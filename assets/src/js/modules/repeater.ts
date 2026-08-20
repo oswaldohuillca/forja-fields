@@ -9,6 +9,8 @@
  * es una dependencia menos y el comportamiento es equivalente.
  */
 
+import { refreshConditions } from './conditions';
+
 const CLONE_INDEX = 'acfcloneindex';
 
 /**
@@ -147,6 +149,10 @@ function addRow( repeater: HTMLElement, before: HTMLTableRowElement | null ): vo
 
 	body.insertBefore( row, before );
 	renumber( repeater );
+
+	// La fila entra nueva al DOM: sus campos condicionales aún no se han
+	// evaluado nunca.
+	refreshConditions( row );
 
 	row.querySelector< HTMLInputElement | HTMLTextAreaElement >(
 		'input:not([type="hidden"]), textarea, select'

@@ -111,6 +111,19 @@ function forja_get_field( string $name, int|string|null $object_id = null, strin
 }
 
 /**
+ * Lee el valor de un campo de una página de opciones.
+ *
+ * Atajo de `forja_get_field( $name, 'forja_' . $box_id, 'option' )`.
+ *
+ * @param string $name   Nombre del campo.
+ * @param string $box_id Identificador de la página de opciones.
+ * @return mixed Valor con el formato que declare el campo, o null si no existe.
+ */
+function forja_get_option( string $name, string $box_id ): mixed {
+	return forja_get_field( $name, 'forja_' . $box_id, 'option' );
+}
+
+/**
  * Lee el valor de un campo sin darle formato.
  *
  * Devuelve exactamente lo que hay en la base de datos, sin aplicar
