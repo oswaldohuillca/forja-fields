@@ -1,0 +1,66 @@
+# Forja
+
+Librería de Composer que replica la interfaz de edición de ACF/Secure Custom
+Fields, pero con los campos declarados por código al estilo de CMB2. No es un
+plugin: se instala en un tema y se carga desde su `functions.php`.
+
+## Las dos reglas que condicionan casi todo
+
+Antes de cambiar nada, ten presentes estas dos. Casi cada decisión rara del
+código responde a una de ellas.
+
+**Se conservan los nombres de clase CSS `acf-`.** El CSS está portado de Secure
+Custom Fields y depende de esa estructura DOM exacta. Renombrar el prefijo
+provoca fallos visuales silenciosos.
+
+**El formato de almacenamiento es el de ACF.** Repetidores como
+`campo_0_subcampo`, fechas como `Ymd`, horas como `H:i:s`. Es lo que permite
+leer un sitio existente sin migrar nada.
+
+## Dónde va cada cosa al documentar
+
+Cuando expliques por qué una decisión es como es, o descubras algo investigando,
+**escríbelo aquí, no sólo en la conversación**. El chat se pierde; el proyecto se
+retoma entre sesiones. Si el motivo de una decisión sólo vive en un mensaje, la
+siguiente persona la cambia sin saber que respondía a algo que ya se probó y no
+funcionaba.
+
+| Documento | Qué contiene |
+|---|---|
+| `README.md` | Guía de uso: qué se declara y qué devuelve |
+| `docs/ARCHITECTURE.md` | El porqué: decisiones con su razón, dependencias externas, seguridad, cómo se prueba |
+| `ROADMAP.md` | Estado de cada fase y la tabla de «Decisiones tomadas», para no rediscutirlas |
+
+Documenta también los callejones sin salida: qué se intentó y por qué no valía.
+Ahorra repetir el intento.
+
+## Cómo se trabaja
+
+En `ROADMAP.md` sólo se marca `[x]` lo que está implementado **y verificado**.
+Una casilla marcada significa que alguien lo ejecutó y lo comprobó, no que el
+código exista.
+
+Antes de dar por cerrado un bloque de trabajo:
+
+```bash
+bun run typecheck
+bun run build
+composer lint                                   # PHPCS con WordPress-Extra
+docker exec -w /var/www/html/wp-content/packages/forja acf-wordpress-1 \
+    php vendor/bin/pest                         # suite de integración
+
+# Paridad de markup contra ACF, caso a caso
+docker exec -w /var/www/html acf-wordpress-1 \
+    php wp-content/packages/forja/tools/compare-with-scf.php
+```
+
+El entorno es Docker (`acf-wordpress-1`), con PHP 8.3 y Composer dentro del
+contenedor. Bun y Vite corren en el anfitrión.
+
+## Estilo
+
+- Código y comentarios **en español**, igual que el resto del repositorio.
+- Los comentarios explican **por qué**, no qué hace la línea siguiente.
+- Un archivo de CSS y de TypeScript por responsabilidad: añadir un tipo de campo
+  no debe obligar a tocar un archivo compartido.
+- Los tests son de integración contra un WordPress real, no unitarios con dobles.

@@ -520,6 +520,11 @@ tratarlos aparte.
 > Iconify es autoalojable; el filtro `forja/iconify_api` apunta a tu instancia
 > si necesitas que no salga nada del servidor.
 
+El nombre del icono se valida antes de construir la URL, y el SVG que devuelve
+la API pasa por una lista blanca de etiquetas antes de entrar en la página. El
+porqué de cada decisión está en
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#servicios-y-dependencias-externas).
+
 ### Galería
 
 ```php
@@ -781,8 +786,17 @@ Para consumirlo sin Packagist, basta con declarar el repositorio en el tema:
 
 ## Documentación
 
-- [ROADMAP.md](ROADMAP.md) — plan de trabajo y estado de cada fase
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — cómo encajan las piezas
+Este README es la guía de uso: qué se puede declarar y qué devuelve. El **porqué**
+de cada decisión vive en los otros dos documentos.
+
+| Documento | Qué contiene |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Cómo encajan las piezas, las decisiones de diseño con su razón, las dependencias externas y los criterios de seguridad |
+| [ROADMAP.md](ROADMAP.md) | Estado de cada fase y la tabla de decisiones tomadas, para no rediscutirlas |
+| [CLAUDE.md](CLAUDE.md) | Contexto para quien retome el proyecto: las reglas que condicionan el código y cómo se verifica un cambio |
+
+Si una decisión te sorprende al leer el código, búscala en `ARCHITECTURE.md`
+antes de cambiarla: casi todas responden a algo que se probó y no funcionaba.
 
 ## Licencia
 
