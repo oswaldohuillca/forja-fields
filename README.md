@@ -206,6 +206,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `oembed` | `width`, `height`, `return_format` | Guarda la dirección; el HTML se resuelve al pintar |
 | `image` | `preview_size`, `library`, `mime_types`, `return_format` | Guarda el ID; se valida contra la mediateca |
 | `file` | `library`, `mime_types`, `return_format` | Guarda el ID del adjunto |
+| `gallery` | `preview_size`, `min`, `max`, `mime_types`, `return_format` | Lista ordenada de imágenes |
 | `message` | `message`, `esc_html`, `new_lines` | Sólo presentación, no guarda nada |
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
@@ -476,6 +477,35 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Galería
+
+```php
+array(
+	'type'         => 'gallery',
+	'name'         => 'imagenes',
+	'label'        => 'Imágenes',
+	'max'          => 8,
+	'preview_size' => 'thumbnail',
+)
+```
+
+Guarda una **lista ordenada** de identificadores; el orden es el de las
+miniaturas, que se reordenan arrastrando. `return_format` funciona igual que en
+`image`, aplicado a cada elemento:
+
+```php
+foreach ( forja_get_field( 'imagenes' ) as $id ) {
+	echo wp_get_attachment_image( $id, 'large' );
+}
+```
+
+Al guardar se descartan los duplicados y todo lo que no sea una imagen de la
+mediateca. Al leer se omiten los adjuntos que se hayan borrado, para que la
+plantilla no tenga que comprobarlo.
+
+> El panel lateral de ACF, que permite editar título y texto alternativo sin
+> salir del campo, no está portado. Se editan desde la mediateca.
 
 ### Enlaces y contenido incrustado
 

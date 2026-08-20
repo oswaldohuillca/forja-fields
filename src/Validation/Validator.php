@@ -41,6 +41,11 @@ final class Validator {
 			);
 		}
 
+		// Reglas propias del tipo, si el `required` no ha fallado ya.
+		if ( '' === $error ) {
+			$error = $field->validate( $value );
+		}
+
 		/**
 		 * Filtra el resultado de la validación de un campo.
 		 *

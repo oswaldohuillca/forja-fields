@@ -195,6 +195,22 @@ abstract class Field {
 	}
 
 	/**
+	 * Comprueba las reglas propias del tipo de campo.
+	 *
+	 * El validador se ocupa de `required`, que es común a todos. Lo que sólo
+	 * tiene sentido para un tipo concreto —cuántas imágenes admite una galería,
+	 * por ejemplo— se comprueba aquí.
+	 *
+	 * @param mixed $value Valor ya saneado.
+	 * @return string Mensaje de error, o cadena vacía si es válido.
+	 */
+	public function validate( mixed $value ): string {
+		unset( $value );
+
+		return '';
+	}
+
+	/**
 	 * Sanea el valor recibido del formulario.
 	 *
 	 * @param mixed $raw Valor crudo enviado por el navegador.

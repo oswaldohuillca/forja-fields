@@ -66,7 +66,7 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 Aquí entra el JS de verdad. Conviene abordarlos por familia, porque comparten
 infraestructura.
 
-- [~] Familia `wp.media`: `image` y `file` hechos; falta `gallery`
+- [x] Familia `wp.media`: `image`, `file` y `gallery`
 - [ ] Familia `select2`: `post_object`, `page_link`, `relationship`, `taxonomy`, `user`
 - [x] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
 - [x] `wysiwyg` (TinyMCE, con tablas opcionales, funcional dentro de repetidores)
@@ -96,7 +96,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [ ] Internacionalización y archivo `.pot`
-- [~] Tests con Pest: 116 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
+- [~] Tests con Pest: 125 casos sobre saneado, medios, agrupado, validación y almacenamiento; falta cubrir el contexto de guardado completo
 
 ---
 
@@ -118,6 +118,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
+| Un campo puede aportar sus propias reglas de validación | `Field::validate()`. El validador se ocupa de `required`, que es común; lo que sólo tiene sentido para un tipo —cuántas imágenes admite una galería— vive en el tipo. |
+| La galería descarta al leer los adjuntos borrados | Un identificador huérfano obligaría a comprobarlo en cada iteración de la plantilla. WordPress cachea los objetos, y una galería tiene pocas imágenes. |
 | El `oembed` guarda la dirección, no el HTML | El markup de un proveedor cambia con el tiempo; guardarlo dejaría el sitio con vídeos rotos. Se resuelve al pintar. |
 | La vista previa del `oembed` usa el endpoint REST del núcleo | `oembed/1.0/proxy` ya resuelve proveedores y caché; registrar uno propio sería reimplementarlo peor. |
 | El plugin de tablas se sirve desde el paquete | WordPress no lo empaqueta. Se incluye el oficial de la misma versión de TinyMCE (LGPL 2.1) en vez de exigir una extensión de terceros. |
