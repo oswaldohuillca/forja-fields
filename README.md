@@ -202,6 +202,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `separator` | — | Sólo presentación; la etiqueta titula la sección |
 | `tab` | `selected`, `endpoint` | Agrupa los campos que le siguen en una pestaña |
 | `accordion` | `open`, `multi_expand`, `endpoint` | Anida los campos que le siguen en un panel plegable |
+| `repeater` | `sub_fields`, `min`, `max`, `button_label` | Lista de filas; compatible con los datos de ACF |
 
 Todos aceptan además `readonly` y `disabled`.
 
@@ -232,6 +233,48 @@ echo '<img src="' . esc_url( $img['sizes']['large']['url'] ) . '" alt="' . esc_a
 
 Si necesitas el valor crudo pese al formato declarado, usa
 `forja_get_field_raw()`.
+
+### Repetidor
+
+```php
+array(
+	'type'         => 'repeater',
+	'name'         => 'banner',
+	'label'        => 'Banner',
+	'button_label' => 'Añadir banner',
+	'min'          => 1,
+	'max'          => 5,
+	'sub_fields'   => array(
+		array( 'type' => 'image', 'name' => 'desktop', 'label' => 'Desktop', 'wrapper' => array( 'width' => '15' ) ),
+		array( 'type' => 'text',  'name' => 'title',   'label' => 'Title' ),
+		array( 'type' => 'url',   'name' => 'button_url', 'label' => 'Button url' ),
+	),
+)
+```
+
+En la plantilla devuelve una lista de filas, con cada subcampo ya formateado:
+
+```php
+foreach ( forja_get_field( 'banner' ) as $fila ) {
+	echo wp_get_attachment_image( $fila['desktop'], 'large' );
+	echo esc_html( $fila['title'] );
+}
+```
+
+`wrapper.width` en un subcampo fija el ancho de su columna.
+
+**Compatibilidad con ACF.** Se almacena en el mismo formato, una clave por
+subcampo y fila:
+
+```
+banner            => 2
+banner_0_titulo   => 'Primera'
+banner_1_titulo   => 'Segunda'
+```
+
+Es decir: un sitio que ya tenga repetidores de ACF se lee sin migrar nada. Y
+cada subcampo sigue siendo consultable con `meta_query`, cosa que se perdería
+serializando un array.
 
 ### Validación
 

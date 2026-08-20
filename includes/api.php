@@ -89,12 +89,25 @@ function forja_get_field( string $name, int|string|null $object_id = null, strin
 		return null;
 	}
 
-	$value = forja()->storage()->for( $object_type )->get( $object_id, $name );
-	$field = forja()->boxes()->find_field( $name );
+	$storage = forja()->storage()->for( $object_type );
+	$field   = forja()->boxes()->find_field( $name );
 
 	// Una clave que no corresponda a ningún campo declarado se devuelve tal
 	// cual: puede ser un metadato de otro origen.
-	return null === $field ? $value : $field->format_value( $value );
+	if ( null === $field ) {
+		return $storage->get( $object_id, $name );
+	}
+
+	// Un campo compuesto ocupa varias claves y sabe cómo reconstruirse.
+	if ( $field instanceof \Forja\Fields\Composite ) {
+		return $field->format_value(
+			$field->read_value(
+				static fn ( string $key ): mixed => $storage->get( $object_id, $key )
+			)
+		);
+	}
+
+	return $field->format_value( $storage->get( $object_id, $name ) );
 }
 
 /**

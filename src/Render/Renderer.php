@@ -76,32 +76,41 @@ final class Renderer {
 	 * @param string                $input_prefix Prefijo del atributo «name».
 	 * @param string                $instruction  Dónde colocar las instrucciones.
 	 * @param array<string, string> $extra        Atributos adicionales del envoltorio.
+	 * @param string                $element      Etiqueta del envoltorio: div o td.
 	 * @return void
 	 */
-	public function render_field_wrap( Field $field, mixed $value, string $input_prefix, string $instruction = 'label', array $extra = array() ): void {
+	public function render_field_wrap( Field $field, mixed $value, string $input_prefix, string $instruction = 'label', array $extra = array(), string $element = 'div' ): void {
 		$wrapper = array_merge( $this->wrapper_attributes( $field ), $extra );
 
-		printf( '<div %s>', Html::attributes( $wrapper ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
+		// Dentro de una tabla el envoltorio es una celda. Su etiqueta ya vive
+		// en la cabecera de la columna, así que aquí se omite: es lo que hace
+		// ACF y de ello depende el ancho de la columna.
+		$element  = 'td' === $element ? 'td' : 'div';
+		$in_table = 'td' === $element;
 
-		echo '<div class="acf-label">';
-		$this->render_label( $field );
+		printf( '<%s %s>', esc_attr( $element ), Html::attributes( $wrapper ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 
-		if ( 'label' === $instruction ) {
-			$this->render_instructions( $field );
+		if ( ! $in_table ) {
+			echo '<div class="acf-label">';
+			$this->render_label( $field );
+
+			if ( 'label' === $instruction ) {
+				$this->render_instructions( $field );
+			}
+
+			echo '</div>';
 		}
-
-		echo '</div>';
 
 		echo '<div class="acf-input">';
 		$field->render_input( $value, $input_prefix . '[' . $field->name() . ']' );
 
-		if ( 'field' === $instruction ) {
+		if ( ! $in_table && 'field' === $instruction ) {
 			$this->render_instructions( $field );
 		}
 
 		echo '</div>';
 
-		echo '</div>';
+		printf( '</%s>', esc_attr( $element ) );
 	}
 
 	/**

@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja\Context;
 
+use Forja\Fields\Composite;
 use Forja\Registry\Box;
 use Forja\Registry\BoxRegistry;
 use Forja\Render\Renderer;
@@ -141,12 +142,19 @@ final class PostContext {
 		$storage         = $this->storage->for( 'post' );
 		$label_placement = 'left' === $box->get( 'label_placement' ) ? '-left' : '-top';
 
+		$get = static fn ( string $key ): mixed => $storage->get( $post->ID, $key );
+
 		foreach ( $box->fields() as $field ) {
+			if ( $field instanceof Composite ) {
+				$values[ $field->name() ] = $field->read_value( $get );
+				continue;
+			}
+
 			if ( ! $field->stores_value() ) {
 				continue;
 			}
 
-			$stored = $storage->get( $post->ID, $field->name() );
+			$stored = $get( $field->name() );
 
 			if ( null !== $stored ) {
 				$values[ $field->name() ] = $stored;
@@ -212,11 +220,24 @@ final class PostContext {
 			}
 
 			foreach ( $box->fields() as $field ) {
-				if ( ! $field->stores_value() ) {
+				$name = $field->name();
+
+				if ( $field instanceof Composite ) {
+					if ( array_key_exists( $name, $submitted ) ) {
+						$field->write_value(
+							$submitted[ $name ],
+							static fn ( string $key ): mixed => $storage->get( $post_id, $key ),
+							static fn ( string $key, mixed $value ): bool => $storage->update( $post_id, $key, $value ),
+							static fn ( string $key ): bool => $storage->delete( $post_id, $key )
+						);
+					}
+
 					continue;
 				}
 
-				$name = $field->name();
+				if ( ! $field->stores_value() ) {
+					continue;
+				}
 
 				if ( ! array_key_exists( $name, $submitted ) ) {
 					continue;

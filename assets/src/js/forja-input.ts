@@ -12,6 +12,7 @@ import { syncRange } from './modules/range';
 import { syncSwitch } from './modules/switch';
 import { trackSelected } from './modules/choices';
 import { initMedia } from './modules/media';
+import { initRepeater } from './modules/repeater';
 import { initTabs } from './modules/tabs';
 import { initAccordion } from './modules/accordion';
 
@@ -41,6 +42,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		trackSelected
 	);
 	forEach( '.acf-image-uploader, .acf-file-uploader', initMedia );
+	forEach( '.acf-repeater', initRepeater );
 	forEach( '.acf-tab-wrap', initTabs );
 	forEach( '.acf-accordion', initAccordion );
 } );

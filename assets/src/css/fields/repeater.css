@@ -1,0 +1,180 @@
+/*
+ * Port de Secure Custom Fields (GPLv2).
+ * Original: WordPress.org / Advanced Custom Fields.
+ */
+
+/*----------------------------------------------------------------------------
+ *  Tabla base
+ *--------------------------------------------------------------------------*/
+
+.acf-table {
+	border: 1px solid var(--forja-wp-card-border);
+	background: #fff;
+	border-spacing: 0;
+	border-radius: 0;
+	table-layout: auto;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	clear: both;
+	box-sizing: content-box;
+
+	& > tbody > tr > th,
+	& > tbody > tr > td,
+	& > thead > tr > th,
+	& > thead > tr > td {
+		padding: 8px;
+		vertical-align: top;
+		background: #fff;
+		text-align: left;
+		border-style: solid;
+		font-weight: normal;
+	}
+
+	& > tbody > tr > th,
+	& > thead > tr > th {
+		position: relative;
+		color: #333;
+	}
+
+	& > thead > tr > th {
+		border-color: var(--forja-wp-card-border-1);
+		border-width: 0 0 1px 1px;
+
+		&:first-child {
+			border-left-width: 0;
+		}
+	}
+
+	& > tbody > tr {
+		z-index: 1;
+
+		& > td {
+			border-color: var(--forja-wp-card-border-2);
+			border-width: 1px 0 0 1px;
+
+			&:first-child {
+				border-left-width: 0;
+			}
+		}
+
+		&:first-child > td {
+			border-top-width: 0;
+		}
+	}
+}
+
+/* Dentro de una celda, el campo pierde su espaciado propio. */
+.acf-table td.acf-field {
+	margin: 0;
+	padding: 8px;
+	border-top: none;
+}
+
+/*----------------------------------------------------------------------------
+ *  Repetidor
+ *--------------------------------------------------------------------------*/
+
+.acf-repeater {
+	& > table {
+		margin: 0 0 8px;
+		background: #f9f9f9;
+	}
+
+	/* Columnas estrechas de los extremos: orden a la izquierda, acciones a la derecha. */
+	& .acf-row-handle {
+		width: 16px;
+		text-align: center !important;
+		vertical-align: middle !important;
+		position: relative;
+
+		& .acf-icon {
+			display: none;
+			position: absolute;
+			top: 0;
+			margin: -8px 0 0 -2px;
+
+			&.-minus {
+				top: 50%;
+			}
+		}
+
+		&.order {
+			background: #f4f4f4;
+			cursor: move;
+			color: #aaa;
+			text-shadow: #fff 0 1px 0;
+
+			&:hover {
+				color: #666;
+			}
+
+			& + td {
+				border-left-color: #dfdfdf;
+			}
+		}
+
+		&.remove {
+			background: #f9f9f9;
+			border-left-color: #dfdfdf;
+		}
+	}
+
+	/* Fuerza el ancho de las columnas de los extremos en la cabecera. */
+	& th.acf-row-handle::before {
+		content: "";
+		width: 16px;
+		display: block;
+		height: 1px;
+	}
+
+	& .acf-row {
+		/*
+		 * La fila plantilla que el JavaScript clona para añadir. Nunca se ve
+		 * y nunca se guarda.
+		 */
+		&.acf-clone {
+			display: none !important;
+		}
+
+		&:hover > .acf-row-handle .acf-icon,
+		&.-hover > .acf-row-handle .acf-icon {
+			display: block;
+		}
+	}
+
+	/* Fila en movimiento mientras se reordena. */
+	& > table > tbody > tr.is-dragging {
+		box-shadow: 0 1px 5px rgb(0 0 0 / 20%);
+		opacity: 0.9;
+	}
+
+	& > table > tbody > tr.is-drop-target > td {
+		background: #f9f9f9;
+	}
+
+	& > .acf-actions {
+		text-align: left;
+		padding: 0;
+	}
+}
+
+.acf-icon.small,
+.acf-icon.-small {
+	width: 20px;
+	height: 20px;
+	line-height: 14px;
+	font-size: 14px;
+}
+
+.acf-icon.-plus::before {
+	content: "\f543";
+}
+
+.acf-icon.-minus::before {
+	content: "\f460";
+}
+
+.clear {
+	clear: both;
+}
