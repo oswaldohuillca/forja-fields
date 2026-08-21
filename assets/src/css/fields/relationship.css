@@ -1,0 +1,153 @@
+/*----------------------------------------------------------------------------
+ *  Campo de relación: dos paneles
+ *
+ *  Portado de `secure-custom-fields/assets/src/sass/_fields.scss`. Se conserva
+ *  la estructura de clases porque el requisito es paridad visual.
+ *--------------------------------------------------------------------------*/
+
+.acf-relationship {
+	background: #fff;
+	border: 1px solid var(--forja-wp-card-border);
+
+	& .filters {
+		display: flex;
+		border-bottom: 1px solid var(--forja-wp-card-border);
+		background: #fff;
+
+		& .filter {
+			flex: 1;
+			box-sizing: border-box;
+			margin: 0;
+			padding: 7px 7px 7px 0;
+
+			&:first-child {
+				padding-left: 7px;
+			}
+
+			& input,
+			& select {
+				width: 100%;
+				margin: 0;
+
+				&:focus,
+				&:active {
+					outline: none;
+					box-shadow: none;
+				}
+			}
+
+			& input {
+				padding-right: 3px;
+				padding-left: 3px;
+				border-color: transparent;
+				box-shadow: none;
+			}
+		}
+
+		/* Con búsqueda y tipo, la búsqueda se lleva la mitad del ancho. */
+		&.-f2 .filter.-search {
+			flex: 2;
+		}
+	}
+
+	& .selection {
+		display: flex;
+		position: relative;
+
+		& .choices,
+		& .values {
+			width: 50%;
+			background: #fff;
+		}
+
+		& .choices {
+			background: var(--forja-gray-50);
+
+			& .list {
+				border-right: 1px solid var(--forja-wp-card-border-1);
+			}
+		}
+
+		/* El aspa sólo aparece sobre el elemento que se está señalando. */
+		& .values .acf-icon {
+			display: none;
+			position: absolute;
+			top: 4px;
+			right: 7px;
+		}
+
+		& .values .acf-rel-item:hover .acf-icon,
+		& .values .acf-rel-item:focus-within .acf-icon {
+			display: block;
+		}
+	}
+
+	& .list {
+		height: 160px;
+		margin: 0;
+		padding: 5px;
+		overflow: auto;
+
+		& .acf-rel-item,
+		& p {
+			display: block;
+			position: relative;
+			min-height: 18px;
+			margin: 0;
+			padding: 5px;
+		}
+
+		& .acf-rel-item {
+			cursor: pointer;
+
+			&:hover,
+			&:focus-visible {
+				background: #3875d7;
+				color: #fff;
+				outline: none;
+			}
+
+			/* Lo ya elegido sigue a la vista, pero no se puede volver a añadir. */
+			&.disabled {
+				opacity: 0.5;
+
+				&:hover {
+					background: transparent;
+					color: var(--forja-gray-700);
+					cursor: default;
+				}
+			}
+		}
+	}
+
+	/* Mientras llega una página de resultados, el panel se atenúa. */
+	&.-loading .choices .list {
+		opacity: 0.5;
+	}
+}
+
+/*----------------------------------------------------------------------------
+ *  Desplegables con búsqueda remota
+ *--------------------------------------------------------------------------*/
+
+.acf-field select.forja-relational {
+	width: 100%;
+}
+
+/* select2 trae su propia hoja; aquí sólo se ajusta al alto de los inputs de
+   WordPress, que es menor que el suyo por defecto. */
+.acf-input .select2-container .select2-selection--single {
+	height: 30px;
+
+	& .select2-selection__rendered {
+		line-height: 28px;
+	}
+
+	& .select2-selection__arrow {
+		height: 28px;
+	}
+}
+
+.acf-input .select2-container .select2-selection--multiple {
+	min-height: 30px;
+}

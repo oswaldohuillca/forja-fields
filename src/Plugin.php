@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja;
 
+use Forja\Ajax\Search;
 use Forja\Context\OptionsContext;
 use Forja\Context\PostContext;
 use Forja\Context\TermContext;
@@ -105,6 +106,9 @@ final class Plugin {
 		add_action( 'init', array( $this, 'on_init' ), 5 );
 
 		( new Assets( $this->paths ) )->register_hooks();
+
+		// Búsqueda remota de los campos relacionales.
+		( new Search( $this->boxes() ) )->register_hooks();
 
 		// Cada pantalla del escritorio donde pueden aparecer campos tiene su
 		// contexto; todos comparten la misma mecánica de leer y guardar.

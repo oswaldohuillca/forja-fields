@@ -192,7 +192,7 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `email` | `maxlength`, `prepend`, `append` | Se sanea con `sanitize_email()` |
 | `url` | `maxlength`, `prepend`, `append` | Se sanea con `sanitize_url()`; imprime con `esc_url()` |
 | `password` | `maxlength` | Se almacena en claro; no lo uses para credenciales |
-| `select` | `choices`, `multiple`, `allow_null` | Nativo; la versión con búsqueda llega en la Capa 2 |
+| `select` | `choices`, `multiple`, `allow_null` | Nativo, con opciones fijas |
 | `radio` | `choices`, `layout`, `allow_null` | |
 | `checkbox` | `choices`, `layout` | Guarda un array |
 | `button_group` | `choices`, `layout`, `allow_null` | Radios estilizados como botones segmentados |
@@ -216,6 +216,11 @@ El slug de una plantilla es su ruta relativa a la raíz del tema
 | `group` | `sub_fields`, `layout` | Subcampos bajo un nombre común, sin repetición |
 | `flexible_content` | `layouts`, `min`, `max`, `button_label` | Filas de distinta forma, a elegir por el editor |
 | `clone` | `clone`, `display`, `prefix_name`, `prefix_label`, `overrides` | Incorpora un conjunto de campos declarado aparte |
+| `post_object` | `post_type`, `taxonomy`, `post_status`, `multiple` | Guarda el ID de la entrada; busca por AJAX |
+| `page_link` | las de `post_object` | Guarda el ID; devuelve el enlace |
+| `relationship` | `filters`, `min`, `max`, más las de `post_object` | Dos paneles; conserva el orden |
+| `taxonomy` | `taxonomy`, `field_type`, `hide_empty` | Casillas, radios o desplegable |
+| `user` | `role`, `multiple` | Guarda el ID del usuario |
 
 Todos aceptan además `readonly` y `disabled`.
 
@@ -600,6 +605,60 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+### Campos que apuntan a otros objetos
+
+Cinco tipos comparten mecánica: guardan **identificadores** y traen las opciones
+buscando, no volcando el catálogo en el HTML.
+
+```php
+array( 'type' => 'post_object',  'name' => 'destacada',  'post_type' => array( 'post' ) ),
+array( 'type' => 'page_link',    'name' => 'enlace',     'post_type' => array( 'page' ) ),
+array( 'type' => 'relationship', 'name' => 'relacionadas' ),
+array( 'type' => 'taxonomy',     'name' => 'temas',      'taxonomy'  => 'category' ),
+array( 'type' => 'user',         'name' => 'responsable' ),
+```
+
+Opciones comunes: `multiple`, `allow_null`, `min`, `max` y `return_format`
+(`id` por defecto, o `object` para recibir el `WP_Post`, `WP_User` o `WP_Term`).
+
+| Tipo | Opciones propias | Qué guarda |
+|---|---|---|
+| `post_object` | `post_type`, `taxonomy`, `post_status` | Identificador de entrada |
+| `page_link` | las de `post_object` | Identificador; devuelve el enlace |
+| `relationship` | `filters`, más las de `post_object` | Lista ordenada de identificadores |
+| `taxonomy` | `taxonomy`, `field_type`, `hide_empty` | Identificadores de término |
+| `user` | `role` | Identificador de usuario |
+
+**`page_link` guarda el identificador, no la dirección.** Guardar el enlace ya
+resuelto dejaría el sitio con URLs rotas en cuanto cambiara un slug; se resuelve
+al leer, igual que hace ACF.
+
+**`relationship` conserva el orden** en que se colocan los elementos. Es lo único
+que lo distingue de un `post_object` múltiple, y la razón de que tenga interfaz
+propia —dos paneles— en lugar de un desplegable.
+
+`taxonomy` acepta `field_type` con `checkbox` (por defecto), `radio`, `select` o
+`multi_select`. Las dos primeras pintan la lista completa; las otras dos, un
+desplegable con búsqueda.
+
+> Todavía no están `save_terms` ni `load_terms` de ACF, que además de guardar el
+> metadato asignan los términos al objeto. El campo guarda en metadatos, que es
+> el comportamiento por defecto de ACF.
+
+#### Cómo funciona la búsqueda
+
+El desplegable es [select2](https://select2.org), que el paquete sirve desde
+`assets/vendor/` porque WordPress no lo incluye. Se encola solo, y sólo en las
+pantallas donde haya uno de estos campos.
+
+Las consultas van a `admin-ajax.php`, y el endpoint **no acepta un tipo de
+contenido ni una taxonomía por parámetro**: recibe el nombre de un campo
+declarado y ejecuta la consulta que ese campo define, con su nonce propio. Así no
+se puede usar para listar nada que no esté ya expuesto en un formulario.
+
+Si select2 no llegara a cargar, el `<select>` sigue funcionando: se queda sin
+búsqueda, pero muestra y guarda lo que ya estuviera elegido.
 
 ### Iconos
 

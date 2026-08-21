@@ -217,6 +217,82 @@ final class BoxRegistry {
 	}
 
 	/**
+	 * Busca un campo por su nombre, mirando también dentro de los contenedores.
+	 *
+	 * `find_field()` sólo indexa el primer nivel a propósito: es lo que usa la
+	 * lectura, y ahí un subcampo no tiene una clave propia que consultar. La
+	 * búsqueda remota sí necesita alcanzarlos, porque un campo relacional puede
+	 * vivir dentro de un repetidor o de una capa flexible.
+	 *
+	 * No se cachea: sólo se llama al responder una petición de búsqueda.
+	 *
+	 * @param string $name Nombre del campo.
+	 * @return Field|null Campo declarado, o null si no existe.
+	 */
+	public function find_field_anywhere( string $name ): ?Field {
+		foreach ( $this->boxes as $box ) {
+			$found = $this->search_fields( $box->fields(), $name );
+
+			if ( null !== $found ) {
+				return $found;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Recorre una lista de campos y sus hijos buscando un nombre.
+	 *
+	 * @param array<int, Field> $fields Campos donde buscar.
+	 * @param string            $name   Nombre buscado.
+	 * @return Field|null Campo encontrado, o null.
+	 */
+	private function search_fields( array $fields, string $name ): ?Field {
+		foreach ( $fields as $field ) {
+			if ( $field->name() === $name ) {
+				return $field;
+			}
+
+			foreach ( $this->children_of( $field ) as $children ) {
+				$found = $this->search_fields( $children, $name );
+
+				if ( null !== $found ) {
+					return $found;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Grupos de subcampos que contiene un campo.
+	 *
+	 * Los grupos y repetidores tienen una lista; el contenido flexible, una por
+	 * capa. De ahí que se devuelva una lista de listas.
+	 *
+	 * @param Field $field Campo a inspeccionar.
+	 * @return array<int, array<int, Field>> Grupos de subcampos.
+	 */
+	private function children_of( Field $field ): array {
+		if ( $field instanceof \Forja\Fields\FlexibleContent ) {
+			return array_values(
+				array_map(
+					static fn ( array $layout ): array => $layout['sub_fields'],
+					$field->layouts()
+				)
+			);
+		}
+
+		if ( $field instanceof \Forja\Fields\Group || $field instanceof \Forja\Fields\Repeater ) {
+			return array( $field->sub_fields() );
+		}
+
+		return array();
+	}
+
+	/**
 	 * Devuelve todas las cajas de un tipo de objeto.
 	 *
 	 * A diferencia de `for_subtype()`, no mira los subtipos. Lo usan los

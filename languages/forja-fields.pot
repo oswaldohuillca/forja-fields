@@ -13,6 +13,13 @@ msgstr ""
 "X-Domain: forja-fields\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#. translators: 1: etiqueta del campo, 2: número máximo de elementos.
+#: src/Fields/RelationalField.php:287
+msgid "%1$s admite como mucho %2$d elemento."
+msgid_plural "%1$s admite como mucho %2$d elementos."
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: 1: etiqueta del campo, 2: número máximo de filas.
 #: src/Fields/FlexibleContent.php:277 src/Fields/Repeater.php:188
 msgid "%1$s admite como mucho %2$d fila."
@@ -24,6 +31,13 @@ msgstr[1] ""
 #: src/Fields/Gallery.php:124
 msgid "%1$s admite como mucho %2$d imagen."
 msgid_plural "%1$s admite como mucho %2$d imágenes."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: etiqueta del campo, 2: número mínimo de elementos.
+#: src/Fields/RelationalField.php:273
+msgid "%1$s necesita al menos %2$d elemento."
+msgid_plural "%1$s necesita al menos %2$d elementos."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -44,6 +58,11 @@ msgstr[1] ""
 #. translators: %s: etiqueta del campo.
 #: src/Validation/Validator.php:39
 msgid "%s es obligatorio."
+msgstr ""
+
+#. translators: %d: identificador de la entrada.
+#: src/Fields/PostObject.php:140
+msgid "(sin título) #%d"
 msgstr ""
 
 #: src/Fields/Select.php:95
@@ -82,6 +101,10 @@ msgstr ""
 msgid "Añadir imagen"
 msgstr ""
 
+#: src/Fields/Relationship.php:152
+msgid "Buscar entradas"
+msgstr ""
+
 #: src/Fields/IconPicker.php:137
 msgid "Buscar un icono"
 msgstr ""
@@ -90,8 +113,16 @@ msgstr ""
 msgid "Buscar un icono…"
 msgstr ""
 
+#: src/Fields/Relationship.php:151
+msgid "Buscar…"
+msgstr ""
+
 #: src/Fields/Link.php:132 src/Fields/MediaField.php:80
 msgid "Editar"
+msgstr ""
+
+#: src/Fields/Relationship.php:163
+msgid "Filtrar por tipo de contenido"
 msgstr ""
 
 #: src/Context/OptionsContext.php:119
@@ -116,6 +147,10 @@ msgstr ""
 
 #: src/Fields/Image.php:143
 msgid "No hay ninguna imagen seleccionada"
+msgstr ""
+
+#: src/Fields/Taxonomy.php:239
+msgid "No hay términos que elegir."
 msgstr ""
 
 #: src/Fields/Oembed.php:100
@@ -148,7 +183,7 @@ msgstr ""
 msgid "Página siguiente"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109
+#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:200
 msgid "Quitar"
 msgstr ""
 
@@ -158,6 +193,10 @@ msgstr ""
 
 #: src/Fields/Link.php:131
 msgid "Se abre en una pestaña nueva"
+msgstr ""
+
+#: src/Fields/RelationalField.php:176
+msgid "Selecciona"
 msgstr ""
 
 #: src/Fields/Link.php:118
@@ -170,6 +209,10 @@ msgstr ""
 
 #: src/Fields/File.php:79
 msgid "Tamaño del archivo"
+msgstr ""
+
+#: src/Fields/Relationship.php:164
+msgid "Todos los tipos"
 msgstr ""
 
 #: src/Context/PostContext.php:192

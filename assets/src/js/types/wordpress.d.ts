@@ -54,7 +54,30 @@ declare global {
 
 		jQuery?: ( ( selector: HTMLElement ) => {
 			wpColorPicker?: ( options: Record< string, unknown > ) => void;
+			select2?: ( options: Record< string, unknown > ) => void;
+			on?: (
+				events: string,
+				handler: ( event: unknown ) => void
+			) => void;
 		} ) & { fn?: Record< string, unknown > };
+
+		/** Endpoint de admin-ajax; lo define WordPress en el escritorio. */
+		ajaxurl?: string;
+	}
+
+	/** Resultado de una búsqueda remota. */
+	interface ForjaSearchResult {
+		id: string;
+		text: string;
+	}
+
+	/** Respuesta del endpoint de búsqueda. */
+	interface ForjaSearchResponse {
+		success?: boolean;
+		data?: {
+			results?: ForjaSearchResult[];
+			more?: boolean;
+		};
 	}
 }
 

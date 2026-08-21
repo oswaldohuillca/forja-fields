@@ -67,7 +67,7 @@ Aquí entra el JS de verdad. Conviene abordarlos por familia, porque comparten
 infraestructura.
 
 - [x] Familia `wp.media`: `image`, `file` y `gallery`
-- [ ] Familia `select2`: `post_object`, `page_link`, `relationship`, `taxonomy`, `user`
+- [x] Familia relacional: `post_object`, `page_link`, `relationship`, `taxonomy` y `user`, con búsqueda remota
 - [x] Familia pickers: `date_picker`, `date_time_picker`, `time_picker`, `color_picker`
 - [x] `wysiwyg` (TinyMCE, con tablas opcionales, funcional dentro de repetidores)
 - [x] `link` (modal de enlaces del núcleo)
@@ -88,8 +88,9 @@ de los editores, así que tiene prioridad dentro de esta capa.
 ## Transversales
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
-- [x] Tests de navegador con Playwright: 10 casos sobre el arranque de campos en filas nuevas y el buscador de iconos
-- [ ] Ampliar los tests de navegador: arrastrar y soltar, contenido flexible, condicionales en vivo, selector de iconos
+- [x] Tests de navegador con Playwright: 17 casos sobre filas nuevas, buscador de iconos y campos relacionales
+- [ ] `save_terms` y `load_terms` del campo `taxonomy`: asignar de verdad los términos al objeto, además de guardarlos como metadato
+- [ ] Ampliar los tests de navegador: arrastrar y soltar, contenido flexible, condicionales en vivo, y el cajón de metaboxes del editor de bloques
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
@@ -98,7 +99,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [x] Internacionalización: dominio `forja-fields` verificado y `languages/forja-fields.pot` generado con `composer make-pot`
-- [x] Tests con Pest: 187 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
+- [x] Tests con Pest: 205 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
 
 ---
 
@@ -159,5 +160,9 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Un test de comportamiento tiene que fallar sin el arreglo | El del interruptor pasaba en ambos casos: la casilla la conmuta el `label` por sí sola. Se comprueba la clase `-on`, que es lo que aporta el JavaScript. Un test que no puede fallar por el motivo que dice no es una red. |
 | El buscador de iconos pide el máximo de resultados y pagina | Con un límite bajo la API de Iconify **reparte** un icono por colección en vez de devolver los mejores: `limit=60` para «home» daba `reicon:home2`, `arcticons:homee`, `selfhst:homer`… Con `limit=999` —su tope, el mismo con el que trabaja icon-sets.iconify.design— devuelve la lista bien ordenada. Se pagina de 96 en 96 para no meter mil nodos por campo. |
 | Una búsqueda nueva cancela la anterior | El antirrebote no impide que dos consultas estén en vuelo, y ganaba la que contestara la última, no la más reciente. Se aborta la anterior y se descarta cualquier respuesta que no sea la de la última búsqueda pedida. |
+| select2 se empaqueta como asset, no por npm | WordPress no lo trae. Meterlo por npm obligaría a cada tema que consuma la librería a replicar un alias de jQuery en su propia configuración de Vite, porque select2 lo importa. Como asset estático se encola con `jquery` por dependencia y no toca el build de nadie. Es el mismo camino que el plugin de tablas de TinyMCE. |
+| La búsqueda remota se pide por nombre de campo, no por tipo de contenido | El endpoint no acepta un post type ni una taxonomía por parámetro: recibe el nombre de un campo declarado y ejecuta la consulta que ese campo define. Así no sirve para listar nada que no esté ya expuesto en un formulario. El filtro por tipo del `relationship` se cruza con los que declara el campo, nunca los sustituye. |
+| El `page_link` guarda el identificador, no la dirección | Guardar el enlace resuelto dejaría el sitio con URLs rotas en cuanto cambiara un slug. Se resuelve al leer, igual que hace ACF. |
+| El `relationship` conserva el orden de lo elegido | Es lo único que lo distingue de un `post_object` múltiple, y la razón de que tenga interfaz propia en vez de select2. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |

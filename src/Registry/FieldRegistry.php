@@ -56,6 +56,11 @@ final class FieldRegistry {
 		$this->register( \Forja\Fields\File::class );
 		$this->register( \Forja\Fields\Gallery::class );
 		$this->register( \Forja\Fields\IconPicker::class );
+		$this->register( \Forja\Fields\PostObject::class );
+		$this->register( \Forja\Fields\PageLink::class );
+		$this->register( \Forja\Fields\Relationship::class );
+		$this->register( \Forja\Fields\Taxonomy::class );
+		$this->register( \Forja\Fields\User::class );
 		$this->register( \Forja\Fields\Group::class );
 		$this->register( \Forja\Fields\Repeater::class );
 		$this->register( \Forja\Fields\FlexibleContent::class );

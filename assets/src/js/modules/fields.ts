@@ -26,6 +26,8 @@ import { initRepeater } from './repeater';
 import { initColorPicker } from './color';
 import { initFlexible } from './flexible';
 import { initTabs } from './tabs';
+import { initRelational } from './relational';
+import { initRelationship } from './relationship';
 import { initAccordion } from './accordion';
 import { refreshConditions } from './conditions';
 import { initEditors, prepareEditors } from './editor';
@@ -46,6 +48,8 @@ const BEHAVIOURS: Array< [ string, ( element: HTMLElement ) => void ] > = [
 	[ '.acf-oembed', initOembed ],
 	[ '.acf-repeater', initRepeater ],
 	[ '.acf-flexible-content', initFlexible ],
+	[ 'select.forja-relational', initRelational ],
+	[ '.acf-relationship', initRelationship ],
 	[ '.acf-tab-wrap', initTabs ],
 	[ '.acf-accordion', initAccordion ],
 ];
