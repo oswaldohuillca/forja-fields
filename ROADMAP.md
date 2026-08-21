@@ -88,9 +88,8 @@ de los editores, así que tiene prioridad dentro de esta capa.
 ## Transversales
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
-- [x] Tests de navegador con Playwright: 17 casos sobre filas nuevas, buscador de iconos y campos relacionales
+- [x] Tests de navegador con Playwright: 35 casos sobre filas nuevas, iconos, relacionales, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
 - [ ] `save_terms` y `load_terms` del campo `taxonomy`: asignar de verdad los términos al objeto, además de guardarlos como metadato
-- [ ] Ampliar los tests de navegador: arrastrar y soltar, contenido flexible, condicionales en vivo, y el cajón de metaboxes del editor de bloques
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
@@ -164,5 +163,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | La búsqueda remota se pide por nombre de campo, no por tipo de contenido | El endpoint no acepta un post type ni una taxonomía por parámetro: recibe el nombre de un campo declarado y ejecuta la consulta que ese campo define. Así no sirve para listar nada que no esté ya expuesto en un formulario. El filtro por tipo del `relationship` se cruza con los que declara el campo, nunca los sustituye. |
 | El `page_link` guarda el identificador, no la dirección | Guardar el enlace resuelto dejaría el sitio con URLs rotas en cuanto cambiara un slug. Se resuelve al leer, igual que hace ACF. |
 | El `relationship` conserva el orden de lo elegido | Es lo único que lo distingue de un `post_object` múltiple, y la razón de que tenga interfaz propia en vez de select2. |
+| El cajón de metaboxes se abre por JavaScript en los tests | Su control es a la vez el tirador para redimensionar el panel, y Playwright lo ve tapado por la capa que gestiona el arrastre. Lo que se prueba es lo que hay dentro del cajón, no cómo se abre. |
+| El textarea oculto es la señal de que TinyMCE arrancó | Al inicializarse lo esconde y lo sustituye por su iframe. Exigirle visibilidad hacía fallar un test que en realidad estaba comprobando lo correcto. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |
