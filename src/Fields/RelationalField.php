@@ -77,7 +77,7 @@ abstract class RelationalField extends Field {
 		/**
 		 * Permite que el tema compile select2 en su propio bundle.
 		 *
-		 * Devuelve false si importas `apros-forja/js/vendor/select2` desde tu
+		 * Devuelve false si importas `oswa-forja/js/vendor/select2` desde tu
 		 * entrada: así el asset entra por el empaquetador como el resto, en vez
 		 * de por una etiqueta aparte.
 		 *

@@ -15,16 +15,16 @@ describe( 'enlace', function () {
 	it( 'guarda las tres claves saneadas', function () {
 		expect(
 			$this->field->sanitize(
-				array( 'title' => '  <b>Apros</b>  ', 'url' => 'apros.pe', 'target' => '_blank' )
+				array( 'title' => '  <b>Oswa</b>  ', 'url' => 'oswa.dev', 'target' => '_blank' )
 			)
 		)->toBe(
-			array( 'title' => 'Apros', 'url' => 'http://apros.pe', 'target' => '_blank' )
+			array( 'title' => 'Oswa', 'url' => 'http://oswa.dev', 'target' => '_blank' )
 		);
 	} );
 
 	it( 'descarta un destino que no sea _blank', function () {
 		$link = $this->field->sanitize(
-			array( 'url' => 'https://apros.pe', 'target' => 'javascript:alert(1)' )
+			array( 'url' => 'https://oswa.dev', 'target' => 'javascript:alert(1)' )
 		);
 
 		expect( $link['target'] )->toBe( '' );
@@ -37,7 +37,7 @@ describe( 'enlace', function () {
 	} );
 
 	it( 'devuelve el array por defecto y null si está vacío', function () {
-		expect( $this->field->format_value( array( 'url' => 'https://apros.pe', 'title' => 'Apros' ) ) )
+		expect( $this->field->format_value( array( 'url' => 'https://oswa.dev', 'title' => 'Oswa' ) ) )
 			->toBeArray()
 			->toHaveKeys( array( 'title', 'url', 'target' ) )
 			->and( $this->field->format_value( '' ) )->toBeNull();
@@ -46,12 +46,12 @@ describe( 'enlace', function () {
 	it( 'devuelve sólo la URL si se pide', function () {
 		$field = forja_test_field( array( 'type' => 'link', 'return_format' => 'url' ) );
 
-		expect( $field->format_value( array( 'url' => 'https://apros.pe' ) ) )->toBe( 'https://apros.pe' )
+		expect( $field->format_value( array( 'url' => 'https://oswa.dev' ) ) )->toBe( 'https://oswa.dev' )
 			->and( $field->format_value( '' ) )->toBe( '' );
 	} );
 
 	it( 'pinta el ancla que entiende el modal del núcleo', function () {
-		$html = forja_test_render( $this->field, array( 'url' => 'https://apros.pe', 'title' => 'Apros' ) );
+		$html = forja_test_render( $this->field, array( 'url' => 'https://oswa.dev', 'title' => 'Oswa' ) );
 
 		expect( $html )->toContain( 'class="link-node"' )
 			->and( $html )->toContain( 'acf-link -value' )
@@ -75,7 +75,7 @@ describe( 'contenido incrustado', function () {
 	it( 'devuelve la dirección tal cual si se pide', function () {
 		$field = forja_test_field( array( 'type' => 'oembed', 'return_format' => 'url' ) );
 
-		expect( $field->format_value( 'https://apros.pe' ) )->toBe( 'https://apros.pe' );
+		expect( $field->format_value( 'https://oswa.dev' ) )->toBe( 'https://oswa.dev' );
 	} );
 
 	it( 'devuelve cadena vacía cuando no hay nada', function () {

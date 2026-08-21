@@ -53,8 +53,8 @@ describe( 'campo', function () {
 		// Un sitio existente puede traer dashicons, adjuntos o URLs.
 		expect( $this->field->sanitize( array( 'type' => 'dashicons', 'value' => 'admin-home' ) ) )
 			->toBe( array( 'type' => 'dashicons', 'value' => 'admin-home' ) )
-			->and( $this->field->sanitize( array( 'type' => 'url', 'value' => 'apros.pe/i.svg' ) ) )
-			->toBe( array( 'type' => 'url', 'value' => 'http://apros.pe/i.svg' ) );
+			->and( $this->field->sanitize( array( 'type' => 'url', 'value' => 'oswa.dev/i.svg' ) ) )
+			->toBe( array( 'type' => 'url', 'value' => 'http://oswa.dev/i.svg' ) );
 	} );
 
 	it( 'devuelve el array por defecto y null si está vacío', function () {
@@ -82,11 +82,11 @@ describe( 'campo', function () {
 	} );
 
 	it( 'permite apuntar a una instancia propia de la API', function () {
-		$propia = static fn (): string => 'https://iconos.apros.pe';
+		$propia = static fn (): string => 'https://iconos.oswa.dev';
 
 		add_filter( 'forja/iconify_api', $propia );
 
-		expect( Iconify::api_url() )->toBe( 'https://iconos.apros.pe' );
+		expect( Iconify::api_url() )->toBe( 'https://iconos.oswa.dev' );
 
 		remove_filter( 'forja/iconify_api', $propia );
 	} );

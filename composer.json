@@ -1,5 +1,5 @@
 {
-    "name": "apros/forja",
+    "name": "oswa/forja",
     "description": "Campos personalizados para WordPress definidos por código, con la interfaz de administración de ACF/SCF.",
     "type": "library",
     "keywords": [
@@ -11,8 +11,8 @@
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "Apros",
-            "homepage": "https://apros.pe"
+            "name": "Oswa",
+            "homepage": "https://github.com/oswaldohuillca"
         }
     ],
     "require": {

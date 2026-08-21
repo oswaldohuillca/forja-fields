@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Traduce la ubicación del paquete en el disco a una URL pública.
  *
  * Es la pieza que permite que Forja funcione igual dentro de `plugins/`, de
- * `themes/mi-tema/vendor/apros/forja/` o de `mu-plugins/`. No se puede usar
+ * `themes/mi-tema/vendor/oswa/forja/` o de `mu-plugins/`. No se puede usar
  * `plugin_dir_url()` porque asume que el archivo cuelga de `WP_PLUGIN_DIR`.
  */
 final class Paths {

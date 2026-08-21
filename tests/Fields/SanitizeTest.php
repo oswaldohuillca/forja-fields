@@ -40,14 +40,14 @@ it( 'acota el rango a sus extremos', function () {
 it( 'descarta un correo inválido', function () {
 	$field = forja_test_field( array( 'type' => 'email' ) );
 
-	expect( $field->sanitize( '  HOLA@apros.pe  ' ) )->toBe( 'HOLA@apros.pe' )
+	expect( $field->sanitize( '  HOLA@oswa.dev  ' ) )->toBe( 'HOLA@oswa.dev' )
 		->and( $field->sanitize( 'esto no es un correo' ) )->toBe( '' );
 } );
 
 it( 'completa el esquema de una URL', function () {
 	$field = forja_test_field( array( 'type' => 'url' ) );
 
-	expect( $field->sanitize( 'apros.pe/ruta?a=1' ) )->toBe( 'http://apros.pe/ruta?a=1' )
+	expect( $field->sanitize( 'oswa.dev/ruta?a=1' ) )->toBe( 'http://oswa.dev/ruta?a=1' )
 		->and( $field->sanitize( '' ) )->toBe( '' );
 } );
 

@@ -24,7 +24,7 @@ La idea es simple: la API de desarrollo de CMB2, la experiencia de edición de A
 
 ```bash
 cd wp-content/themes/mi-tema
-composer require apros/forja
+composer require oswa/forja
 ```
 
 Y en el `functions.php` del tema:
@@ -47,7 +47,7 @@ En el `vite.config.ts` del tema, un atajo hacia los fuentes del paquete:
 ```ts
 resolve: {
     alias: {
-        'apros-forja': resolve( import.meta.dirname, 'vendor/apros/forja/assets/src' ),
+        'oswa-forja': resolve( import.meta.dirname, 'vendor/oswa/forja/assets/src' ),
     },
 },
 ```
@@ -56,8 +56,8 @@ En la entrada de administración del tema:
 
 ```ts
 // assets/src/admin.ts
-import 'apros-forja/js/forja-input';        // arrastra también el CSS de los campos
-import 'apros-forja/js/vendor/select2';     // opcional; ver más abajo
+import 'oswa-forja/js/forja-input';        // arrastra también el CSS de los campos
+import 'oswa-forja/js/vendor/select2';     // opcional; ver más abajo
 
 import './admin.css';                        // tus estilos propios, después
 ```
@@ -987,7 +987,7 @@ repositorio de tipo `path` en el `composer.json` del tema:
     "repositories": [
         { "type": "path", "url": "../../packages/forja", "options": { "symlink": true } }
     ],
-    "require": { "apros/forja": "@dev" }
+    "require": { "oswa/forja": "@dev" }
 }
 ```
 
@@ -1090,9 +1090,9 @@ Para consumirlo sin Packagist, basta con declarar el repositorio en el tema:
 ```json
 {
     "repositories": [
-        { "type": "vcs", "url": "git@github.com:apros/forja.git" }
+        { "type": "vcs", "url": "git@github.com:oswa/forja.git" }
     ],
-    "require": { "apros/forja": "^0.2" }
+    "require": { "oswa/forja": "^0.2" }
 }
 ```
 

@@ -120,7 +120,7 @@ Forja no es un plugin: se instala con Composer dentro de un tema. De ahí salen
 tres requisitos que un plugin no tiene.
 
 **No se puede usar `plugin_dir_url()`.** Esa función asume que el archivo cuelga
-de `WP_PLUGIN_DIR`, y aquí el paquete vive en `themes/mi-tema/vendor/apros/forja/`.
+de `WP_PLUGIN_DIR`, y aquí el paquete vive en `themes/mi-tema/vendor/oswa/forja/`.
 `Paths` deduce la URL comparando la ruta normalizada del paquete contra
 `WP_CONTENT_DIR` y `ABSPATH`, con un filtro `forja/base_url` para los casos raros
 (enlaces simbólicos, contenido fuera del árbol de WordPress).
