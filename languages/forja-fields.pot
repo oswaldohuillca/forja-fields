@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: 1: etiqueta del campo, 2: número máximo de elementos.
-#: src/Fields/RelationalField.php:287
+#: src/Fields/RelationalField.php:300
 msgid "%1$s admite como mucho %2$d elemento."
 msgid_plural "%1$s admite como mucho %2$d elementos."
 msgstr[0] ""
@@ -35,7 +35,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: etiqueta del campo, 2: número mínimo de elementos.
-#: src/Fields/RelationalField.php:273
+#: src/Fields/RelationalField.php:286
 msgid "%1$s necesita al menos %2$d elemento."
 msgid_plural "%1$s necesita al menos %2$d elementos."
 msgstr[0] ""
@@ -195,7 +195,7 @@ msgstr ""
 msgid "Se abre en una pestaña nueva"
 msgstr ""
 
-#: src/Fields/RelationalField.php:176
+#: src/Fields/RelationalField.php:189
 msgid "Selecciona"
 msgstr ""
 

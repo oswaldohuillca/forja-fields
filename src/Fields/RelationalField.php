@@ -74,6 +74,19 @@ abstract class RelationalField extends Field {
 			return;
 		}
 
+		/**
+		 * Permite que el tema compile select2 en su propio bundle.
+		 *
+		 * Devuelve false si importas `apros-forja/js/vendor/select2` desde tu
+		 * entrada: así el asset entra por el empaquetador como el resto, en vez
+		 * de por una etiqueta aparte.
+		 *
+		 * @param bool $enqueue Si Forja debe encolar select2.
+		 */
+		if ( ! apply_filters( 'forja/enqueue_select2', true ) ) {
+			return;
+		}
+
 		$paths = \forja()->paths();
 
 		wp_enqueue_style( 'select2', $paths->url( 'assets/vendor/select2/select2.min.css' ), array(), '4.0.13' );

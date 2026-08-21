@@ -55,32 +55,7 @@ final class Assets {
 	 * @return void
 	 */
 	public function enqueue( string $hook_suffix ): void {
-		$screens = array(
-			// Entradas y CPTs.
-			'post.php',
-			'post-new.php',
-			// Taxonomías: listado con el formulario de alta, y edición.
-			'edit-tags.php',
-			'term.php',
-			// Perfiles.
-			'profile.php',
-			'user-edit.php',
-			'user-new.php',
-		);
-
-		/**
-		 * Filtra las pantallas donde se cargan los assets.
-		 *
-		 * Las páginas de opciones tienen un sufijo que depende de su slug, así
-		 * que se detectan aparte.
-		 *
-		 * @param array<int, string> $screens Sufijos de pantalla.
-		 */
-		$screens = (array) apply_filters( 'forja/asset_screens', $screens );
-
-		$is_options_page = str_contains( $hook_suffix, '_page_forja-' );
-
-		if ( ! $is_options_page && ! in_array( $hook_suffix, $screens, true ) ) {
+		if ( ! self::is_field_screen( $hook_suffix ) ) {
 			return;
 		}
 
@@ -106,6 +81,49 @@ final class Assets {
 
 		$this->enqueue_style( 'forja-input', $css );
 		$this->enqueue_script( 'forja-input', $js );
+	}
+
+	/**
+	 * Indica si en esta pantalla del escritorio pueden aparecer campos.
+	 *
+	 * Es pública y estática porque no la usa sólo Forja: un tema que compile
+	 * los fuentes en su propio bundle necesita saber exactamente lo mismo, y
+	 * duplicar la lista en cada proyecto la condena a desincronizarse.
+	 * `ForjaFields::css()` y `::js()` se apoyan en esto.
+	 *
+	 * @param string $hook_suffix Pantalla actual de administración.
+	 * @return bool True si hay que cargar los assets.
+	 */
+	public static function is_field_screen( string $hook_suffix ): bool {
+		$screens = array(
+			// Entradas y CPTs.
+			'post.php',
+			'post-new.php',
+			// Taxonomías: listado con el formulario de alta, y edición.
+			'edit-tags.php',
+			'term.php',
+			// Perfiles.
+			'profile.php',
+			'user-edit.php',
+			'user-new.php',
+		);
+
+		/**
+		 * Filtra las pantallas donde se cargan los assets.
+		 *
+		 * Las páginas de opciones tienen un sufijo que depende de su slug, así
+		 * que se detectan aparte.
+		 *
+		 * @param array<int, string> $screens Sufijos de pantalla.
+		 */
+		$screens = (array) apply_filters( 'forja/asset_screens', $screens );
+
+		// Las páginas de opciones que registra Forja llevan este prefijo.
+		if ( str_contains( $hook_suffix, '_page_forja-' ) ) {
+			return true;
+		}
+
+		return in_array( $hook_suffix, $screens, true );
 	}
 
 	/**
