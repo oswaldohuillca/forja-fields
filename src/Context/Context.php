@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Forja\Context;
 
 use Forja\Fields\Composite;
+use Forja\Fields\ObjectAware;
 use Forja\Registry\Box;
 use Forja\Registry\BoxRegistry;
 use Forja\Render\Renderer;
@@ -84,6 +85,16 @@ abstract class Context {
 	abstract public function register_hooks(): void;
 
 	/**
+	 * Tipo de objeto sobre el que trabaja esta pantalla.
+	 *
+	 * Lo necesitan el almacén y los campos que además tocan el objeto, como
+	 * `taxonomy` con `save_terms`.
+	 *
+	 * @return string post, term, user u option.
+	 */
+	abstract protected function object_type(): string;
+
+	/**
 	 * Lee los valores de una caja.
 	 *
 	 * @param Box        $box       Caja a leer.
@@ -104,6 +115,18 @@ abstract class Context {
 
 			if ( ! $field->stores_value() ) {
 				continue;
+			}
+
+			// Un campo que lee del propio objeto manda sobre el metadato: es lo
+			// que hace que el formulario muestre los términos reales de la
+			// entrada aunque alguien los cambiara desde otro sitio.
+			if ( $field instanceof ObjectAware ) {
+				$own = $field->read_from_object( $object_id, $this->object_type() );
+
+				if ( null !== $own ) {
+					$values[ $field->name() ] = $own;
+					continue;
+				}
 			}
 
 			$stored = $get( $field->name() );
@@ -163,6 +186,11 @@ abstract class Context {
 			}
 
 			$storage->update( $object_id, $name, $value );
+
+			// El metadato ya está guardado; esto es el reflejo en el objeto.
+			if ( $field instanceof ObjectAware ) {
+				$field->write_to_object( $object_id, $this->object_type(), $value );
+			}
 		}
 
 		return $errors;

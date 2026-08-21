@@ -69,7 +69,7 @@ msgstr ""
 msgid "- Selecciona -"
 msgstr ""
 
-#: src/Context/OptionsContext.php:98
+#: src/Context/OptionsContext.php:107
 msgid "Ajustes guardados."
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Filtrar por tipo de contenido"
 msgstr ""
 
-#: src/Context/OptionsContext.php:119
+#: src/Context/OptionsContext.php:128
 msgid "Guardar ajustes"
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Imagen seleccionada. Pulsa tabulador para acceder a sus opciones."
 msgstr ""
 
-#: src/Context/OptionsContext.php:140
+#: src/Context/OptionsContext.php:149
 msgid "La comprobación de seguridad falló. Vuelve a intentarlo."
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "No hay ninguna imagen seleccionada"
 msgstr ""
 
-#: src/Fields/Taxonomy.php:239
+#: src/Fields/Taxonomy.php:313
 msgid "No hay términos que elegir."
 msgstr ""
 
@@ -215,6 +215,6 @@ msgstr ""
 msgid "Todos los tipos"
 msgstr ""
 
-#: src/Context/PostContext.php:192
+#: src/Context/PostContext.php:201
 msgid "no se guardaron algunos campos."
 msgstr ""

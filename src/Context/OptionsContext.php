@@ -33,6 +33,15 @@ final class OptionsContext extends Context {
 	}
 
 	/**
+	 * Tipo de objeto de esta pantalla.
+	 *
+	 * @return string Siempre «option».
+	 */
+	protected function object_type(): string {
+		return 'option';
+	}
+
+	/**
 	 * Declara una entrada de menú por cada caja de opciones.
 	 *
 	 * @return void
@@ -83,7 +92,7 @@ final class OptionsContext extends Context {
 		}
 
 		$errors  = $this->save( $box );
-		$storage = $this->storage->for( 'option' );
+		$storage = $this->storage->for( $this->object_type() );
 		$values  = $this->read( $box, $storage, $this->option_prefix( $box ) );
 
 		printf( '<div class="wrap"><h1>%s</h1>', esc_html( (string) $box->get( 'title', $box->id() ) ) );
@@ -142,7 +151,7 @@ final class OptionsContext extends Context {
 
 		return $this->write(
 			$box,
-			$this->storage->for( 'option' ),
+			$this->storage->for( $this->object_type() ),
 			$this->option_prefix( $box ),
 			$this->submitted()
 		);

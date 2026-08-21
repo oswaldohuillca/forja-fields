@@ -44,6 +44,15 @@ final class TermContext extends Context {
 	}
 
 	/**
+	 * Tipo de objeto de esta pantalla.
+	 *
+	 * @return string Siempre «term».
+	 */
+	protected function object_type(): string {
+		return 'term';
+	}
+
+	/**
 	 * Declara los campos en cada taxonomía que tenga cajas.
 	 *
 	 * @return void
@@ -88,7 +97,7 @@ final class TermContext extends Context {
 	 * @return void
 	 */
 	public function render_edit( \WP_Term $term, string $taxonomy ): void {
-		$storage = $this->storage->for( 'term' );
+		$storage = $this->storage->for( $this->object_type() );
 
 		foreach ( $this->boxes->for_subtype( 'term', $taxonomy ) as $box ) {
 			if ( ! $box->matches_object( $term ) ) {
@@ -127,7 +136,7 @@ final class TermContext extends Context {
 			return;
 		}
 
-		$storage   = $this->storage->for( 'term' );
+		$storage   = $this->storage->for( $this->object_type() );
 		$submitted = $this->submitted();
 		$errors    = array();
 

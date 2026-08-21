@@ -21,13 +21,13 @@ defined( 'ABSPATH' ) || exit;
  * excluyentes o `select`, porque una taxonomía suele tener pocos términos y
  * verlos todos a la vez es más cómodo que buscarlos.
  *
- * Limitación conocida: `save_terms` y `load_terms` de ACF —asignar de verdad
- * los términos al objeto, además de guardarlos como metadato— todavía no están.
- * El campo guarda en metadatos, que es el comportamiento por defecto de ACF.
+ * Con `save_terms` el campo deja de ser autosuficiente: además de guardar su
+ * metadato, asigna de verdad los términos a la entrada. Eso necesita conocer el
+ * objeto que se está editando, y de ahí sale la interfaz `ObjectAware`.
  *
  * @see secure-custom-fields/includes/fields/class-acf-field-taxonomy.php
  */
-final class Taxonomy extends RelationalField {
+final class Taxonomy extends RelationalField implements ObjectAware {
 
 	/**
 	 * Identificador del tipo.
@@ -53,6 +53,12 @@ final class Taxonomy extends RelationalField {
 				'field_type' => 'checkbox',
 				// Incluir los términos que no tienen contenido asignado.
 				'hide_empty' => false,
+				// Asignar de verdad los términos a la entrada, además de
+				// guardar el metadato. Sólo tiene sentido en entradas.
+				'save_terms' => false,
+				// Leer el valor de los términos asignados a la entrada en vez
+				// del metadato.
+				'load_terms' => false,
 			)
 		);
 	}
@@ -187,6 +193,74 @@ final class Taxonomy extends RelationalField {
 		$term = get_term( absint( $value ), $this->taxonomy() );
 
 		return $term instanceof \WP_Term ? $term : null;
+	}
+
+	/**
+	 * Indica si el campo puede tocar los términos del objeto.
+	 *
+	 * Sólo las entradas tienen taxonomías: en un término, un usuario o una
+	 * página de opciones no hay nada que asignar.
+	 *
+	 * @param string $object_type Tipo de objeto.
+	 * @return bool True si la sincronización aplica.
+	 */
+	private function syncs( string $object_type ): bool {
+		return 'post' === $object_type && taxonomy_exists( $this->taxonomy() );
+	}
+
+	/**
+	 * Lee los términos asignados a la entrada, si se declaró `load_terms`.
+	 *
+	 * @param int|string $object_id   Objeto contenedor.
+	 * @param string     $object_type Tipo de objeto.
+	 * @return mixed Identificadores de término, o null si debe usarse el metadato.
+	 */
+	public function read_from_object( int|string $object_id, string $object_type ): mixed {
+		if ( ! $this->get( 'load_terms', false ) || ! $this->syncs( $object_type ) ) {
+			return null;
+		}
+
+		$terms = wp_get_object_terms(
+			(int) $object_id,
+			$this->taxonomy(),
+			array( 'fields' => 'ids' )
+		);
+
+		if ( is_wp_error( $terms ) ) {
+			return null;
+		}
+
+		$ids = array_map( 'strval', $terms );
+
+		if ( $this->is_multiple() ) {
+			return $ids;
+		}
+
+		return $ids[0] ?? '';
+	}
+
+	/**
+	 * Asigna los términos a la entrada, si se declaró `save_terms`.
+	 *
+	 * @param int|string $object_id   Objeto contenedor.
+	 * @param string     $object_type Tipo de objeto.
+	 * @param mixed      $value       Valor ya saneado.
+	 * @return void
+	 */
+	public function write_to_object( int|string $object_id, string $object_type, mixed $value ): void {
+		if ( ! $this->get( 'save_terms', false ) || ! $this->syncs( $object_type ) ) {
+			return;
+		}
+
+		$ids = array_map( 'absint', $this->to_list( $value ) );
+
+		/*
+		 * El último argumento en false reemplaza en vez de añadir. Es
+		 * deliberado: el campo representa el estado completo de esa taxonomía
+		 * para la entrada, así que quitar un término del formulario tiene que
+		 * quitarlo de verdad. Con una lista vacía, los borra todos.
+		 */
+		wp_set_object_terms( (int) $object_id, $ids, $this->taxonomy(), false );
 	}
 
 	/**

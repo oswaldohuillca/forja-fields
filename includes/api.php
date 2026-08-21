@@ -131,6 +131,20 @@ function forja_get_field( string $name, int|string|null $object_id = null, strin
 		return $storage->get( $object_id, $name );
 	}
 
+	/*
+	 * Un campo puede tener su valor fuera de los metadatos. Es el caso de
+	 * `taxonomy` con `load_terms`: manda lo que la entrada tenga asignado de
+	 * verdad, aunque alguien lo haya cambiado desde la pantalla de entradas o
+	 * con una importación.
+	 */
+	if ( $field instanceof \Forja\Fields\ObjectAware ) {
+		$own = $field->read_from_object( $object_id, $object_type );
+
+		if ( null !== $own ) {
+			return $field->format_value( $own );
+		}
+	}
+
 	// Un campo compuesto ocupa varias claves y sabe cómo reconstruirse.
 	if ( $field instanceof \Forja\Fields\Composite ) {
 		return $field->format_value(

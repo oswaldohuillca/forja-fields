@@ -642,9 +642,37 @@ propia —dos paneles— en lugar de un desplegable.
 `multi_select`. Las dos primeras pintan la lista completa; las otras dos, un
 desplegable con búsqueda.
 
-> Todavía no están `save_terms` ni `load_terms` de ACF, que además de guardar el
-> metadato asignan los términos al objeto. El campo guarda en metadatos, que es
-> el comportamiento por defecto de ACF.
+#### Asignar los términos de verdad
+
+Por defecto `taxonomy` es un metadato y nada más: guarda identificadores, pero la
+entrada no queda clasificada. Dos opciones cambian eso:
+
+```php
+array(
+	'type'       => 'taxonomy',
+	'name'       => 'temas',
+	'taxonomy'   => 'category',
+	'save_terms' => true,   // al guardar, asigna los términos a la entrada
+	'load_terms' => true,   // al leer, los toma de la entrada en vez del metadato
+)
+```
+
+Con `save_terms`, elegir un término hace que la entrada salga en sus archivos,
+en los menús y en las consultas por taxonomía. El campo **reemplaza** los
+términos de esa taxonomía, no los añade: representa el estado completo, así que
+quitar uno del formulario lo quita de verdad, y vaciar la selección los borra
+todos.
+
+Con `load_terms`, el valor sale de la entrada. Es lo que hace que el formulario
+muestre la realidad aunque alguien haya cambiado las categorías desde la lista de
+entradas o con una importación.
+
+Ambas sólo aplican a **entradas**: un término, un usuario o una página de
+opciones no tienen taxonomías, y ahí las opciones se ignoran sin fallar.
+
+> Dentro de un repetidor o de una capa flexible el campo sigue guardando sólo el
+> metadato: la sincronización necesita saber a qué objeto pertenece el valor, y
+> un subcampo no lo sabe.
 
 #### Cómo funciona la búsqueda
 

@@ -89,7 +89,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
 - [x] Tests de navegador con Playwright: 35 casos sobre filas nuevas, iconos, relacionales, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
-- [ ] `save_terms` y `load_terms` del campo `taxonomy`: asignar de verdad los términos al objeto, además de guardarlos como metadato
+- [x] `save_terms` y `load_terms` del campo `taxonomy`, con la interfaz `ObjectAware`
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
 - [x] Validación de campos requeridos en servidor (`Validation\Validator`); falta el aviso en cliente antes de enviar
@@ -98,7 +98,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [x] Internacionalización: dominio `forja-fields` verificado y `languages/forja-fields.pot` generado con `composer make-pot`
-- [x] Tests con Pest: 205 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
+- [x] Tests con Pest: 215 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
 
 ---
 
@@ -165,5 +165,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | El `relationship` conserva el orden de lo elegido | Es lo único que lo distingue de un `post_object` múltiple, y la razón de que tenga interfaz propia en vez de select2. |
 | El cajón de metaboxes se abre por JavaScript en los tests | Su control es a la vez el tirador para redimensionar el panel, y Playwright lo ve tapado por la capa que gestiona el arrastre. Lo que se prueba es lo que hay dentro del cajón, no cómo se abre. |
 | El textarea oculto es la señal de que TinyMCE arrancó | Al inicializarse lo esconde y lo sustituye por su iframe. Exigirle visibilidad hacía fallar un test que en realidad estaba comprobando lo correcto. |
+| Un campo que toca el objeto lo recibe de quien lo tiene, no lo guarda | `taxonomy` con `save_terms` necesita saber sobre qué entrada trabaja, y ningún campo lo sabía. Dar estado al campo era la opción fácil y la peor: las instancias se comparten entre objetos y peticiones. En su lugar, la interfaz `ObjectAware` recibe el objeto como argumento, del contexto al guardar y de `forja_get_field()` al leer. |
+| Cada contexto declara su tipo de objeto | Antes repetía el literal en dos sitios (`storage->for('post')`). Ahora `Context::object_type()` lo declara una vez, y de paso es lo que permite pasárselo a los campos que lo necesitan. |
+| `save_terms` reemplaza los términos, no los añade | El campo representa el estado completo de esa taxonomía para la entrada. Añadir dejaría imposible quitar un término desde el formulario. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |

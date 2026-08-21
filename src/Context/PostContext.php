@@ -32,6 +32,15 @@ final class PostContext extends Context {
 	}
 
 	/**
+	 * Tipo de objeto de esta pantalla.
+	 *
+	 * @return string Siempre «post».
+	 */
+	protected function object_type(): string {
+		return 'post';
+	}
+
+	/**
 	 * Declara las cajas aplicables a la pantalla actual.
 	 *
 	 * @param string   $post_type Post type que se está editando.
@@ -85,7 +94,7 @@ final class PostContext extends Context {
 
 		wp_nonce_field( $this->nonce_action( $box ), $this->nonce_name( $box ) );
 
-		$storage         = $this->storage->for( 'post' );
+		$storage         = $this->storage->for( $this->object_type() );
 		$values          = $this->read( $box, $storage, $post->ID );
 		$label_placement = 'left' === $box->get( 'label_placement' ) ? '-left' : '-top';
 
@@ -121,7 +130,7 @@ final class PostContext extends Context {
 			return;
 		}
 
-		$storage   = $this->storage->for( 'post' );
+		$storage   = $this->storage->for( $this->object_type() );
 		$submitted = $this->submitted();
 		$errors    = array();
 

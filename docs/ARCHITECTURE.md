@@ -171,6 +171,46 @@ opciones. Un campo nunca sabe dónde acaba su valor.
 Añadir esto al principio cuesta unas 80 líneas; retrofitearlo después de tener
 treinta tipos de campo escritos es un refactor doloroso.
 
+### Un campo que toca el objeto lo recibe como argumento
+
+Casi todos los campos son autosuficientes: reciben un valor, lo sanean y lo
+guardan bajo su clave. `taxonomy` con `save_terms` no lo es. Además del
+metadato, tiene que **asignar el término a la entrada**, que es lo que hace que
+salga en sus archivos y en las consultas por taxonomía.
+
+Eso obliga a conocer el objeto en curso, y ningún campo lo conocía: `sanitize()`
+recibe un valor suelto y `Composite::write_value()`, un almacén ya ligado al
+objeto pero sin decir a cuál.
+
+La salida fácil era guardar el objeto en el campo con un setter antes de usarlo.
+Es también la peor: **las instancias de campo se comparten**. `Box` las construye
+una vez y las reutiliza para lo que haga falta en esa petición, así que un
+`->set_object()` seguido de una llamada crea un estado que puede quedarse
+colgado y contaminar la siguiente lectura.
+
+En su lugar, la interfaz `ObjectAware` recibe el objeto **como argumento**:
+
+```php
+public function read_from_object( int|string $object_id, string $object_type ): mixed;
+public function write_to_object( int|string $object_id, string $object_type, mixed $value ): void;
+```
+
+Quien lo aporta es quien ya lo tiene: `Context` al pintar y al guardar, y
+`forja_get_field()` al leer desde la plantilla. El campo sigue sin estado.
+
+Para que el contexto pudiera decirlo, se añadió `Context::object_type()`. Antes
+cada contexto repetía su literal en dos sitios (`storage->for( 'post' )`); ahora
+lo declara una vez.
+
+Dos consecuencias que conviene tener presentes:
+
+- **`read_from_object()` devuelve null cuando no aplica**, y entonces se usa el
+  metadato. Así el mismo camino sirve para un campo con `load_terms` y para uno
+  sin él, sin ramas en quien llama.
+- **Dentro de un repetidor no funciona.** Los subcampos se guardan a través de
+  `Composite::write_value()`, que no recibe el objeto. Un `taxonomy` en una fila
+  guarda su metadato y nada más; está documentado en el README.
+
 ### Los campos compuestos deciden sus propias claves
 
 Un campo normal es una clave y un valor. Un repetidor ocupa una clave por

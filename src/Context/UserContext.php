@@ -39,13 +39,22 @@ final class UserContext extends Context {
 	}
 
 	/**
+	 * Tipo de objeto de esta pantalla.
+	 *
+	 * @return string Siempre «user».
+	 */
+	protected function object_type(): string {
+		return 'user';
+	}
+
+	/**
 	 * Pinta los campos en el perfil.
 	 *
 	 * @param \WP_User $user Usuario en edición.
 	 * @return void
 	 */
 	public function render( \WP_User $user ): void {
-		$storage = $this->storage->for( 'user' );
+		$storage = $this->storage->for( $this->object_type() );
 
 		foreach ( $this->boxes_for( $user ) as $box ) {
 			printf( '<h2>%s</h2>', esc_html( (string) $box->get( 'title', $box->id() ) ) );
@@ -83,7 +92,7 @@ final class UserContext extends Context {
 			return;
 		}
 
-		$storage   = $this->storage->for( 'user' );
+		$storage   = $this->storage->for( $this->object_type() );
 		$submitted = $this->submitted();
 
 		foreach ( $this->boxes_for( $user ) as $box ) {
