@@ -62,34 +62,54 @@ import 'oswa-forja/js/vendor/select2';     // opcional; ver más abajo
 import './admin.css';                        // tus estilos propios, después
 ```
 
-Y en el `functions.php`, dile a Forja cuáles son tus archivos:
+Importar **no basta**: eso decide qué entra en el bundle al compilar, pero
+alguien tiene que decirle a WordPress que ese archivo existe. Un tema siempre
+encola sus propios assets; el bundle no puede pedirse a sí mismo. Si te saltas
+este paso, el CSS de Forja está dentro de `admin.css` y los campos salen en
+crudo.
+
+En el `functions.php`:
+
+```php
+use Forja\Assets;
+
+// Tu bundle ya trae los fuentes de Forja: que el paquete no encole los suyos.
+add_filter( 'forja/enqueue_assets', '__return_false' );
+
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( ! Assets::is_field_screen( $hook ) ) {
+		return;
+	}
+
+	$url = get_stylesheet_directory_uri();
+
+	wp_enqueue_style( 'tema-admin', $url . '/assets/build/css/admin.css' );
+	wp_enqueue_script( 'tema-admin', $url . '/assets/build/js/admin.js', array(), null, true );
+} );
+```
+
+Es código normal de WordPress. Lo único que aporta Forja es
+`Assets::is_field_screen()`, para no copiar la lista de pantallas donde pinta
+campos: crece —entradas, taxonomías, perfiles, páginas de opciones— y una copia
+se queda corta sin que nadie se entere.
+
+#### Atajo, si prefieres no escribir el hook
 
 ```php
 use Forja\ForjaFields;
-
-add_filter( 'forja/enqueue_assets', '__return_false' );
 
 ForjaFields::css( '/assets/build/css/admin.css' );
 ForjaFields::js( '/assets/build/js/admin.js' );
 ```
 
-No hace falta engancharse a `admin_enqueue_scripts` ni enumerar las pantallas:
-**Forja ya sabe dónde pinta sus campos** y carga ahí tus archivos. Esa lista
-crece —entradas, taxonomías, perfiles, páginas de opciones— y tenerla copiada en
-cada proyecto la condena a quedarse corta sin que nadie se entere.
-
-Las rutas son relativas al tema. La versión sale de la fecha de modificación del
-archivo, así que la caché se rompe sola al recompilar. Si el archivo no existe no
-se emite la etiqueta, en vez de dejar un 404.
-
+Hace exactamente lo mismo: engancha `admin_enqueue_scripts`, filtra por pantalla,
+resuelve la ruta contra el tema y versiona con la fecha de modificación del
+archivo. Si el archivo no existe no emite la etiqueta, en vez de dejar un 404.
 Ambos métodos aceptan dependencias y un identificador propio:
 
 ```php
 ForjaFields::js( '/assets/build/js/admin.js', array( 'jquery' ), 'mi-tema-admin' );
 ```
-
-El `add_filter` de la primera línea es aparte y dice otra cosa: que tu bundle ya
-incluye los fuentes de Forja, así que el paquete no debe encolar los suyos.
 
 ### select2, si usas empaquetador
 
