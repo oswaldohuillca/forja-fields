@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja\Fields;
 
+use Forja\Ajax\Search;
 use Forja\Render\Html;
 
 defined( 'ABSPATH' ) || exit;
@@ -179,16 +180,17 @@ abstract class RelationalField extends Field {
 		$multiple = $this->is_multiple();
 
 		$attributes = array(
-			'id'               => $this->input_id(),
-			'name'             => $multiple ? $input_name . '[]' : $input_name,
-			'class'            => 'forja-relational',
-			'data-ui'          => '1',
-			'data-ajax'        => '1',
-			'data-field'       => $this->name(),
-			'data-nonce'       => wp_create_nonce( $this->search_action() ),
-			'data-placeholder' => (string) $this->get( 'placeholder', __( 'Selecciona', 'forja-fields' ) ),
-			'data-allow_null'  => $this->get( 'allow_null', false ) ? '1' : '',
-			'data-multiple'    => $multiple ? '1' : '',
+			'id'                 => $this->input_id(),
+			'name'               => $multiple ? $input_name . '[]' : $input_name,
+			'class'              => 'forja-relational',
+			'data-ui'            => '1',
+			'data-ajax'          => '1',
+			'data-field'         => $this->name(),
+			'data-nonce'         => wp_create_nonce( $this->search_action() ),
+			'data-search-action' => Search::action(),
+			'data-placeholder'   => (string) $this->get( 'placeholder', __( 'Selecciona', 'forja-fields' ) ),
+			'data-allow_null'    => $this->get( 'allow_null', false ) ? '1' : '',
+			'data-multiple'      => $multiple ? '1' : '',
 		);
 
 		if ( $multiple ) {

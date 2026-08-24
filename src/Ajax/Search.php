@@ -61,6 +61,19 @@ final class Search {
 	}
 
 	/**
+	 * Nombre de la acción de admin-ajax.
+	 *
+	 * Lo emiten los campos en un atributo `data-` para que el JavaScript no
+	 * tenga que repetir la cadena: si cambiara aquí, allí seguiría la vieja y
+	 * las búsquedas dejarían de responder sin ningún aviso.
+	 *
+	 * @return string Acción.
+	 */
+	public static function action(): string {
+		return self::ACTION;
+	}
+
+	/**
 	 * Atiende una petición de búsqueda.
 	 *
 	 * @return void

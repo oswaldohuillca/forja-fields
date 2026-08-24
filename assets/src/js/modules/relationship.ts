@@ -7,7 +7,7 @@
  * un desplegable no da.
  */
 
-import { searchField, type SearchContext } from './search';
+import { searchContext, searchField } from './search';
 import { refreshConditions } from './conditions';
 
 /** Cuánto se espera tras la última tecla antes de consultar. */
@@ -163,10 +163,7 @@ export function initRelationship( field: HTMLElement ): void {
 		choices.textContent = '';
 	}
 
-	const context: SearchContext = {
-		field: field.dataset.field ?? '',
-		nonce: field.dataset.nonce ?? '',
-	};
+	const context = searchContext( field );
 
 	const search = field.querySelector< HTMLInputElement >( '[data-filter="s"]' );
 	const postType = field.querySelector< HTMLSelectElement >(

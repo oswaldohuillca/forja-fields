@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: 1: etiqueta del campo, 2: número máximo de elementos.
-#: src/Fields/RelationalField.php:300
+#: src/Fields/RelationalField.php:302
 msgid "%1$s admite como mucho %2$d elemento."
 msgid_plural "%1$s admite como mucho %2$d elementos."
 msgstr[0] ""
@@ -35,7 +35,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: etiqueta del campo, 2: número mínimo de elementos.
-#: src/Fields/RelationalField.php:286
+#: src/Fields/RelationalField.php:288
 msgid "%1$s necesita al menos %2$d elemento."
 msgid_plural "%1$s necesita al menos %2$d elementos."
 msgstr[0] ""
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Añadir imagen"
 msgstr ""
 
-#: src/Fields/Relationship.php:152
+#: src/Fields/Relationship.php:154
 msgid "Buscar entradas"
 msgstr ""
 
@@ -113,7 +113,7 @@ msgstr ""
 msgid "Buscar un icono…"
 msgstr ""
 
-#: src/Fields/Relationship.php:151
+#: src/Fields/Relationship.php:153
 msgid "Buscar…"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Editar"
 msgstr ""
 
-#: src/Fields/Relationship.php:163
+#: src/Fields/Relationship.php:165
 msgid "Filtrar por tipo de contenido"
 msgstr ""
 
@@ -183,7 +183,7 @@ msgstr ""
 msgid "Página siguiente"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:200
+#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:202
 msgid "Quitar"
 msgstr ""
 
@@ -195,7 +195,7 @@ msgstr ""
 msgid "Se abre en una pestaña nueva"
 msgstr ""
 
-#: src/Fields/RelationalField.php:189
+#: src/Fields/RelationalField.php:191
 msgid "Selecciona"
 msgstr ""
 
@@ -211,7 +211,7 @@ msgstr ""
 msgid "Tamaño del archivo"
 msgstr ""
 
-#: src/Fields/Relationship.php:164
+#: src/Fields/Relationship.php:166
 msgid "Todos los tipos"
 msgstr ""
 

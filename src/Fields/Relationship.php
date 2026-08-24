@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja\Fields;
 
+use Forja\Ajax\Search;
 use Forja\Render\Html;
 
 defined( 'ABSPATH' ) || exit;
@@ -99,12 +100,13 @@ final class Relationship extends PostObject {
 		$filters = $this->filters();
 
 		$attributes = array(
-			'class'      => 'acf-relationship',
-			'data-min'   => (string) (int) $this->get( 'min', 0 ),
-			'data-max'   => (string) (int) $this->get( 'max', 0 ),
-			'data-field' => $this->name(),
-			'data-nonce' => wp_create_nonce( $this->search_action() ),
-			'data-name'  => $input_name,
+			'class'              => 'acf-relationship',
+			'data-min'           => (string) (int) $this->get( 'min', 0 ),
+			'data-max'           => (string) (int) $this->get( 'max', 0 ),
+			'data-field'         => $this->name(),
+			'data-nonce'         => wp_create_nonce( $this->search_action() ),
+			'data-search-action' => Search::action(),
+			'data-name'          => $input_name,
 		);
 
 		printf( '<div %s>', Html::attributes( $attributes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.

@@ -7,6 +7,8 @@
  * tendrá búsqueda, pero muestra y guarda lo que ya estuviera elegido.
  */
 
+import { searchContext } from './search';
+
 /**
  * Deja el `<select>` como estaba antes de que select2 lo tocara.
  *
@@ -51,8 +53,7 @@ export function initRelational( select: HTMLElement ): void {
 
 	clearSelect2( select );
 
-	const field = select.dataset.field ?? '';
-	const nonce = select.dataset.nonce ?? '';
+	const context = searchContext( select );
 
 	jquery( select ).select2?.( {
 		width: '100%',
@@ -67,9 +68,9 @@ export function initRelational( select: HTMLElement ): void {
 			type: 'POST',
 			delay: 250,
 			data: ( params: { term?: string; page?: number } ) => ( {
-				action: 'forja_search',
-				field,
-				nonce,
+				action: context.action,
+				field: context.field,
+				nonce: context.nonce,
 				s: params.term ?? '',
 				paged: params.page ?? 1,
 			} ),

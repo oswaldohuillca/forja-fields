@@ -7,8 +7,27 @@
 
 /** Lo que necesita una consulta para identificarse. */
 export interface SearchContext {
+	action: string;
 	field: string;
 	nonce: string;
+}
+
+/**
+ * Lee del markup los datos con los que se identifica una consulta.
+ *
+ * La acción viaja en un atributo y no escrita aquí a mano: si cambiara en PHP,
+ * una copia en el JavaScript seguiría pidiendo la vieja y las búsquedas
+ * dejarían de responder sin ningún aviso.
+ *
+ * @param element Elemento que lleva los atributos `data-`.
+ * @return Contexto de búsqueda.
+ */
+export function searchContext( element: HTMLElement ): SearchContext {
+	return {
+		action: element.dataset.searchAction ?? '',
+		field: element.dataset.field ?? '',
+		nonce: element.dataset.nonce ?? '',
+	};
 }
 
 /** Filtros opcionales que acota el `relationship`. */
@@ -40,7 +59,7 @@ export async function searchField(
 	const url = window.ajaxurl ?? '/wp-admin/admin-ajax.php';
 
 	const body = new URLSearchParams( {
-		action: 'forja_search',
+		action: context.action,
 		field: context.field,
 		nonce: context.nonce,
 		s: filters.s ?? '',
