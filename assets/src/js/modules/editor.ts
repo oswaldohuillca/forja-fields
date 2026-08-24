@@ -69,7 +69,7 @@ function tinymceSettings( textarea: HTMLTextAreaElement ): Record< string, unkno
  *
  * @param textarea Área de texto marcada con `forja-editor`.
  */
-export function initEditor( textarea: HTMLTextAreaElement ): void {
+function initEditor( textarea: HTMLTextAreaElement ): void {
 	const editor = window.wp?.editor;
 
 	if ( ! editor || ! textarea.id || textarea.dataset.forjaReady === '1' ) {

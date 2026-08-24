@@ -89,7 +89,6 @@ final class Assets {
 	 * Es pública y estática porque no la usa sólo Forja: un tema que compile
 	 * los fuentes en su propio bundle necesita saber exactamente lo mismo, y
 	 * duplicar la lista en cada proyecto la condena a desincronizarse.
-	 * `ForjaFields::css()` y `::js()` se apoyan en esto.
 	 *
 	 * @param string $hook_suffix Pantalla actual de administración.
 	 * @return bool True si hay que cargar los assets.

@@ -27,7 +27,7 @@ Objetivo: una fila de campo visualmente idéntica a ACF, guardándose de verdad.
 - [x] `tsconfig.json` en modo estricto; `bun run typecheck` pasa sin errores
 - [x] Tokens de diseño portados de `_variables.scss` a custom properties
 - [x] CSS del render portado: `acf-field`, `acf-fields`, `acf-postbox`, inputs
-- [x] Capa de almacenamiento abstracta (post, term, user, comment, option)
+- [x] Capa de almacenamiento abstracta (post, term, user, comment, option); las cajas sólo pueden declararse en las cuatro que tienen pantalla
 - [x] Catálogo de tipos de campo (`FieldRegistry`)
 - [x] Registro de grupos de campos (`BoxRegistry`, `Box`)
 - [x] Renderer portado de `acf_render_field_wrap()` — markup verificado byte a byte
@@ -168,7 +168,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Un campo que toca el objeto lo recibe de quien lo tiene, no lo guarda | `taxonomy` con `save_terms` necesita saber sobre qué entrada trabaja, y ningún campo lo sabía. Dar estado al campo era la opción fácil y la peor: las instancias se comparten entre objetos y peticiones. En su lugar, la interfaz `ObjectAware` recibe el objeto como argumento, del contexto al guardar y de `forja_get_field()` al leer. |
 | Cada contexto declara su tipo de objeto | Antes repetía el literal en dos sitios (`storage->for('post')`). Ahora `Context::object_type()` lo declara una vez, y de paso es lo que permite pasárselo a los campos que lo necesitan. |
 | `save_terms` reemplaza los términos, no los añade | El campo representa el estado completo de esa taxonomía para la entrada. Añadir dejaría imposible quitar un término desde el formulario. |
-| El tema declara sus assets con `ForjaFields::css()` y `::js()` | Antes había que copiar en cada proyecto la lista de pantallas donde Forja pinta campos, y esa lista vive dentro del paquete. Duplicarla la condenaba a desincronizarse: al añadir las páginas de opciones, un tema con la copia vieja se quedaba sin estilos ahí. `Assets::is_field_screen()` pasa a ser la única fuente. |
+| La lista de pantallas con campos vive sólo en el paquete | `Assets::is_field_screen()` es pública para que un tema que compile los fuentes en su bundle no tenga que copiarla. Esa lista crece —entradas, taxonomías, perfiles, páginas de opciones— y una copia se queda corta sin que nadie se entere. |
 | select2 se puede compilar en el bundle del tema | Encolarlo como archivo suelto no necesita configuración, pero con un empaquetador es una excepción que no pasa por el build. Con `forja/enqueue_select2` a false y el import de `oswa-forja/js/vendor/select2` entra por el bundle. **jQuery se marca como externo**: lo pone WordPress y duplicarlo rompería los plugins que dependen de esa instancia. |
 | Metaboxes en el cajón del editor de bloques | Es donde ACF los pone hoy y los editores ya están acostumbrados. |
 | Licencia GPLv2 o posterior | Obra derivada de Secure Custom Fields. |

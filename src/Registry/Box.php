@@ -71,7 +71,8 @@ final class Box {
 	public static function defaults(): array {
 		return array(
 			'title'                 => '',
-			// Dónde aparece: post, term, user, comment u option.
+			// Dónde aparece: post, term, user u option. No hay pantalla de
+			// comentarios, así que ahí no se puede declarar una caja.
 			'object_type'           => 'post',
 			// Subtipos afectados: post types, taxonomías, etc. Vacío significa todos.
 			'object_subtypes'       => array(),

@@ -57,15 +57,6 @@ final class Tab extends Field {
 	}
 
 	/**
-	 * Agrupa a los campos que le siguen.
-	 *
-	 * @return bool Siempre true.
-	 */
-	public function is_layout(): bool {
-		return true;
-	}
-
-	/**
 	 * No pinta nada: la barra de pestañas la emite el renderer.
 	 *
 	 * @param mixed  $value      Sin uso.

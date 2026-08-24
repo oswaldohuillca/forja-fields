@@ -59,15 +59,6 @@ final class Accordion extends Field {
 	}
 
 	/**
-	 * Agrupa a los campos que le siguen.
-	 *
-	 * @return bool Siempre true.
-	 */
-	public function is_layout(): bool {
-		return true;
-	}
-
-	/**
 	 * El contenido lo pinta el renderer, que es quien conoce a los hijos.
 	 *
 	 * @param mixed  $value      Sin uso.

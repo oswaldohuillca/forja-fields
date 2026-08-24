@@ -61,15 +61,6 @@ final class Search {
 	}
 
 	/**
-	 * Nombre de la acción de admin-ajax.
-	 *
-	 * @return string Acción.
-	 */
-	public static function action(): string {
-		return self::ACTION;
-	}
-
-	/**
 	 * Atiende una petición de búsqueda.
 	 *
 	 * @return void

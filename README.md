@@ -93,24 +93,6 @@ Es código normal de WordPress. Lo único que aporta Forja es
 campos: crece —entradas, taxonomías, perfiles, páginas de opciones— y una copia
 se queda corta sin que nadie se entere.
 
-#### Atajo, si prefieres no escribir el hook
-
-```php
-use Forja\ForjaFields;
-
-ForjaFields::css( '/assets/build/css/admin.css' );
-ForjaFields::js( '/assets/build/js/admin.js' );
-```
-
-Hace exactamente lo mismo: engancha `admin_enqueue_scripts`, filtra por pantalla,
-resuelve la ruta contra el tema y versiona con la fecha de modificación del
-archivo. Si el archivo no existe no emite la etiqueta, en vez de dejar un 404.
-Ambos métodos aceptan dependencias y un identificador propio:
-
-```php
-ForjaFields::js( '/assets/build/js/admin.js', array( 'jquery' ), 'mi-tema-admin' );
-```
-
 ### select2, si usas empaquetador
 
 Los campos relacionales (`post_object`, `page_link`, `user`…) usan select2, que
@@ -193,7 +175,7 @@ forja_the_field( 'bajada' );
 | Clave | Por defecto | Descripción |
 |---|---|---|
 | `title` | `''` | Título del metabox |
-| `object_type` | `'post'` | `post`, `term`, `user`, `comment` u `option` |
+| `object_type` | `'post'` | `post`, `term`, `user` u `option` |
 | `object_subtypes` | `array()` | Post types, taxonomías o roles según `object_type`; vacío significa todos |
 | `templates` | `array()` | Slugs de plantilla; usa `'default'` para la plantilla por defecto |
 | `object_ids` | `array()` | Identificadores concretos de objeto |

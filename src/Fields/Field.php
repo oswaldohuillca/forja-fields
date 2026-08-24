@@ -142,19 +142,6 @@ abstract class Field {
 	}
 
 	/**
-	 * Indica si el campo organiza a los que le siguen.
-	 *
-	 * Las pestañas y los acordeones no son campos: son instrucciones de
-	 * maquetado que el renderer interpreta para agrupar la lista plana antes
-	 * de pintarla.
-	 *
-	 * @return bool True si el campo agrupa.
-	 */
-	public function is_layout(): bool {
-		return false;
-	}
-
-	/**
 	 * Indica si la etiqueta debe apuntar al control con el atributo `for`.
 	 *
 	 * Los campos con varios controles —un grupo de radios, por ejemplo— no
@@ -256,14 +243,5 @@ abstract class Field {
 	 */
 	public function input_id(): string {
 		return 'forja-' . str_replace( '_', '-', $this->name() );
-	}
-
-	/**
-	 * Configuración completa del campo.
-	 *
-	 * @return array<string, mixed> Configuración.
-	 */
-	public function args(): array {
-		return $this->args;
 	}
 }

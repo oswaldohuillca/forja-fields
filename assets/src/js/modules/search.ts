@@ -12,14 +12,14 @@ export interface SearchContext {
 }
 
 /** Filtros opcionales que acota el `relationship`. */
-export interface SearchFilters {
+interface SearchFilters {
 	s?: string;
 	paged?: number;
 	post_type?: string;
 }
 
 /** Lo que devuelve una búsqueda. */
-export interface SearchPage {
+interface SearchPage {
 	results: ForjaSearchResult[];
 	more: boolean;
 }
