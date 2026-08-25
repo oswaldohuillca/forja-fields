@@ -117,13 +117,45 @@ test( 'el inglés avisa de su alcance y lleva al español', async ( { page } ) =
 	await expect( page ).toHaveURL( /\/es\/$/ );
 } );
 
-test( 'se puede cambiar de idioma desde la cabecera', async ( { page } ) => {
-	await page.goto( './guide/installation' );
+test( 'cambiar de idioma nunca lleva a un 404', async ( { page } ) => {
+	/*
+	 * VitePress intercambia el prefijo del idioma y conserva el resto de la
+	 * ruta. Aquí los segmentos están traducidos —`campos` frente a `fields`— y
+	 * 18 páginas sólo existen en español, así que ese mapeo daba 404 en casi
+	 * todas las combinaciones. Se resolvió fijando `link` por locale.
+	 */
+	const rutas = [
+		'./',
+		'./guide/installation',
+		'./guide/getting-started',
+		'./fields/',
+		'./es/',
+		'./es/guia/instalacion',
+		'./es/campos/',
+		'./es/campos/compuestos',
+		'./es/desarrollo/arquitectura',
+	];
 
-	// El selector de idioma sólo aparece si los dos locales están declarados.
-	await expect(
-		page.locator( '.VPNavBarTranslations, .VPNavScreenTranslations' ).first()
-	).toBeAttached();
+	for ( const ruta of rutas ) {
+		await page.goto( ruta );
+
+		const enlace = page
+			.locator( '.VPNavBarTranslations a[href]' )
+			.filter( { hasNotText: 'GitHub' } )
+			.first();
+
+		await expect( enlace ).toBeAttached();
+
+		const destino = await enlace.getAttribute( 'href' );
+
+		expect( destino, `desde ${ ruta }` ).toBeTruthy();
+
+		const respuesta = await page.goto( destino as string );
+
+		expect( respuesta?.status(), `desde ${ ruta } hacia ${ destino }` ).toBe(
+			200
+		);
+	}
 } );
 
 test( 'el contenido repartido llegó entero', async ( { page } ) => {

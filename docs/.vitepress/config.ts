@@ -145,6 +145,22 @@ export default defineConfig( {
 	},
 
 	themeConfig: {
+		/*
+		 * El selector de idioma lleva a la portada del otro, no a la misma
+		 * página traducida.
+		 *
+		 * Con el enrutado por idioma activado, VitePress intercambia el prefijo
+		 * y **conserva el resto de la ruta**. Aquí los segmentos están
+		 * traducidos —`campos` frente a `fields`— y además 18 páginas sólo
+		 * existen en español, así que ese mapeo daba 404 en casi todas las
+		 * combinaciones: de siete rutas probadas, cinco.
+		 *
+		 * Se pierde el «esta misma página en el otro idioma», que con rutas
+		 * distintas nunca llegó a funcionar, y a cambio no queda ninguna
+		 * combinación rota.
+		 */
+		i18nRouting: false,
+
 		// Buscador local, con un índice por idioma.
 		search: {
 			provider: 'local',
