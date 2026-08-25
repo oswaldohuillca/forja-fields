@@ -27,8 +27,9 @@ funcionaba.
 
 | Documento | Qué contiene |
 |---|---|
-| `README.md` | Guía de uso: qué se declara y qué devuelve |
-| `docs/ARCHITECTURE.md` | El porqué: decisiones con su razón, dependencias externas, seguridad, cómo se prueba |
+| `README.md` | Portada corta: qué es, cómo se instala y adónde ir. **No crece**: si algo no cabe en una frase, va al sitio. |
+| `docs/` | El manual, publicado con VitePress (`bun run docs`). Guía, campos, referencia y desarrollo. |
+| `docs/desarrollo/arquitectura.md` | El porqué: decisiones con su razón, dependencias externas, seguridad, cómo se prueba |
 | `ROADMAP.md` | Estado de cada fase y la tabla de «Decisiones tomadas», para no rediscutirlas |
 
 Documenta también los callejones sin salida: qué se intentó y por qué no valía.
@@ -43,6 +44,7 @@ código exista.
 Antes de dar por cerrado un bloque de trabajo:
 
 ```bash
+bun run docs:build                              # falla si hay un enlace roto
 bun run typecheck
 bun run build
 composer lint                                   # PHPCS con WordPress-Extra

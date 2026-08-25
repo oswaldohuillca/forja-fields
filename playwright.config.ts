@@ -22,13 +22,31 @@ export default defineConfig( {
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 	},
+	/*
+	 * El sitio de documentación se compila y se sirve solo. `reuseExistingServer`
+	 * evita levantarlo otra vez si ya lo tienes abierto con `bun run docs`.
+	 */
+	webServer: {
+		command: 'bun run docs:build && bun x vitepress preview docs --port 4173',
+		url: 'http://localhost:4173/forja/',
+		reuseExistingServer: true,
+		timeout: 120_000,
+	},
+
 	projects: [
 		{
 			name: 'login',
 			testMatch: /auth\.setup\.ts/,
 		},
 		{
+			// La documentación no necesita sesión: es un sitio estático.
+			name: 'docs',
+			testMatch: /docs\.spec\.ts/,
+			use: { ...devices[ 'Desktop Chrome' ] },
+		},
+		{
 			name: 'admin',
+			testIgnore: /docs\.spec\.ts/,
 			use: {
 				...devices[ 'Desktop Chrome' ],
 				storageState: 'tests/e2e/.auth/admin.json',

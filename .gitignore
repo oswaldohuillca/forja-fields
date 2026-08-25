@@ -15,6 +15,10 @@
 /playwright-report/
 /tests/e2e/.auth/
 
+# VitePress
+/docs/.vitepress/dist/
+/docs/.vitepress/cache/
+
 # Entorno
 .DS_Store
 *.log
