@@ -48,9 +48,37 @@ $background = forja_get_field( 'background' );
 - **Compatible with ACF's data.** Repeaters as `field_0_subfield`, dates as `Ymd`.
   An existing site reads without migrating anything.
 
-**35 field types**, from `text` to `relationship`, including repeaters, flexible
-content, and an icon picker that searches Iconify's 200,000+ icons without
-bundling any catalogue.
+## The 35 field types
+
+Grouped by what they're for. The full reference — every option, what each one
+stores and what it returns — lives in [The fields](/fields/).
+
+| Family | Types |
+|---|---|
+| **Text and numbers** | `text` `textarea` `number` `range` `email` `url` `password` |
+| **Choice** | `select` `radio` `checkbox` `button_group` `true_false` |
+| **Rich content** | `wysiwyg` `link` `oembed` |
+| **Media** | `image` `file` `gallery` `icon_picker` |
+| **Date, time and colour** | `date_picker` `time_picker` `date_time_picker` `color_picker` |
+| **Relational** | `post_object` `page_link` `relationship` `taxonomy` `user` |
+| **Composite** | `repeater` `group` `flexible_content` |
+| **Presentation** | `message` `separator` `tab` `accordion` |
+
+Four worth calling out:
+
+- **`repeater` and `flexible_content`** store in ACF's format — `banner_0_title`,
+  one key per sub-field and row — so an existing site reads without migrating.
+- **The relational ones** search over AJAX instead of dumping the whole catalogue
+  into the HTML. A site with thousands of posts stays usable.
+- **`icon_picker`** searches Iconify's 200,000+ icons live. No catalogue is
+  bundled, and the front end gets an inline SVG with no JavaScript.
+- **`clone`** isn't a type in the registry: it's resolved when the group is
+  declared, so nothing downstream ever sees it. It pulls a reusable field set
+  into as many groups as you like, with optional prefixes and per-field
+  overrides.
+
+Every type works inside a repeater row, including `wysiwyg` and the relational
+ones.
 
 ::: tip Documentation in Spanish
 This project is written in Spanish, and so is most of its documentation. The

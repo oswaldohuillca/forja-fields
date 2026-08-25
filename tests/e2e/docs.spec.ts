@@ -41,6 +41,34 @@ test( 'la portada española sigue accesible en su ruta', async ( { page } ) => {
 	await expect( page ).toHaveURL( /es\/guia\/instalacion/ );
 } );
 
+test( 'las dos portadas enumeran los campos disponibles', async ( { page } ) => {
+	/*
+	 * Quien llega quiere saber en diez segundos si la librería tiene lo que
+	 * necesita. La lista se comprueba contra el catálogo real: si se registra un
+	 * tipo nuevo y no se añade aquí, este test lo dice.
+	 */
+	const familias = [
+		'text',
+		'button_group',
+		'wysiwyg',
+		'icon_picker',
+		'date_time_picker',
+		'relationship',
+		'flexible_content',
+		'accordion',
+	];
+
+	for ( const ruta of [ './', './es/' ] ) {
+		await page.goto( ruta );
+
+		const portada = page.locator( '.vp-doc' );
+
+		for ( const tipo of familias ) {
+			await expect( portada ).toContainText( tipo );
+		}
+	}
+} );
+
 test( 'la barra lateral cubre las cuatro secciones', async ( { page } ) => {
 	await page.goto( './es/guia/instalacion' );
 

@@ -47,11 +47,37 @@ forja_the_field( 'titular' );
 $fondo = forja_get_field( 'fondo' );
 ```
 
-## Qué hay dentro
+## Los 35 tipos de campo
 
-**35 tipos de campo**, desde `text` hasta `relationship`, pasando por repetidores,
-contenido flexible y un selector de iconos que busca en las más de 200.000
-colecciones de Iconify sin empaquetar ningún catálogo.
+Agrupados por para qué sirven. La referencia completa —cada opción, qué guarda y
+qué devuelve— está en [Los campos](/es/campos/).
+
+| Familia | Tipos |
+|---|---|
+| **Texto y números** | `text` `textarea` `number` `range` `email` `url` `password` |
+| **Elección** | `select` `radio` `checkbox` `button_group` `true_false` |
+| **Contenido enriquecido** | `wysiwyg` `link` `oembed` |
+| **Medios** | `image` `file` `gallery` `icon_picker` |
+| **Fecha, hora y color** | `date_picker` `time_picker` `date_time_picker` `color_picker` |
+| **Relacionales** | `post_object` `page_link` `relationship` `taxonomy` `user` |
+| **Compuestos** | `repeater` `group` `flexible_content` |
+| **Presentación** | `message` `separator` `tab` `accordion` |
+
+Cuatro que conviene destacar:
+
+- **`repeater` y `flexible_content`** guardan en el formato de ACF —`banner_0_titulo`,
+  una clave por subcampo y fila—, así que un sitio existente se lee sin migrar nada.
+- **Los relacionales** buscan por AJAX en vez de volcar el catálogo entero en el
+  HTML. Un sitio con miles de entradas sigue siendo usable.
+- **`icon_picker`** busca en vivo entre los más de 200.000 iconos de Iconify. No
+  se empaqueta ningún catálogo, y en la parte pública sale un SVG en línea sin
+  JavaScript.
+- **`clone`** no es un tipo del catálogo: se resuelve al declarar la caja, así que
+  nada por debajo llega a verlo. Incorpora un conjunto de campos reutilizable en
+  tantos grupos como quieras, con prefijos y ajustes por campo.
+
+Todos funcionan dentro de una fila de repetidor, incluidos el `wysiwyg` y los
+relacionales.
 
 Todo verificado: 215 tests de integración contra un WordPress real, 35 tests de
 navegador, y un comparador que exige markup idéntico al de ACF campo a campo.
