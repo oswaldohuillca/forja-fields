@@ -48,4 +48,4 @@ tratarlos aparte.
 El nombre del icono se valida antes de construir la URL, y el SVG que devuelve
 la API pasa por una lista blanca de etiquetas antes de entrar en la página. El
 porqué de cada decisión está en
-[Arquitectura](/desarrollo/arquitectura#servicios-y-dependencias-externas).
+[Arquitectura](/es/desarrollo/arquitectura#servicios-y-dependencias-externas).

@@ -41,12 +41,15 @@ bun run docs          # servidor de desarrollo, con recarga
 bun run docs:build    # sitio estático en docs/.vitepress/dist
 ```
 
+El sitio se publica con el **inglés por defecto** y el español en `/es/`. La
+versión española es la completa y la canónica; la inglesa cubre la entrada.
+
 | Dónde | Qué contiene |
 |---|---|
-| [Guía](docs/guia/instalacion.md) | Instalar, declarar el primer grupo y elegir dónde aparece |
-| [Campos](docs/campos/index.md) | Los 35 tipos, sus opciones y qué devuelve cada uno |
-| [Referencia](docs/referencia/valores.md) | Valores devueltos, lógica condicional, validación y extensión |
-| [Arquitectura](docs/desarrollo/arquitectura.md) | El porqué de cada decisión, dependencias externas y seguridad |
+| [Guía](docs/es/guia/instalacion.md) | Instalar, declarar el primer grupo y elegir dónde aparece |
+| [Campos](docs/es/campos/index.md) | Los 35 tipos, sus opciones y qué devuelve cada uno |
+| [Referencia](docs/es/referencia/valores.md) | Valores devueltos, lógica condicional, validación y extensión |
+| [Arquitectura](docs/es/desarrollo/arquitectura.md) | El porqué de cada decisión, dependencias externas y seguridad |
 | [ROADMAP.md](ROADMAP.md) | Estado de cada fase y decisiones ya tomadas |
 
 ## Requisitos

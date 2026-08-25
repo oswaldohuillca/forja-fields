@@ -79,5 +79,5 @@ from "they typed zero".
 ::: tip Going deeper
 Repeaters, flexible content, `clone`, conditional logic, the relational fields
 and the storage formats are documented in Spanish. Start at
-[Los campos](/campos/).
+[Los campos](/es/campos/).
 :::

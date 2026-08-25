@@ -16,4 +16,4 @@ visibilidad— lo pone el renderer, así que tu clase sólo se ocupa del control
 
 Si además ocupa varias claves de metadatos, implementa `Forja\Fields\Composite`;
 si necesita tocar el objeto y no sólo sus metadatos, `Forja\Fields\ObjectAware`.
-Ambos contratos están explicados en [Arquitectura](/desarrollo/arquitectura).
+Ambos contratos están explicados en [Arquitectura](/es/desarrollo/arquitectura).
