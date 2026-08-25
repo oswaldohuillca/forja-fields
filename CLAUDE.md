@@ -29,6 +29,7 @@ funcionaba.
 |---|---|
 | `README.md` | Portada corta: qué es, cómo se instala y adónde ir. **No crece**: si algo no cabe en una frase, va al sitio. |
 | `docs/` | El manual, publicado con VitePress (`bun run docs`). Guía, campos, referencia y desarrollo. |
+| `docs/en/` | Traducción parcial: instalación, primeros pasos y referencia de campos. **El español es canónico**: si discrepan, manda el español. Al cambiar algo documentado ahí, actualiza también la página inglesa o quítala; una traducción desactualizada es peor que no tenerla. |
 | `docs/desarrollo/arquitectura.md` | El porqué: decisiones con su razón, dependencias externas, seguridad, cómo se prueba |
 | `ROADMAP.md` | Estado de cada fase y la tabla de «Decisiones tomadas», para no rediscutirlas |
 

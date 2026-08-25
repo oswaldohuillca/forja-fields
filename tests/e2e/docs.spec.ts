@@ -59,6 +59,33 @@ test( 'el buscador encuentra una opción concreta', async ( { page } ) => {
 		.toBeGreaterThan( 0 );
 } );
 
+test( 'la versión en inglés cubre la entrada', async ( { page } ) => {
+	await page.goto( './en/' );
+
+	await expect( page.getByRole( 'heading', { level: 1 } ) ).toContainText(
+		'Forja'
+	);
+
+	await page.getByRole( 'link', { name: 'Get started' } ).click();
+
+	await expect( page ).toHaveURL( /en\/guide\/installation/ );
+
+	// Y avisa de que lo profundo sigue en español, en vez de dar a entender
+	// que la traducción está completa.
+	await page.goto( './en/fields/' );
+
+	await expect( page.locator( '.vp-doc' ) ).toContainText( 'Spanish' );
+} );
+
+test( 'se puede cambiar de idioma desde la cabecera', async ( { page } ) => {
+	await page.goto( './en/guide/installation' );
+
+	// El selector de idioma sólo aparece si los dos locales están declarados.
+	await expect(
+		page.locator( '.VPNavBarTranslations, .VPNavScreenTranslations' ).first()
+	).toBeAttached();
+} );
+
 test( 'el contenido repartido llegó entero', async ( { page } ) => {
 	// Una comprobación por sección, con algo que sólo aparece en ella.
 	const muestras: Array< [ string, string ] > = [
