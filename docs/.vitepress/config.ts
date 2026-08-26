@@ -16,7 +16,17 @@ import { defineConfig } from 'vitepress';
 export default defineConfig( {
 	title: 'Forja',
 
-	base: '/forja/',
+	/*
+	 * El sitio se sirve en la raíz del dominio (Cloudflare Pages).
+	 *
+	 * Si algún día se publica bajo un subdirectorio —GitHub Pages en
+	 * `usuario.github.io/forja/`, por ejemplo—, hay que poner aquí ese prefijo.
+	 * Con el `base` equivocado el HTML pide los assets en una ruta que no
+	 * existe, el servidor responde con su página de error y el navegador
+	 * rechaza el CSS por tipo MIME. Los archivos están bien subidos; lo que
+	 * falla es dónde se los busca.
+	 */
+	base: '/',
 
 	// Un enlace roto no debe pasar de la revisión: el build falla.
 	ignoreDeadLinks: false,

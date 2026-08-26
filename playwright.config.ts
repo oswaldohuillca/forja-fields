@@ -28,7 +28,7 @@ export default defineConfig( {
 	 */
 	webServer: {
 		command: 'bun run docs:build && bun x vitepress preview docs --port 4173',
-		url: 'http://localhost:4173/forja/',
+		url: 'http://localhost:4173/',
 		reuseExistingServer: true,
 		timeout: 120_000,
 	},

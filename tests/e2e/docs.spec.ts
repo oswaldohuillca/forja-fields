@@ -12,7 +12,7 @@ import { test, expect } from '@playwright/test';
  *     bun run docs:build && bun run docs:preview
  */
 
-const DOCS = process.env.FORJA_DOCS_URL ?? 'http://localhost:4173/forja/';
+const DOCS = process.env.FORJA_DOCS_URL ?? 'http://localhost:4173/';
 
 test.use( { baseURL: DOCS } );
 
