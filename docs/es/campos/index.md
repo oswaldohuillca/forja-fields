@@ -73,4 +73,4 @@ Los valores enviados **se validan contra las opciones declaradas**: cualquier
 cosa que no esté en la lista se descarta en lugar de almacenarse.
 
 Los tipos restantes de ACF (`tab`, `accordion`, `image`, `repeater`…) aún no
-están implementados. Consulta el [roadmap](https://github.com/oswaldohuillca/forja/blob/main/ROADMAP.md) del repositorio.
+están implementados. Consulta el [roadmap](https://github.com/oswaldohuillca/forja-fields/blob/main/ROADMAP.md) del repositorio.

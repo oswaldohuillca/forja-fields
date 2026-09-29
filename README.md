@@ -1,67 +1,70 @@
 # Forja
 
-**Librería de Composer** para crear campos personalizados de WordPress **desde el
-código de tu tema**, con la interfaz de administración de ACF/Secure Custom Fields
-que tus editores ya conocen.
+**English** · [Español](README.es.md)
 
-La idea es simple: la API de desarrollo de CMB2, la experiencia de edición de ACF.
+A **Composer library** for building WordPress custom fields **from your theme's
+code**, with the ACF/Secure Custom Fields admin interface your editors already
+know.
 
-- No es un plugin. Se instala en el tema y no hay nada que activar.
-- Sin panel para crear campos. Los grupos se declaran en PHP y viven en el repositorio.
-- Paridad visual con ACF/SCF: se porta su markup y su CSS, no se reinventa.
-- Compatible con los datos de ACF: un sitio existente se lee sin migrar nada.
+The idea is simple: CMB2's developer API, ACF's editing experience.
+
+- Not a plugin. It installs into the theme and there is nothing to activate.
+- No field-builder screen. Field groups are declared in PHP and live in the repository.
+- Visual parity with ACF/SCF: their markup and CSS are ported, not reinvented.
+- Compatible with ACF data: an existing site is read without migrating anything.
 
 ```bash
-composer require oswa/forja
+composer require forja/forja-fields
 ```
 
 ```php
 add_action( 'forja/register_boxes', function () {
-	forja_register_box( 'portada', array(
-		'title'           => 'Contenido de portada',
+	forja_register_box( 'hero', array(
+		'title'           => 'Hero content',
 		'object_subtypes' => array( 'page' ),
 		'fields'          => array(
-			array( 'type' => 'text',  'name' => 'titular', 'label' => 'Titular' ),
-			array( 'type' => 'image', 'name' => 'fondo',   'label' => 'Imagen de fondo' ),
+			array( 'type' => 'text',  'name' => 'headline',   'label' => 'Headline' ),
+			array( 'type' => 'image', 'name' => 'background', 'label' => 'Background image' ),
 		),
 	) );
 } );
 ```
 
 ```php
-forja_the_field( 'titular' );
+forja_the_field( 'headline' );
 ```
 
-## Documentación
+## Documentation
 
-La documentación completa vive en `docs/` y se publica como sitio:
+The full documentation lives in `docs/` and is published as a site:
 
 ```bash
-bun run docs          # servidor de desarrollo, con recarga
-bun run docs:build    # sitio estático en docs/.vitepress/dist
+bun run docs          # dev server, with live reload
+bun run docs:build    # static site in docs/.vitepress/dist
 ```
 
-El sitio se publica con el **inglés por defecto** y el español en `/es/`. La
-versión española es la completa y la canónica; la inglesa cubre la entrada.
+The site defaults to **English**, with Spanish under `/es/`. The Spanish
+version is the complete, canonical one; the English one covers getting started.
 
-| Dónde | Qué contiene |
+| Where | What it covers |
 |---|---|
-| [Guía](docs/es/guia/instalacion.md) | Instalar, declarar el primer grupo y elegir dónde aparece |
-| [Campos](docs/es/campos/index.md) | Los 35 tipos, sus opciones y qué devuelve cada uno |
-| [Referencia](docs/es/referencia/valores.md) | Valores devueltos, lógica condicional, validación y extensión |
-| [Arquitectura](docs/es/desarrollo/arquitectura.md) | El porqué de cada decisión, dependencias externas y seguridad |
-| [ROADMAP.md](ROADMAP.md) | Estado de cada fase y decisiones ya tomadas |
+| [Installation](docs/guide/installation.md) | Installing and wiring up the assets |
+| [Getting started](docs/guide/getting-started.md) | Declaring your first field group |
+| [Fields](docs/fields/index.md) | The 35 field types |
+| [Reference](docs/es/referencia/valores.md) (Spanish) | Return values, conditional logic, validation and extending |
+| [Architecture](docs/es/desarrollo/arquitectura.md) (Spanish) | The reasoning behind each decision, external dependencies and security |
+| [ROADMAP.md](ROADMAP.md) (Spanish) | Status of each phase and decisions already made |
 
-## Requisitos
+## Requirements
 
 | | |
 |---|---|
-| PHP | 8.1 o superior |
-| WordPress | 6.4 o superior |
+| PHP | 8.1 or newer |
+| WordPress | 6.4 or newer |
 | Composer | 2.x |
-| Bun | 1.3 o superior (sólo para desarrollar la librería) |
+| Bun | 1.3 or newer (only to work on the library itself) |
 
-## Licencia
+## License
 
-GPL-2.0 o posterior. Obra derivada de
+GPL-2.0-or-later. Derivative work of
 [Secure Custom Fields](https://github.com/WordPress/secure-custom-fields).

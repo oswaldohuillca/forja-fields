@@ -9,7 +9,7 @@
 
 ```bash
 cd wp-content/themes/my-theme
-composer require oswa/forja
+composer require forja/forja-fields
 ```
 
 And in your theme's `functions.php`:
@@ -32,7 +32,7 @@ In your theme's `vite.config.ts`, an alias to the package sources:
 ```ts
 resolve: {
     alias: {
-        'oswa-forja': resolve( import.meta.dirname, 'vendor/oswa/forja/assets/src' ),
+        'forja-fields': resolve( import.meta.dirname, 'vendor/forja/forja-fields/assets/src' ),
     },
 },
 ```
@@ -41,7 +41,7 @@ In your admin entry point:
 
 ```ts
 // assets/src/admin.ts
-import 'oswa-forja/js/forja-input';        // pulls the field CSS along with it
+import 'forja-fields/js/forja-input';        // pulls the field CSS along with it
 
 import './admin.css';                       // your own styles, afterwards
 ```
@@ -88,7 +88,7 @@ doesn't share the cache. You can pull it into your bundle by importing it, and
 tell Forja not to enqueue it:
 
 ```ts
-import 'oswa-forja/js/vendor/select2';
+import 'forja-fields/js/vendor/select2';
 ```
 
 ```php

@@ -15,8 +15,8 @@ Para consumirlo sin Packagist, basta con declarar el repositorio en el tema:
 ```json
 {
     "repositories": [
-        { "type": "vcs", "url": "git@github.com:oswa/forja.git" }
+        { "type": "vcs", "url": "https://github.com/oswaldohuillca/forja-fields.git" }
     ],
-    "require": { "oswa/forja": "^0.2" }
+    "require": { "forja/forja-fields": "^0.2" }
 }
 ```

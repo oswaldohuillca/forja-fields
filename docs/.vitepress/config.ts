@@ -74,7 +74,7 @@ export default defineConfig( {
 				],
 				outline: { level: [ 2, 3 ], label: 'On this page' },
 				socialLinks: [
-					{ icon: 'github', link: 'https://github.com/oswaldohuillca/forja' },
+					{ icon: 'github', link: 'https://github.com/oswaldohuillca/forja-fields' },
 				],
 				footer: {
 					message: 'Released under the GPL-2.0-or-later licence.',
@@ -144,7 +144,7 @@ export default defineConfig( {
 				returnToTopLabel: 'Volver arriba',
 				lastUpdatedText: 'Actualizado el',
 				socialLinks: [
-					{ icon: 'github', link: 'https://github.com/oswaldohuillca/forja' },
+					{ icon: 'github', link: 'https://github.com/oswaldohuillca/forja-fields' },
 				],
 				footer: {
 					message: 'Publicado con licencia GPL-2.0 o posterior.',

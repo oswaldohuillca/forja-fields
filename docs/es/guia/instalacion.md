@@ -13,7 +13,7 @@
 
 ```bash
 cd wp-content/themes/mi-tema
-composer require oswa/forja
+composer require forja/forja-fields
 ```
 
 Y en el `functions.php` del tema:
@@ -36,7 +36,7 @@ En el `vite.config.ts` del tema, un atajo hacia los fuentes del paquete:
 ```ts
 resolve: {
     alias: {
-        'oswa-forja': resolve( import.meta.dirname, 'vendor/oswa/forja/assets/src' ),
+        'forja-fields': resolve( import.meta.dirname, 'vendor/forja/forja-fields/assets/src' ),
     },
 },
 ```
@@ -45,8 +45,8 @@ En la entrada de administración del tema:
 
 ```ts
 // assets/src/admin.ts
-import 'oswa-forja/js/forja-input';        // arrastra también el CSS de los campos
-import 'oswa-forja/js/vendor/select2';     // opcional; ver más abajo
+import 'forja-fields/js/forja-input';        // arrastra también el CSS de los campos
+import 'forja-fields/js/vendor/select2';     // opcional; ver más abajo
 
 import './admin.css';                        // tus estilos propios, después
 ```

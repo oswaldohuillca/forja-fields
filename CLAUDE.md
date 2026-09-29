@@ -27,7 +27,8 @@ funcionaba.
 
 | Documento | Qué contiene |
 |---|---|
-| `README.md` | Portada corta: qué es, cómo se instala y adónde ir. **No crece**: si algo no cabe en una frase, va al sitio. |
+| `README.md` | Portada corta **en inglés**: qué es, cómo se instala y adónde ir. **No crece**: si algo no cabe en una frase, va al sitio. |
+| `README.es.md` | La misma portada en español. Se mantiene a la par de `README.md`: al cambiar uno, cambia el otro. |
 | `docs/es/` | El manual completo, publicado con VitePress (`bun run docs`). Guía, campos, referencia y desarrollo. |
 | `docs/` (raíz) | Traducción inglesa, que es el **idioma por defecto del sitio**: instalación, primeros pasos y referencia de campos. Cubre menos que el español a propósito. **El español sigue siendo canónico**: si discrepan, manda el español. Al cambiar algo documentado en inglés, actualiza esa página o quítala; una traducción desactualizada es peor que no tenerla. |
 | `docs/es/desarrollo/arquitectura.md` | El porqué: decisiones con su razón, dependencias externas, seguridad, cómo se prueba |
@@ -65,6 +66,7 @@ contenedor. Bun y Vite corren en el anfitrión.
 ## Estilo
 
 - Código y comentarios **en español**, igual que el resto del repositorio.
+- Los mensajes de commit, **en inglés**. Es la excepción a la regla anterior.
 - Los comentarios explican **por qué**, no qué hace la línea siguiente.
 - Un archivo de CSS y de TypeScript por responsabilidad: añadir un tipo de campo
   no debe obligar a tocar un archivo compartido.

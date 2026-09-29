@@ -24,7 +24,7 @@ repositorio de tipo `path` en el `composer.json` del tema:
     "repositories": [
         { "type": "path", "url": "../../packages/forja", "options": { "symlink": true } }
     ],
-    "require": { "oswa/forja": "@dev" }
+    "require": { "forja/forja-fields": "@dev" }
 }
 ```
 
