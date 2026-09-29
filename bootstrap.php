@@ -43,7 +43,7 @@ if ( ! isset( $GLOBALS['forja_candidates'] ) ) {
 }
 
 $GLOBALS['forja_candidates'][] = array(
-	'version' => '0.1.0',
+	'version' => '0.1.1',
 	'dir'     => __DIR__,
 );
 
