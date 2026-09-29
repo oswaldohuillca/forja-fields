@@ -1,5 +1,5 @@
 {
-    "name": "forja/forja-fields",
+    "name": "forja-wp/forja-fields",
     "description": "Campos personalizados para WordPress definidos por código, con la interfaz de administración de ACF/SCF.",
     "type": "library",
     "keywords": [

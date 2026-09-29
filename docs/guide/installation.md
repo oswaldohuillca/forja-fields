@@ -9,7 +9,7 @@
 
 ```bash
 cd wp-content/themes/my-theme
-composer require forja/forja-fields
+composer require forja-wp/forja-fields
 ```
 
 And in your theme's `functions.php`:
@@ -32,7 +32,7 @@ In your theme's `vite.config.ts`, an alias to the package sources:
 ```ts
 resolve: {
     alias: {
-        'forja-fields': resolve( import.meta.dirname, 'vendor/forja/forja-fields/assets/src' ),
+        'forja-fields': resolve( import.meta.dirname, 'vendor/forja-wp/forja-fields/assets/src' ),
     },
 },
 ```

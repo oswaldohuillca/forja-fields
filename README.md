@@ -14,7 +14,7 @@ The idea is simple: CMB2's developer API, ACF's editing experience.
 - Compatible with ACF data: an existing site is read without migrating anything.
 
 ```bash
-composer require forja/forja-fields
+composer require forja-wp/forja-fields
 ```
 
 ```php

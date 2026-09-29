@@ -13,7 +13,7 @@
 
 ```bash
 cd wp-content/themes/mi-tema
-composer require forja/forja-fields
+composer require forja-wp/forja-fields
 ```
 
 Y en el `functions.php` del tema:
@@ -36,7 +36,7 @@ En el `vite.config.ts` del tema, un atajo hacia los fuentes del paquete:
 ```ts
 resolve: {
     alias: {
-        'forja-fields': resolve( import.meta.dirname, 'vendor/forja/forja-fields/assets/src' ),
+        'forja-fields': resolve( import.meta.dirname, 'vendor/forja-wp/forja-fields/assets/src' ),
     },
 },
 ```
