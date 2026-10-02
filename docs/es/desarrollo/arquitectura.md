@@ -353,6 +353,29 @@ usuarios, donde el subtipo es el rol y el contexto compara contra la lista de
 roles de la persona. Para eso está `for_object_type()`: «sin subtipo» y «sin
 filtro» no significan lo mismo cuando el filtrado lo hace el contexto.
 
+### El campo `link` toma prestado el modal del núcleo
+
+`wpLink` está pensado para insertar un enlace en un editor, no para rellenar
+campos. Forja le da un `<textarea>` oculto de usar y tirar como editor, rellena
+el modal al abrirse y lee sus campos al cerrarse. Dos detalles de `wplink.js`
+condicionan cómo se hace, y los dos se descubrieron por un fallo:
+
+**Los eventos se escuchan sobre `document`.** El núcleo dispara `wplink-open` y
+`wplink-close` con `$( document ).trigger()`. En jQuery un evento sube del
+elemento hacia el documento, nunca baja, así que escuchando en
+`document.documentElement` los manejadores no se ejecutaban: el modal se abría
+vacío y al aceptar el campo se quedaba sin valor.
+
+**Aceptar se detecta por el área de texto, no por el botón.** `wpLink` emite el
+mismo `wplink-close` al aceptar y al cancelar. ACF los distingue mirando si el
+puntero o el foco están sobre `#wp-link-submit`, y se portó así, pero **falla
+con el teclado**. Al pulsar Intro en la URL, ni el puntero ni el foco están en el
+botón, y el enlace se descartaba como si se hubiera cancelado. Lo fiable es lo
+que hace `htmlUpdate()` al aceptar: escribe el `<a>` en el área de texto
+**antes** de cerrar. Al cancelar no la toca, y si la URL está vacía el modal ni
+siquiera se cierra. Por eso un área de texto con contenido significa «aceptado».
+
+
 ### El build usa el modo librería de Vite
 
 Los scripts se encolan con `wp_enqueue_script()` como scripts clásicos, no como

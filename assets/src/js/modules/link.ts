@@ -106,7 +106,13 @@ function openModal( field: HTMLElement ): void {
 	proxy.style.display = 'none';
 	document.body.appendChild( proxy );
 
-	const $document = jq( document.documentElement as HTMLElement ) as unknown as {
+	/*
+	 * `wplink.js` dispara `wplink-open` y `wplink-close` sobre `$( document )`.
+	 * Tiene que ser ese mismo objeto: los eventos de jQuery suben del `<html>`
+	 * al documento, nunca bajan, así que escuchando en `documentElement` los
+	 * manejadores no llegaban a ejecutarse.
+	 */
+	const $document = jq( document as unknown as HTMLElement ) as unknown as {
 		on: ( event: string, handler: () => void ) => void;
 		off: ( event: string ) => void;
 	};
@@ -134,16 +140,16 @@ function openModal( field: HTMLElement ): void {
 	};
 
 	const onClose = (): void => {
-		const submit = document.getElementById( 'wp-link-submit' );
-
 		/*
 		 * `wpLink` no distingue entre aceptar y cancelar: emite el mismo evento
-		 * al cerrarse. Se mira si el puntero o el foco están sobre el botón de
-		 * aceptar, que es el mismo truco que usa ACF.
+		 * al cerrarse. Lo que sí hace al aceptar es escribir el `<a>` en el área
+		 * de texto de usar y tirar antes de cerrar; al cancelar no la toca.
+		 *
+		 * ACF mira en su lugar si el puntero o el foco están sobre el botón de
+		 * aceptar, y eso falla con el teclado: al pulsar Intro en la URL ni el
+		 * puntero ni el foco están en el botón, y el enlace se descartaba.
 		 */
-		const accepted = Boolean(
-			submit && ( submit.matches( ':hover' ) || submit.matches( ':focus' ) )
-		);
+		const accepted = proxy.value !== '';
 
 		if ( accepted ) {
 			write( field, {
