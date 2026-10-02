@@ -88,9 +88,9 @@ de los editores, así que tiene prioridad dentro de esta capa.
 ## Transversales
 
 - [x] Compuestos anidados: un repetidor, grupo o contenido flexible dentro de otro se guarda, se lee y se borra con las claves de ACF
-- [ ] Un campo `required` oculto por la lógica condicional: `conditions.ts` oculta el envoltorio pero deja el `required` en el control, y el `Validator` tampoco tiene en cuenta las condiciones. Por el código, debería bloquear el envío igual que las plantillas; falta reproducirlo
+- [x] Un campo `required` oculto por la lógica condicional no se exige, ni en el navegador ni en el servidor
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
-- [x] Tests de navegador con Playwright: 58 casos en el escritorio sobre filas nuevas, iconos (sin peticiones del navegador a Iconify), relacionales, el modal de enlaces, subcampos obligatorios, opciones numéricas, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
+- [x] Tests de navegador con Playwright: 67 casos en el escritorio sobre filas nuevas, compuestos anidados, obligatorios con condición, iconos (sin peticiones del navegador a Iconify), relacionales, el modal de enlaces, subcampos obligatorios, opciones numéricas, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
 - [x] `save_terms` y `load_terms` del campo `taxonomy`, con la interfaz `ObjectAware`
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
@@ -100,7 +100,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [x] Internacionalización: dominio `forja-fields` verificado y `languages/forja-fields.pot` generado con `composer make-pot`
-- [x] Tests con Pest: 256 casos sobre saneado, conversión de iconos, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
+- [x] Tests con Pest: 279 casos sobre saneado, compuestos anidados, condiciones en el servidor, conversión de iconos, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
 
 ---
 
@@ -175,6 +175,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Un compuesto anidado recibe el almacén con el prefijo de su posición | El exterior no lo guarda como valor: le pasa `get`, `set` y `delete` prefijados (`StoresSubFields`) y el interior compone sus claves de siempre. Sale el formato de ACF (`bloques_0_items_0_item`) sin que el interior sepa que está anidado. `delete_value()` borra un subcompuesto entero al quitar su fila. |
 | Cada repetidor ignora los eventos de los compuestos que lleva dentro | Los clics y el arrastre del interior suben hasta el exterior: «Añadir» en el interior añadía también una fila fuera. Lo mismo en el contenido flexible. |
 | El reindexado cambia el segmento detrás del nombre base, no la primera coincidencia | En `bloques[1][items][1][item]`, la primera `[1]` es la del nivel exterior. `reindex.ts` lee el nombre base del campo oculto del compuesto. |
+| Un campo oculto por una condición no se exige | En el navegador, `conditions.ts` guarda su `required` en `data-forja-hidden-required` mientras está oculto. En el servidor, `Validation\Conditions` reevalúa las reglas con lo enviado. Es una traducción de `conditions.ts` y tiene que seguir siéndolo. |
 | El textarea oculto es la señal de que TinyMCE arrancó | Al inicializarse lo esconde y lo sustituye por su iframe. Exigirle visibilidad hacía fallar un test que en realidad estaba comprobando lo correcto. |
 | Un campo que toca el objeto lo recibe de quien lo tiene, no lo guarda | `taxonomy` con `save_terms` necesita saber sobre qué entrada trabaja, y ningún campo lo sabía. Dar estado al campo era la opción fácil y la peor: las instancias se comparten entre objetos y peticiones. En su lugar, la interfaz `ObjectAware` recibe el objeto como argumento, del contexto al guardar y de `forja_get_field()` al leer. |
 | Cada contexto declara su tipo de objeto | Antes repetía el literal en dos sitios (`storage->for('post')`). Ahora `Context::object_type()` lo declara una vez, y de paso es lo que permite pasárselo a los campos que lo necesitan. |

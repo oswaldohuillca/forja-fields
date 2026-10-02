@@ -254,6 +254,31 @@ En el navegador, el anidamiento destapó dos fallos más:
   `reindex.ts` cambia solo el segmento que va justo detrás del nombre base del
   campo, que se lee de su campo oculto.
 
+### Un campo oculto por una condición no se exige
+
+«Obligatorio solo si se muestra» es lo que se espera al declarar `required` y
+`conditional_logic` juntos. No funcionaba por las dos puntas:
+
+- **En el navegador**, el control oculto conservaba su `required`, y el
+  navegador valida también los controles ocultos: «Actualizar» no hacía nada,
+  igual que con las plantillas. Al ocultar un campo, `conditions.ts` cambia el
+  `required` de sus controles por `data-forja-hidden-required`, y al mostrarlo
+  lo devuelve. No usa el `data-forja-required` de las plantillas, para que una
+  condición no pueda devolverle el `required` a una plantilla.
+- **En el servidor**, el `Validator` exigía el campo sin mirar las condiciones.
+  Ahora `Validation\Conditions` las evalúa con los valores enviados, y un campo
+  oculto no se exige.
+
+`Conditions` es una traducción de `conditions.ts`, regla por regla, y tiene que
+seguir siéndolo: si discreparan, el navegador dejaría enviar algo que el
+servidor rechaza. Por eso cada tipo dice cómo lee el navegador su valor
+(`Field::condition_values()`). El caso que lo obliga es `true_false`: su oculto
+con «0» va delante de la casilla, así que el navegador ve «0» apagado y «0» y
+«1» encendido, aunque al servidor solo le llegue el último.
+
+Solo afecta a los campos de primer nivel. Dentro de un compuesto el servidor no
+valida el `required` de los subcampos; eso ya era así y lo cubre el navegador.
+
 ### Las plantillas de filas y capas se pintan sin `required`
 
 El repetidor pinta una fila plantilla (`acfcloneindex`) y el contenido flexible

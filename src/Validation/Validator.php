@@ -26,14 +26,19 @@ final class Validator {
 	/**
 	 * Comprueba un valor ya saneado contra las reglas de su campo.
 	 *
-	 * @param Field $field Campo al que pertenece el valor.
-	 * @param mixed $value Valor saneado.
+	 * Un campo que la lógica condicional ocultaba no se exige: «obligatorio
+	 * sólo si se muestra» es lo que se espera al declarar las dos cosas juntas.
+	 * Quien llama lo decide con `Conditions::is_visible()`.
+	 *
+	 * @param Field $field   Campo al que pertenece el valor.
+	 * @param mixed $value   Valor saneado.
+	 * @param bool  $visible Si el campo estaba a la vista al enviar.
 	 * @return string Mensaje de error, o cadena vacía si es válido.
 	 */
-	public function validate( Field $field, mixed $value ): string {
+	public function validate( Field $field, mixed $value, bool $visible = true ): string {
 		$error = '';
 
-		if ( $field->get( 'required', false ) && $this->is_empty( $value ) ) {
+		if ( $visible && $field->get( 'required', false ) && $this->is_empty( $value ) ) {
 			$error = sprintf(
 				/* translators: %s: etiqueta del campo. */
 				__( '%s es obligatorio.', 'forja-fields' ),

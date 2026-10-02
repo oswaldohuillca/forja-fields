@@ -620,6 +620,48 @@ it( 'guarda en un usuario con la misma mecánica', function () {
 	delete_user_meta( $this->user_id, 'cargo' );
 } );
 
+describe( 'obligatorio con condición', function () {
+	beforeEach( function () {
+		$this->registry = forja_test_registry(
+			'contacto',
+			array(
+				'object_type'     => 'post',
+				'object_subtypes' => array( 'post' ),
+				'fields'          => array(
+					array( 'type' => 'true_false', 'name' => 'mostrar' ),
+					array(
+						'type'              => 'text',
+						'name'              => 'telefono',
+						'label'             => 'Teléfono',
+						'required'          => true,
+						'conditional_logic' => array(
+							'field' => 'mostrar',
+							'value' => '1',
+						),
+					),
+				),
+			)
+		);
+	} );
+
+	it( 'no exige un campo que la condición ocultaba', function () {
+		// El oculto del true_false manda «0» cuando la casilla está apagada.
+		forja_test_submit( 'contacto', array( 'mostrar' => '0', 'telefono' => '' ) );
+
+		( $this->save )( $this->registry );
+
+		expect( get_transient( forja_test_errors_key( $this->post_id ) ) )->toBeFalse();
+	} );
+
+	it( 'lo sigue exigiendo cuando se veía', function () {
+		forja_test_submit( 'contacto', array( 'mostrar' => '1', 'telefono' => '' ) );
+
+		( $this->save )( $this->registry );
+
+		expect( get_transient( forja_test_errors_key( $this->post_id ) ) )->toBe( array( 'Teléfono es obligatorio.' ) );
+	} );
+} );
+
 it( 'guarda y lee un repetidor dentro de otro de punta a punta', function () {
 	$registry = forja_test_registry(
 		'anidados',

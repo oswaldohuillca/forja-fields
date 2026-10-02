@@ -16,6 +16,7 @@ use Forja\Registry\BoxRegistry;
 use Forja\Render\Renderer;
 use Forja\Storage\Storage;
 use Forja\Storage\StorageFactory;
+use Forja\Validation\Conditions;
 use Forja\Validation\Validator;
 
 defined( 'ABSPATH' ) || exit;
@@ -154,6 +155,14 @@ abstract class Context {
 	protected function write( Box $box, Storage $storage, int|string $object_id, array $submitted ): array {
 		$errors = array();
 
+		// Por nombre, para que las condiciones lean cada campo observado como
+		// lo lee el navegador.
+		$fields = array();
+
+		foreach ( $box->fields() as $field ) {
+			$fields[ $field->name() ] = $field;
+		}
+
 		foreach ( $box->fields() as $field ) {
 			$name = $field->name();
 
@@ -178,7 +187,11 @@ abstract class Context {
 			}
 
 			$value = $field->sanitize( $submitted[ $name ] );
-			$error = $this->validator->validate( $field, $value );
+			$error = $this->validator->validate(
+				$field,
+				$value,
+				Conditions::is_visible( $field, $submitted, $fields )
+			);
 
 			if ( '' !== $error ) {
 				$errors[] = $error;

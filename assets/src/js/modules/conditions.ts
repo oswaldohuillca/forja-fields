@@ -145,6 +145,46 @@ function matches( values: string[], rule: Rule ): boolean {
 }
 
 /**
+ * Atributo que guarda el `required` de un control mientras su campo está oculto.
+ *
+ * No es el `data-forja-required` de las plantillas (`fields.ts`): aquello lo
+ * pinta el servidor y lo restaura el clonado, esto lo pone y lo quita la
+ * condición. Usar el mismo dejaría que una condición devolviera el `required`
+ * a una plantilla.
+ */
+const HIDDEN_REQUIRED = 'data-forja-hidden-required';
+
+/**
+ * Quita o devuelve el `required` de los controles de un campo.
+ *
+ * El navegador valida también los controles ocultos: un campo obligatorio que
+ * la condición oculta dejaba el formulario inválido y «Actualizar» no hacía
+ * nada, sin decir por qué. «Obligatorio sólo si se muestra» es lo que se espera
+ * al declarar las dos cosas juntas.
+ *
+ * Si un campo de dentro tiene su propia condición, se evalúa después que el de
+ * fuera (van en orden de documento) y vuelve a quitarse el suyo si sigue oculto.
+ *
+ * @param field   Campo con reglas.
+ * @param visible Si queda a la vista.
+ */
+function toggleRequired( field: HTMLElement, visible: boolean ): void {
+	if ( ! visible ) {
+		for ( const control of field.querySelectorAll( '[required]' ) ) {
+			control.removeAttribute( 'required' );
+			control.setAttribute( HIDDEN_REQUIRED, '' );
+		}
+
+		return;
+	}
+
+	for ( const control of field.querySelectorAll( `[${ HIDDEN_REQUIRED }]` ) ) {
+		control.setAttribute( 'required', 'required' );
+		control.removeAttribute( HIDDEN_REQUIRED );
+	}
+}
+
+/**
  * Decide si un campo debe verse y lo aplica.
  *
  * @param field Campo con reglas.
@@ -170,6 +210,7 @@ function evaluate( field: HTMLElement ): void {
 	);
 
 	field.hidden = ! visible;
+	toggleRequired( field, visible );
 }
 
 /**

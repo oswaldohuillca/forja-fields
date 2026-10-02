@@ -21,7 +21,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: etiqueta del campo, 2: número máximo de filas.
-#: src/Fields/FlexibleContent.php:277 src/Fields/Repeater.php:188
+#: src/Fields/FlexibleContent.php:300 src/Fields/Repeater.php:190
 msgid "%1$s admite como mucho %2$d fila."
 msgid_plural "%1$s admite como mucho %2$d filas."
 msgstr[0] ""
@@ -42,7 +42,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: etiqueta del campo, 2: número mínimo de filas.
-#: src/Fields/FlexibleContent.php:263 src/Fields/Repeater.php:172
+#: src/Fields/FlexibleContent.php:286 src/Fields/Repeater.php:174
 msgid "%1$s necesita al menos %2$d fila."
 msgid_plural "%1$s necesita al menos %2$d filas."
 msgstr[0] ""
@@ -56,7 +56,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: etiqueta del campo.
-#: src/Validation/Validator.php:39
+#: src/Validation/Validator.php:44
 msgid "%s es obligatorio."
 msgstr ""
 
@@ -77,11 +77,11 @@ msgstr ""
 msgid "Archivo seleccionado. Pulsa tabulador para acceder a sus opciones."
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:450 src/Fields/Repeater.php:397
+#: src/Fields/FlexibleContent.php:474 src/Fields/Repeater.php:442
 msgid "Arrastra para reordenar"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:460
+#: src/Fields/FlexibleContent.php:484
 msgid "Añadir"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Añadir archivo"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:354 src/Fields/Repeater.php:320 src/Fields/Repeater.php:420
+#: src/Fields/FlexibleContent.php:378 src/Fields/Repeater.php:365 src/Fields/Repeater.php:465
 msgid "Añadir fila"
 msgstr ""
 
@@ -166,7 +166,7 @@ msgid "Pega la dirección del contenido a incrustar"
 msgstr ""
 
 #. translators: %s: etiqueta del botón para añadir.
-#: src/Fields/FlexibleContent.php:371
+#: src/Fields/FlexibleContent.php:395
 msgid "Pulsa «%s» para empezar a construir el contenido."
 msgstr ""
 
@@ -183,11 +183,11 @@ msgstr ""
 msgid "Página siguiente"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:461 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:143 src/Fields/Link.php:158 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:202
+#: src/Fields/FlexibleContent.php:485 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:143 src/Fields/Link.php:158 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:202
 msgid "Quitar"
 msgstr ""
 
-#: src/Fields/Repeater.php:421
+#: src/Fields/Repeater.php:466
 msgid "Quitar fila"
 msgstr ""
 

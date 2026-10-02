@@ -143,4 +143,19 @@ final class TrueFalse extends Field {
 		// llega como "1". Cualquier otra cosa se trata como falso.
 		return '1' === (string) $raw ? 1 : 0;
 	}
+
+	/**
+	 * Lee el valor como lo lee la lógica condicional del navegador.
+	 *
+	 * El campo pinta un oculto con «0» delante de la casilla, para que una
+	 * casilla sin marcar se envíe. `conditions.ts` lee los dos controles: «0»
+	 * apagado, y «0» y «1» encendido. Aquí sólo llega el último, así que se
+	 * reconstruye lo que vio el navegador.
+	 *
+	 * @param mixed $raw Valor crudo enviado.
+	 * @return array<int, string> Valores tal como los compara el navegador.
+	 */
+	public function condition_values( mixed $raw ): array {
+		return '1' === ( is_scalar( $raw ) ? (string) $raw : '' ) ? array( '0', '1' ) : array( '0' );
+	}
 }

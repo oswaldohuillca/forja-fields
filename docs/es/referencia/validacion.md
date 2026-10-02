@@ -5,6 +5,9 @@ guardar. Si un valor no pasa la validación **no se escribe**, de modo que un
 envío manipulado no puede borrar un dato bueno, y el editor ve un aviso con lo
 que se rechazó.
 
+Un campo que la [lógica condicional](condicional.md) oculta no se exige, ni en el
+navegador ni en el servidor.
+
 Los campos de medios validan además que el identificador corresponda a un
 adjunto existente y que su tipo encaje con `mime_types`.
 

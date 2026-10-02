@@ -27,3 +27,23 @@ Operadores: `==` (por defecto), `!=`, `>`, `<`, `>=`, `<=`, `contains`,
 Dentro de un repetidor o de un contenido flexible, una regla mira a su
 **hermano de la misma fila**, no al de la primera. Y una regla que apunta a un
 campo inexistente nunca se cumple, para que un nombre mal escrito se note.
+
+## Obligatorio solo si se muestra
+
+Un campo con `required` y una condición solo es obligatorio cuando la condición
+lo muestra:
+
+```php
+array(
+	'type'              => 'text',
+	'name'              => 'telefono',
+	'label'             => 'Teléfono',
+	'required'          => true,
+	'conditional_logic' => array( 'field' => 'mostrar_contacto', 'value' => '1' ),
+),
+```
+
+Con el interruptor apagado, el teléfono no se ve y se puede guardar vacío.
+Encendido, hay que rellenarlo. El navegador y el servidor lo deciden igual: el
+servidor vuelve a evaluar las reglas con los valores enviados, así que no
+rechaza lo que el editor no veía.

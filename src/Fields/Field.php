@@ -142,6 +142,43 @@ abstract class Field {
 	}
 
 	/**
+	 * Valores enviados tal como los lee la lógica condicional del navegador.
+	 *
+	 * `conditions.ts` recoge el valor de cada control del campo y descarta los
+	 * vacíos. El servidor tiene que leerlo igual (`Validation\Conditions`), o
+	 * las dos evaluaciones discreparían. Un tipo cuyos controles no se reflejen
+	 * tal cual en lo enviado lo sustituye.
+	 *
+	 * @param mixed $raw Valor crudo enviado.
+	 * @return array<int, string> Valores no vacíos.
+	 */
+	public function condition_values( mixed $raw ): array {
+		return self::flatten_values( $raw );
+	}
+
+	/**
+	 * Aplana un valor enviado a la lista de textos no vacíos que contiene.
+	 *
+	 * @param mixed $raw Valor crudo: un texto, o una lista o un array de ellos.
+	 * @return array<int, string> Valores no vacíos, en orden.
+	 */
+	public static function flatten_values( mixed $raw ): array {
+		$values = array();
+		$raw    = is_array( $raw ) ? $raw : array( $raw );
+
+		array_walk_recursive(
+			$raw,
+			static function ( $value ) use ( &$values ): void {
+				if ( is_scalar( $value ) && '' !== (string) $value ) {
+					$values[] = (string) $value;
+				}
+			}
+		);
+
+		return $values;
+	}
+
+	/**
 	 * Indica si la etiqueta debe apuntar al control con el atributo `for`.
 	 *
 	 * Los campos con varios controles —un grupo de radios, por ejemplo— no
