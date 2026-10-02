@@ -50,6 +50,31 @@ describe( 'enlace', function () {
 			->and( $field->format_value( '' ) )->toBe( '' );
 	} );
 
+	it( 'imprime el modal del núcleo una sola vez en el pie', function () {
+		require_once ABSPATH . WPINC . '/class-wp-editor.php';
+
+		// La guarda del núcleo es estática y otro test puede haberla gastado.
+		( new ReflectionProperty( _WP_Editors::class, 'link_dialog_printed' ) )->setValue( null, false );
+
+		// Dos campos en la misma pantalla: el modal no puede salir dos veces.
+		forja_test_render( $this->field );
+		forja_test_render( forja_test_field( array( 'type' => 'link', 'name' => 'otro' ) ) );
+
+		ob_start();
+		do_action( 'admin_print_footer_scripts' );
+		$footer = (string) ob_get_clean();
+
+		// Y un editor que lo pide después, como hace el clásico en su pie.
+		ob_start();
+		_WP_Editors::wp_link_dialog();
+		$editor = (string) ob_get_clean();
+
+		// Tiene que salir del pie de Forja, no de la llamada del editor: si no,
+		// el total sería 1 también sin el arreglo.
+		expect( substr_count( $footer, 'id="wp-link-wrap"' ) )->toBe( 1 )
+			->and( substr_count( $editor, 'id="wp-link-wrap"' ) )->toBe( 0 );
+	} );
+
 	it( 'pinta el ancla que entiende el modal del núcleo', function () {
 		$html = forja_test_render( $this->field, array( 'url' => 'https://oswa.dev', 'title' => 'Oswa' ) );
 

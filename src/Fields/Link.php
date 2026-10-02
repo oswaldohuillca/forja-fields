@@ -73,6 +73,22 @@ final class Link extends Field {
 	}
 
 	/**
+	 * Imprime el HTML del modal de enlaces del núcleo.
+	 *
+	 * `wp_link_dialog()` lleva su propia guarda, así que en una pantalla que ya
+	 * tiene editor no sale dos veces, la llame quien la llame primero.
+	 *
+	 * @return void
+	 */
+	public static function print_dialog(): void {
+		if ( ! class_exists( '_WP_Editors', false ) ) {
+			require_once ABSPATH . WPINC . '/class-wp-editor.php';
+		}
+
+		\_WP_Editors::wp_link_dialog();
+	}
+
+	/**
 	 * Pinta el enlace y el botón que abre el modal.
 	 *
 	 * @param mixed  $value      Valor actual del campo.
@@ -83,6 +99,15 @@ final class Link extends Field {
 		// Registra el modal de enlaces del núcleo.
 		wp_enqueue_script( 'wplink' );
 		wp_enqueue_style( 'editor-buttons' );
+
+		/*
+		 * El script no basta: el HTML del modal lo imprime el núcleo sólo si
+		 * hay un editor en la página. Sin él, `wpLink.open()` no encuentra
+		 * nada que abrir. `has_action()` evita engancharlo una vez por campo.
+		 */
+		if ( false === has_action( 'admin_print_footer_scripts', array( self::class, 'print_dialog' ) ) ) {
+			add_action( 'admin_print_footer_scripts', array( self::class, 'print_dialog' ) );
+		}
 
 		$link    = $this->normalize( $value );
 		$classes = 'acf-link' . ( '' !== $link['url'] ? ' -value' : '' );

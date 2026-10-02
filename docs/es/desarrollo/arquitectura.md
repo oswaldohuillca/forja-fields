@@ -375,6 +375,21 @@ que hace `htmlUpdate()` al aceptar: escribe el `<a>` en el área de texto
 **antes** de cerrar. Al cancelar no la toca, y si la URL está vacía el modal ni
 siquiera se cierra. Por eso un área de texto con contenido significa «aceptado».
 
+**El campo imprime el modal si nadie lo ha hecho.** Encolar `wplink` solo trae
+el script. El HTML de `#wp-link-wrap` lo imprime `_WP_Editors::wp_link_dialog()`,
+y el núcleo solo lo llama cuando hay un editor en la página. En un tipo de
+contenido sin `editor`, en un término, en un perfil o en una página de opciones
+el botón no abría nada. Por eso `render_input()` engancha `Link::print_dialog()`
+a `admin_print_footer_scripts`. La guarda estática `$link_dialog_printed` del
+núcleo evita el duplicado cuando además hay un editor, llame quien llame
+primero. Engancharlo desde `render_input()` cubre también las filas y capas
+nuevas, porque sus plantillas se pintan en el servidor con la página.
+
+Los tests de navegador del campo corren sobre dos tipos de contenido del tema de
+prueba sin `show_in_rest`: `forja_clasico`, con editor, y `forja_sin_editor`,
+sin él. El de término usa etiquetas y no categorías, porque en el tema las
+categorías tienen otras cajas con editor y el núcleo imprimiría el modal de
+todas formas: el test pasaría también sin el arreglo.
 
 ### El build usa el modo librería de Vite
 
