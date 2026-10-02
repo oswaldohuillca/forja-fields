@@ -96,6 +96,9 @@ final class Select extends ChoiceField {
 		}
 
 		foreach ( $choices as $choice_value => $choice_label ) {
+			// PHP guarda como entero toda clave numérica: sin esto, «6» no
+			// coincidiría con el «6» guardado (ver `ChoiceField::choices()`).
+			$choice_value = (string) $choice_value;
 			printf(
 				'<option value="%s"%s>%s</option>',
 				esc_attr( $choice_value ),

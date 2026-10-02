@@ -48,7 +48,14 @@ abstract class ChoiceField extends Field {
 	 *
 	 *     array( 'rojo', 'azul' )
 	 *
-	 * @return array<string, string> Opciones normalizadas.
+	 * **Las claves numéricas salen como enteros.** PHP convierte en entero toda
+	 * clave que parezca un número, aunque se escriba `'6'`, y no hay forma de
+	 * evitarlo en un array. Quien compare una clave con un valor guardado, que
+	 * siempre es texto, tiene que convertirla antes con `(string)`. Una
+	 * comparación estricta sin convertir no coincide nunca, y una función con
+	 * parámetro `string` lanza un `TypeError` por `strict_types`.
+	 *
+	 * @return array<int|string, string> Opciones normalizadas.
 	 */
 	protected function choices(): array {
 		$raw = (array) $this->get( 'choices', array() );

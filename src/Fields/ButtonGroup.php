@@ -70,6 +70,9 @@ final class ButtonGroup extends ChoiceField {
 		);
 
 		foreach ( $choices as $choice_value => $choice_label ) {
+			// PHP guarda como entero toda clave numérica: sin esto, «6» no
+			// coincidiría con el «6» guardado (ver `ChoiceField::choices()`).
+			$choice_value = (string) $choice_value;
 			// A diferencia del radio, aquí el control no lleva `id`: el CSS lo
 			// oculta y quien recibe el foco es la etiqueta.
 			$attributes = array(

@@ -73,6 +73,10 @@ final class Checkbox extends ChoiceField {
 		);
 
 		foreach ( $choices as $choice_value => $choice_label ) {
+			// PHP guarda como entero toda clave numérica: sin esto, «6» no
+			// coincidiría con el «6» guardado (ver `ChoiceField::choices()`).
+			$choice_value = (string) $choice_value;
+
 			$attributes = array(
 				'type'  => 'checkbox',
 				'id'    => $this->option_id( $choice_value ),

@@ -65,6 +65,10 @@ final class Radio extends ChoiceField {
 		);
 
 		foreach ( $choices as $choice_value => $choice_label ) {
+			// PHP guarda como entero toda clave numérica: sin esto, «6» no
+			// coincidiría con el «6» guardado (ver `ChoiceField::choices()`).
+			$choice_value = (string) $choice_value;
+
 			$attributes = array(
 				'type'  => 'radio',
 				'id'    => $this->option_id( $choice_value ),
