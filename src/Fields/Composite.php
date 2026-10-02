@@ -45,4 +45,17 @@ interface Composite {
 	 * @return array<int, string> Mensajes de error; vacío si todo fue bien.
 	 */
 	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): array;
+
+	/**
+	 * Borra todas las claves del campo.
+	 *
+	 * Hace falta cuando el campo está dentro de otro compuesto y desaparece la
+	 * fila que lo contiene: sus claves quedarían huérfanas y reaparecerían al
+	 * volver a crecer la lista.
+	 *
+	 * @param callable $get    Devuelve el valor de una clave.
+	 * @param callable $delete Borra una clave.
+	 * @return void
+	 */
+	public function delete_value( callable $get, callable $delete ): void;
 }

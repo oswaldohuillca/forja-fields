@@ -6,6 +6,7 @@
  */
 
 import { initClonedRow } from './fields';
+import { reindex } from './reindex';
 
 const CLONE_INDEX = 'acfcloneindex';
 
@@ -22,6 +23,20 @@ function rows( field: HTMLElement ): HTMLElement[] {
 }
 
 /**
+ * Atributo `name` del campo, sin fila: el de su campo oculto.
+ *
+ * @param field Contenedor `.acf-flexible-content`.
+ * @return Nombre base, como `forja[secciones]`.
+ */
+function baseName( field: HTMLElement ): string {
+	return (
+		field
+			.querySelector< HTMLInputElement >( ':scope > input[type="hidden"]' )
+			?.getAttribute( 'name' ) ?? ''
+	);
+}
+
+/**
  * Renumera las filas y reindexa los controles.
  *
  * @param field Contenedor `.acf-flexible-content`.
@@ -30,6 +45,8 @@ function renumber( field: HTMLElement ): void {
 	const list = rows( field );
 
 	field.classList.toggle( '-empty', list.length === 0 );
+
+	const base = baseName( field );
 
 	list.forEach( ( row, index ) => {
 		const previous = row.dataset.id ?? '';
@@ -42,19 +59,8 @@ function renumber( field: HTMLElement ): void {
 			order.textContent = String( index + 1 );
 		}
 
-		if ( previous === String( index ) ) {
-			return;
-		}
-
-		for ( const control of row.querySelectorAll< HTMLElement >( '[name]' ) ) {
-			const name = control.getAttribute( 'name' );
-
-			if ( name ) {
-				control.setAttribute(
-					'name',
-					name.replace( `[${ previous }]`, `[${ index }]` )
-				);
-			}
+		if ( previous !== String( index ) ) {
+			reindex( row, base, previous, String( index ) );
 		}
 	} );
 
@@ -119,16 +125,7 @@ function addLayout(
 	row.classList.remove( 'acf-clone' );
 	row.dataset.id = String( index );
 
-	for ( const control of row.querySelectorAll< HTMLElement >( '[name]' ) ) {
-		const name = control.getAttribute( 'name' );
-
-		if ( name ) {
-			control.setAttribute(
-				'name',
-				name.replace( `[${ CLONE_INDEX }]`, `[${ index }]` )
-			);
-		}
-	}
+	reindex( row, baseName( field ), CLONE_INDEX, String( index ) );
 
 	// Los identificadores vienen duplicados de la plantilla.
 	for ( const control of row.querySelectorAll< HTMLElement >( '[id]' ) ) {
@@ -171,9 +168,14 @@ export function initFlexible( field: HTMLElement ): void {
 
 	field.addEventListener( 'click', ( event: Event ) => {
 		const target = event.target as HTMLElement;
+		// Un contenido flexible puede llevar otro dentro, y sus clics suben hasta
+		// aquí: sólo se atiende lo que sea de este campo.
+		const own = ( element: HTMLElement | null ): boolean =>
+			element?.closest( '.acf-flexible-content' ) === field;
+
 		const choice = target.closest< HTMLElement >( '.acf-fc-popup [data-layout]' );
 
-		if ( choice ) {
+		if ( choice && own( choice ) ) {
 			event.preventDefault();
 			togglePopup( field, false );
 			addLayout( field, choice.dataset.layout ?? '', null );
@@ -183,7 +185,7 @@ export function initFlexible( field: HTMLElement ): void {
 
 		const action = target.closest< HTMLElement >( '[data-name]' );
 
-		if ( ! action || action.classList.contains( 'disabled' ) ) {
+		if ( ! action || action.classList.contains( 'disabled' ) || ! own( action ) ) {
 			return;
 		}
 

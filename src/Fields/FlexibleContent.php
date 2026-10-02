@@ -37,6 +37,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class FlexibleContent extends Field implements Composite {
 
+	use StoresSubFields;
+
 	/**
 	 * Índice de la fila plantilla que clona el JavaScript.
 	 */
@@ -169,7 +171,7 @@ final class FlexibleContent extends Field implements Composite {
 			$row = array( self::LAYOUT_KEY => $layout_name );
 
 			foreach ( $this->layouts[ $layout_name ]['sub_fields'] as $sub_field ) {
-				$row[ $sub_field->name() ] = $get( $this->row_key( $index, $sub_field->name() ) );
+				$row[ $sub_field->name() ] = $this->read_sub_field( $sub_field, $this->row_key( $index, '' ), $get );
 			}
 
 			$rows[] = $row;
@@ -208,7 +210,8 @@ final class FlexibleContent extends Field implements Composite {
 			return array( $error );
 		}
 
-		$order = array();
+		$order  = array();
+		$errors = array();
 
 		foreach ( $rows as $index => $row ) {
 			$layout_name = (string) $row[ self::LAYOUT_KEY ];
@@ -216,7 +219,7 @@ final class FlexibleContent extends Field implements Composite {
 			// Si la capa de esta posición cambió, los subcampos de la anterior
 			// quedarían huérfanos bajo el mismo prefijo.
 			if ( isset( $previous[ $index ] ) && $previous[ $index ] !== $layout_name ) {
-				$this->delete_row( $index, (string) $previous[ $index ], $delete );
+				$this->delete_row( $index, (string) $previous[ $index ], $get, $delete );
 			}
 
 			foreach ( $this->layouts[ $layout_name ]['sub_fields'] as $sub_field ) {
@@ -226,7 +229,10 @@ final class FlexibleContent extends Field implements Composite {
 					continue;
 				}
 
-				$set( $this->row_key( $index, $name ), $sub_field->sanitize( $row[ $name ] ) );
+				$errors = array_merge(
+					$errors,
+					$this->write_sub_field( $sub_field, $this->row_key( $index, '' ), $row[ $name ], $get, $set, $delete )
+				);
 			}
 
 			$order[] = $layout_name;
@@ -238,12 +244,29 @@ final class FlexibleContent extends Field implements Composite {
 		$previous_count = count( $previous );
 
 		for ( $i = $kept; $i < $previous_count; $i++ ) {
-			$this->delete_row( $i, (string) $previous[ $i ], $delete );
+			$this->delete_row( $i, (string) $previous[ $i ], $get, $delete );
 		}
 
 		$set( $this->name(), $order );
 
-		return array();
+		return $errors;
+	}
+
+	/**
+	 * Borra todas las capas y la lista que las ordena.
+	 *
+	 * @param callable $get    Función que devuelve el valor de una clave.
+	 * @param callable $delete Función que borra una clave.
+	 * @return void
+	 */
+	public function delete_value( callable $get, callable $delete ): void {
+		$order = $get( $this->name() );
+
+		foreach ( is_array( $order ) ? array_values( $order ) : array() as $index => $layout_name ) {
+			$this->delete_row( $index, (string) $layout_name, $get, $delete );
+		}
+
+		$delete( $this->name() );
 	}
 
 	/**
@@ -293,12 +316,13 @@ final class FlexibleContent extends Field implements Composite {
 	 *
 	 * @param int      $index       Posición de la fila.
 	 * @param string   $layout_name Capa que ocupaba esa posición.
+	 * @param callable $get         Función que devuelve el valor de una clave.
 	 * @param callable $delete      Función que borra una clave.
 	 * @return void
 	 */
-	private function delete_row( int $index, string $layout_name, callable $delete ): void {
+	private function delete_row( int $index, string $layout_name, callable $get, callable $delete ): void {
 		foreach ( $this->layouts[ $layout_name ]['sub_fields'] ?? array() as $sub_field ) {
-			$delete( $this->row_key( $index, $sub_field->name() ) );
+			$this->delete_sub_field( $sub_field, $this->row_key( $index, '' ), $get, $delete );
 		}
 	}
 

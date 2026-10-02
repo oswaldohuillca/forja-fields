@@ -10,6 +10,7 @@
  */
 
 import { initClonedRow } from './fields';
+import { reindex } from './reindex';
 
 const CLONE_INDEX = 'acfcloneindex';
 
@@ -28,6 +29,20 @@ function realRows( repeater: HTMLElement ): HTMLTableRowElement[] {
 }
 
 /**
+ * Atributo `name` del repetidor, sin fila: el de su campo oculto.
+ *
+ * @param repeater Contenedor `.acf-repeater`.
+ * @return Nombre base, como `forja[bloques]`.
+ */
+function baseName( repeater: HTMLElement ): string {
+	return (
+		repeater
+			.querySelector< HTMLInputElement >( ':scope > input.acf-repeater-hidden-input' )
+			?.getAttribute( 'name' ) ?? ''
+	);
+}
+
+/**
  * Renumera las filas y ajusta los índices de los controles.
  *
  * Los índices tienen que ser correlativos y empezar en cero: el servidor los
@@ -36,6 +51,8 @@ function realRows( repeater: HTMLElement ): HTMLTableRowElement[] {
  * @param repeater Contenedor `.acf-repeater`.
  */
 function renumber( repeater: HTMLElement ): void {
+	const base = baseName( repeater );
+
 	realRows( repeater ).forEach( ( row, index ) => {
 		const previous = row.dataset.id ?? '';
 
@@ -47,21 +64,8 @@ function renumber( repeater: HTMLElement ): void {
 			number.textContent = String( index + 1 );
 		}
 
-		if ( previous === String( index ) ) {
-			return;
-		}
-
-		for ( const control of row.querySelectorAll< HTMLElement >(
-			'[name]'
-		) ) {
-			const name = control.getAttribute( 'name' );
-
-			if ( name ) {
-				control.setAttribute(
-					'name',
-					name.replace( `[${ previous }]`, `[${ index }]` )
-				);
-			}
+		if ( previous !== String( index ) ) {
+			reindex( row, base, previous, String( index ) );
 		}
 	} );
 
@@ -130,16 +134,7 @@ function addRow( repeater: HTMLElement, before: HTMLTableRowElement | null ): vo
 	row.classList.remove( 'acf-clone' );
 	row.dataset.id = String( index );
 
-	for ( const control of row.querySelectorAll< HTMLElement >( '[name]' ) ) {
-		const name = control.getAttribute( 'name' );
-
-		if ( name ) {
-			control.setAttribute(
-				'name',
-				name.replace( `[${ CLONE_INDEX }]`, `[${ index }]` )
-			);
-		}
-	}
+	reindex( row, baseName( repeater ), CLONE_INDEX, String( index ) );
 
 	// Los identificadores de la plantilla se duplicarían; se descartan porque
 	// dentro de la tabla la etiqueta vive en la cabecera, no en la celda.
@@ -177,6 +172,30 @@ function removeRow( repeater: HTMLElement, row: HTMLTableRowElement ): void {
 }
 
 /**
+ * Fila de este repetidor que contiene un elemento.
+ *
+ * Un repetidor puede llevar otro dentro, y los eventos del interior suben hasta
+ * el exterior. `closest()` devolvería la fila más cercana, que puede ser la del
+ * repetidor de dentro; aquí se sube hasta una que sea de éste.
+ *
+ * @param repeater Contenedor `.acf-repeater`.
+ * @param element  Elemento donde ocurrió el evento.
+ * @return Fila propia, o null si el elemento no está en ninguna.
+ */
+function ownRow(
+	repeater: HTMLElement,
+	element: Element | null
+): HTMLTableRowElement | null {
+	let row = element?.closest< HTMLTableRowElement >( 'tr.acf-row' ) ?? null;
+
+	while ( row && row.closest( '.acf-repeater' ) !== repeater ) {
+		row = row.parentElement?.closest< HTMLTableRowElement >( 'tr.acf-row' ) ?? null;
+	}
+
+	return row;
+}
+
+/**
  * Habilita el reordenado por arrastre desde la columna del número.
  *
  * @param repeater Contenedor `.acf-repeater`.
@@ -188,21 +207,24 @@ function enableDragging( repeater: HTMLElement ): void {
 		const handle = ( event.target as HTMLElement ).closest(
 			'.acf-row-handle.order'
 		);
-		const row = ( event.target as HTMLElement ).closest< HTMLTableRowElement >(
-			'tr.acf-row'
-		);
+		const row = handle?.closest< HTMLTableRowElement >( 'tr.acf-row' );
 
 		// Sólo la columna del número arrastra; así se puede seleccionar texto
-		// dentro de los campos con normalidad.
-		if ( handle && row ) {
+		// dentro de los campos con normalidad. Y sólo la de una fila propia: la
+		// de un repetidor interior la atiende el interior.
+		if ( row && row.closest( '.acf-repeater' ) === repeater ) {
 			row.draggable = true;
 		}
 	} );
 
 	repeater.addEventListener( 'dragstart', ( event: DragEvent ) => {
-		dragged = ( event.target as HTMLElement ).closest< HTMLTableRowElement >(
+		const row = ( event.target as HTMLElement ).closest< HTMLTableRowElement >(
 			'tr.acf-row'
 		);
+
+		// Un arrastre que empieza en un repetidor interior sube hasta aquí; si
+		// se adoptara, la fila de dentro acabaría en la tabla de fuera.
+		dragged = row && row.closest( '.acf-repeater' ) === repeater ? row : null;
 
 		dragged?.classList.add( 'is-dragging' );
 		event.dataTransfer?.setData( 'text/plain', '' );
@@ -215,11 +237,9 @@ function enableDragging( repeater: HTMLElement ): void {
 
 		event.preventDefault();
 
-		const over = ( event.target as HTMLElement ).closest< HTMLTableRowElement >(
-			'tr.acf-row:not(.acf-clone)'
-		);
+		const over = ownRow( repeater, event.target as Element );
 
-		if ( ! over || over === dragged ) {
+		if ( ! over || over === dragged || over.classList.contains( 'acf-clone' ) ) {
 			return;
 		}
 
@@ -255,13 +275,17 @@ export function initRepeater( repeater: HTMLElement ): void {
 			'[data-event]'
 		);
 
-		if ( ! action || action.classList.contains( 'disabled' ) ) {
+		// Los botones de un repetidor anidado también suben hasta aquí: sin
+		// esto, «Añadir» en el interior añadía además una fila al exterior.
+		if (
+			! action ||
+			action.classList.contains( 'disabled' ) ||
+			action.closest( '.acf-repeater' ) !== repeater
+		) {
 			return;
 		}
 
-		const row = action.closest< HTMLTableRowElement >(
-			'tr.acf-row:not(.acf-clone)'
-		);
+		const row = ownRow( repeater, action );
 
 		switch ( action.dataset.event ) {
 			case 'add-row':

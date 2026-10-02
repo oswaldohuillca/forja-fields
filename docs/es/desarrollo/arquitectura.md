@@ -228,6 +228,32 @@ un término o una página de opciones.
 `write_value()` **devuelve los errores** encontrados. Un compuesto que no valida
 no escribe nada, igual que un campo simple.
 
+**Un compuesto puede ir dentro de otro.** El exterior no guarda al interior como
+un valor: le pasa las tres operaciones del almacén con el prefijo de su
+posición, y el interior compone el resto con su lógica de siempre. Un repetidor
+`items` en la fila 0 de `bloques` acaba en `bloques_0_items` y
+`bloques_0_items_0_item`, el formato de ACF, sin saber que está anidado. Lo
+comparten los tres compuestos en el rasgo `StoresSubFields`. Antes cada uno
+guardaba sus subcampos con `sanitize()`, que con un array avisaba de «Array to
+string conversion». El aviso salía antes de las cabeceras y rompía la
+redirección del guardado.
+
+Al quitar una fila, sus subcompuestos borran todas sus claves con
+`delete_value()`. Sin eso quedarían huérfanas y reaparecerían al volver a
+crecer la lista.
+
+En el navegador, el anidamiento destapó dos fallos más:
+
+- **Los eventos suben.** El repetidor exterior atendía también los clics del
+  interior, y «Añadir» en el interior añadía además una fila al exterior. Cada
+  repetidor y cada contenido flexible ignoran ahora lo que pertenece a un
+  compuesto anidado, en los clics y en el arrastre.
+- **El reindexado tocaba otro nivel.** Al renumerar se cambiaba la primera
+  aparición del índice anterior en cada `name`. En
+  `bloques[1][items][1][item]`, «la primera `[1]`» es la del nivel exterior.
+  `reindex.ts` cambia solo el segmento que va justo detrás del nombre base del
+  campo, que se lee de su campo oculto.
+
 ### Las plantillas de filas y capas se pintan sin `required`
 
 El repetidor pinta una fila plantilla (`acfcloneindex`) y el contenido flexible

@@ -148,12 +148,6 @@ test( 'una fila nueva vacía no deja guardar', async ( { page } ) => {
 	await expectBlocked( page, rows( repeater ).last().locator( 'input[type="text"]' ) );
 } );
 
-/*
- * Los dos casos anidados comprueban la validación del navegador y no un
- * guardado completo: guardar un repetidor dentro de otro falla en el servidor
- * por otro motivo (está en el ROADMAP), y aquí se prueba sólo lo que el
- * navegador deja enviar.
- */
 test( 'en un repetidor anidado, la plantilla interior no bloquea', async ( {
 	page,
 } ) => {
@@ -167,6 +161,12 @@ test( 'en un repetidor anidado, la plantilla interior no bloquea', async ( {
 
 	await expect( field( page, 'rq_items' ) ).toHaveCount( 1 );
 	expect( await formIsValid( page ) ).toBe( true );
+
+	// Y se guarda de verdad: antes de poder guardar compuestos anidados, esto
+	// sólo podía comprobar la validación del navegador.
+	await save( page );
+
+	await trash( page );
 } );
 
 test( 'en un repetidor anidado, una fila interior vacía no deja guardar', async ( {

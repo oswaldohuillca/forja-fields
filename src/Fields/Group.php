@@ -31,6 +31,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Group extends Field implements Composite {
 
+	use StoresSubFields;
+
 	/**
 	 * Subcampos ya instanciados.
 	 *
@@ -126,7 +128,7 @@ final class Group extends Field implements Composite {
 		$values = array();
 
 		foreach ( $this->sub_fields as $sub_field ) {
-			$values[ $sub_field->name() ] = $get( $this->sub_key( $sub_field->name() ) );
+			$values[ $sub_field->name() ] = $this->read_sub_field( $sub_field, $this->sub_key( '' ), $get );
 		}
 
 		return $values;
@@ -142,11 +144,11 @@ final class Group extends Field implements Composite {
 	 * @return array<int, string> Mensajes de error; vacío si todo fue bien.
 	 */
 	public function write_value( mixed $submitted, callable $get, callable $set, callable $delete ): array {
-		unset( $get, $delete );
-
 		if ( ! is_array( $submitted ) ) {
 			return array();
 		}
+
+		$errors = array();
 
 		foreach ( $this->sub_fields as $sub_field ) {
 			$name = $sub_field->name();
@@ -155,10 +157,26 @@ final class Group extends Field implements Composite {
 				continue;
 			}
 
-			$set( $this->sub_key( $name ), $sub_field->sanitize( $submitted[ $name ] ) );
+			$errors = array_merge(
+				$errors,
+				$this->write_sub_field( $sub_field, $this->sub_key( '' ), $submitted[ $name ], $get, $set, $delete )
+			);
 		}
 
-		return array();
+		return $errors;
+	}
+
+	/**
+	 * Borra las claves de todos los subcampos.
+	 *
+	 * @param callable $get    Función que devuelve el valor de una clave.
+	 * @param callable $delete Función que borra una clave.
+	 * @return void
+	 */
+	public function delete_value( callable $get, callable $delete ): void {
+		foreach ( $this->sub_fields as $sub_field ) {
+			$this->delete_sub_field( $sub_field, $this->sub_key( '' ), $get, $delete );
+		}
 	}
 
 	/**

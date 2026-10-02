@@ -35,6 +35,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Repeater extends Field implements Composite {
 
+	use StoresSubFields;
+
 	/**
 	 * Índice que ACF usa en la fila plantilla que clona el JavaScript.
 	 */
@@ -132,7 +134,7 @@ final class Repeater extends Field implements Composite {
 			$row = array();
 
 			foreach ( $this->sub_fields as $sub_field ) {
-				$row[ $sub_field->name() ] = $get( $this->row_key( $i, $sub_field->name() ) );
+				$row[ $sub_field->name() ] = $this->read_sub_field( $sub_field, $this->row_prefix( $i ), $get );
 			}
 
 			$rows[] = $row;
@@ -197,7 +199,8 @@ final class Repeater extends Field implements Composite {
 			);
 		}
 
-		$index = 0;
+		$index  = 0;
+		$errors = array();
 
 		foreach ( $rows as $row ) {
 			foreach ( $this->sub_fields as $sub_field ) {
@@ -207,7 +210,10 @@ final class Repeater extends Field implements Composite {
 					continue;
 				}
 
-				$set( $this->row_key( $index, $name ), $sub_field->sanitize( $row[ $name ] ) );
+				$errors = array_merge(
+					$errors,
+					$this->write_sub_field( $sub_field, $this->row_prefix( $index ), $row[ $name ], $get, $set, $delete )
+				);
 			}
 
 			++$index;
@@ -216,14 +222,43 @@ final class Repeater extends Field implements Composite {
 		// Las filas que había de más se borran clave a clave; si no, quedarían
 		// huérfanas en la base de datos y reaparecerían al crecer la lista.
 		for ( $i = $index; $i < $previous; $i++ ) {
-			foreach ( $this->sub_fields as $sub_field ) {
-				$delete( $this->row_key( $i, $sub_field->name() ) );
-			}
+			$this->delete_row( $i, $get, $delete );
 		}
 
 		$set( $this->name(), $index );
 
-		return array();
+		return $errors;
+	}
+
+	/**
+	 * Borra todas las filas y el número de filas.
+	 *
+	 * @param callable $get    Función que devuelve el valor de una clave.
+	 * @param callable $delete Función que borra una clave.
+	 * @return void
+	 */
+	public function delete_value( callable $get, callable $delete ): void {
+		$count = (int) $get( $this->name() );
+
+		for ( $i = 0; $i < $count; $i++ ) {
+			$this->delete_row( $i, $get, $delete );
+		}
+
+		$delete( $this->name() );
+	}
+
+	/**
+	 * Borra las claves de una fila, también las de sus subcampos compuestos.
+	 *
+	 * @param int      $index  Índice de la fila.
+	 * @param callable $get    Función que devuelve el valor de una clave.
+	 * @param callable $delete Función que borra una clave.
+	 * @return void
+	 */
+	private function delete_row( int $index, callable $get, callable $delete ): void {
+		foreach ( $this->sub_fields as $sub_field ) {
+			$this->delete_sub_field( $sub_field, $this->row_prefix( $index ), $get, $delete );
+		}
 	}
 
 	/**
@@ -261,7 +296,17 @@ final class Repeater extends Field implements Composite {
 	 * @return string Clave de metadatos.
 	 */
 	public function row_key( int $index, string $sub_field ): string {
-		return $this->name() . '_' . $index . '_' . $sub_field;
+		return $this->row_prefix( $index ) . $sub_field;
+	}
+
+	/**
+	 * Prefijo de las claves de una fila.
+	 *
+	 * @param int $index Índice de la fila, empezando en cero.
+	 * @return string Prefijo con el guion bajo final, como `banner_0_`.
+	 */
+	private function row_prefix( int $index ): string {
+		return $this->name() . '_' . $index . '_';
 	}
 
 	/**

@@ -619,3 +619,43 @@ it( 'guarda en un usuario con la misma mecánica', function () {
 
 	delete_user_meta( $this->user_id, 'cargo' );
 } );
+
+it( 'guarda y lee un repetidor dentro de otro de punta a punta', function () {
+	$registry = forja_test_registry(
+		'anidados',
+		array(
+			'object_type'     => 'post',
+			'object_subtypes' => array( 'post' ),
+			'fields'          => array(
+				array(
+					'type'       => 'repeater',
+					'name'       => 'bloques',
+					'sub_fields' => array(
+						array(
+							'type'       => 'repeater',
+							'name'       => 'items',
+							'sub_fields' => array( array( 'type' => 'number', 'name' => 'orden' ) ),
+						),
+					),
+				),
+			),
+		)
+	);
+
+	forja_test_submit(
+		'anidados',
+		array(
+			'bloques' => array(
+				'acfcloneindex' => array( 'items' => array( 'acfcloneindex' => array( 'orden' => '' ) ) ),
+				array( 'items' => array( array( 'orden' => '4' ), array( 'orden' => '5' ) ) ),
+			),
+		)
+	);
+
+	( $this->save )( $registry );
+
+	expect( get_post_meta( $this->post_id, 'bloques_0_items_1_orden', true ) )->toBe( '5' )
+		->and( forja_test_read( $registry, 'bloques', $this->post_id ) )->toBe(
+			array( array( 'items' => array( array( 'orden' => 4 ), array( 'orden' => 5 ) ) ) )
+		);
+} );

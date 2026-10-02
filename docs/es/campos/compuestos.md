@@ -42,6 +42,53 @@ Es decir: un sitio que ya tenga repetidores de ACF se lee sin migrar nada. Y
 cada subcampo sigue siendo consultable con `meta_query`, cosa que se perdería
 serializando un array.
 
+### Compuestos dentro de compuestos
+
+Un repetidor puede llevar dentro otro repetidor, un grupo o un contenido
+flexible, y al revés:
+
+```php
+array(
+	'type'       => 'repeater',
+	'name'       => 'secciones',
+	'sub_fields' => array(
+		array( 'type' => 'text', 'name' => 'titulo' ),
+		array(
+			'type'       => 'repeater',
+			'name'       => 'tarjetas',
+			'sub_fields' => array(
+				array( 'type' => 'text', 'name' => 'texto' ),
+			),
+		),
+	),
+)
+```
+
+En la plantilla, cada nivel es una lista dentro de la fila del anterior:
+
+```php
+foreach ( forja_get_field( 'secciones' ) as $seccion ) {
+	echo esc_html( $seccion['titulo'] );
+
+	foreach ( $seccion['tarjetas'] as $tarjeta ) {
+		echo esc_html( $tarjeta['texto'] );
+	}
+}
+```
+
+Las claves encadenan las posiciones, igual que en ACF:
+
+```
+secciones                    => 1
+secciones_0_titulo           => 'Primera'
+secciones_0_tarjetas         => 2
+secciones_0_tarjetas_0_texto => 'A'
+secciones_0_tarjetas_1_texto => 'B'
+```
+
+Un grupo dentro de un repetidor añade su nombre sin posición:
+`personas_0_contacto_email`.
+
 ## Grupo
 
 Un repetidor de una sola fila: agrupa subcampos bajo un nombre común.
