@@ -77,11 +77,11 @@ msgstr ""
 msgid "Archivo seleccionado. Pulsa tabulador para acceder a sus opciones."
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:446 src/Fields/Repeater.php:394
+#: src/Fields/FlexibleContent.php:450 src/Fields/Repeater.php:397
 msgid "Arrastra para reordenar"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:456
+#: src/Fields/FlexibleContent.php:460
 msgid "Añadir"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Añadir archivo"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:354 src/Fields/Repeater.php:317 src/Fields/Repeater.php:417
+#: src/Fields/FlexibleContent.php:354 src/Fields/Repeater.php:320 src/Fields/Repeater.php:420
 msgid "Añadir fila"
 msgstr ""
 
@@ -105,11 +105,11 @@ msgstr ""
 msgid "Buscar entradas"
 msgstr ""
 
-#: src/Fields/IconPicker.php:137
+#: src/Fields/IconPicker.php:149
 msgid "Buscar un icono"
 msgstr ""
 
-#: src/Fields/IconPicker.php:136
+#: src/Fields/IconPicker.php:148
 msgid "Buscar un icono…"
 msgstr ""
 
@@ -117,7 +117,7 @@ msgstr ""
 msgid "Buscar…"
 msgstr ""
 
-#: src/Fields/Link.php:132 src/Fields/MediaField.php:80
+#: src/Fields/Link.php:157 src/Fields/MediaField.php:80
 msgid "Editar"
 msgstr ""
 
@@ -171,27 +171,27 @@ msgid "Pulsa «%s» para empezar a construir el contenido."
 msgstr ""
 
 #. translators: %d: número de página.
-#: src/Fields/IconPicker.php:150
+#: src/Fields/IconPicker.php:162
 msgid "Página %d"
 msgstr ""
 
-#: src/Fields/IconPicker.php:151
+#: src/Fields/IconPicker.php:163
 msgid "Página anterior"
 msgstr ""
 
-#: src/Fields/IconPicker.php:152
+#: src/Fields/IconPicker.php:164
 msgid "Página siguiente"
 msgstr ""
 
-#: src/Fields/FlexibleContent.php:457 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:131 src/Fields/Link.php:133 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:202
+#: src/Fields/FlexibleContent.php:461 src/Fields/Gallery.php:244 src/Fields/IconPicker.php:143 src/Fields/Link.php:158 src/Fields/MediaField.php:81 src/Fields/Oembed.php:109 src/Fields/Relationship.php:202
 msgid "Quitar"
 msgstr ""
 
-#: src/Fields/Repeater.php:418
+#: src/Fields/Repeater.php:421
 msgid "Quitar fila"
 msgstr ""
 
-#: src/Fields/Link.php:131
+#: src/Fields/Link.php:156
 msgid "Se abre en una pestaña nueva"
 msgstr ""
 
@@ -199,7 +199,7 @@ msgstr ""
 msgid "Selecciona"
 msgstr ""
 
-#: src/Fields/Link.php:118
+#: src/Fields/Link.php:143
 msgid "Seleccionar enlace"
 msgstr ""
 

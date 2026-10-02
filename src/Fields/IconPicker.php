@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja\Fields;
 
+use Forja\Ajax\Icons;
 use Forja\Icons\Iconify;
 use Forja\Render\Html;
 
@@ -105,9 +106,8 @@ final class IconPicker extends Field {
 
 		$attributes = array(
 			'class'            => 'acf-icon-picker' . ( '' !== $icon['value'] ? ' -value' : '' ),
-			'data-api'         => Iconify::api_url(),
 			'data-collections' => implode( ',', $collections ),
-		);
+		) + Icons::attributes();
 
 		printf( '<div %s>', Html::attributes( $attributes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 
@@ -121,12 +121,24 @@ final class IconPicker extends Field {
 			);
 		}
 
-		// Vista previa. En el escritorio se pinta con la propia API como origen
-		// de la imagen: son unos 150 bytes y el navegador la cachea una semana.
+		/*
+		 * Vista previa. Un icono de Iconify no lleva la API como origen de la
+		 * imagen: el JavaScript lo pide por el intermediario, en el mismo lote
+		 * que las vistas previas del resto de la pantalla (ver `Ajax\Icons`).
+		 */
+		$preview = Html::attributes(
+			array(
+				'src'       => $this->preview_url( $icon ),
+				'data-icon' => $this->iconify_name( $icon ),
+				'alt'       => '',
+			),
+			array( 'alt' )
+		);
+
 		printf(
-			'<div class="acf-icon-picker-preview"><img src="%s" alt="" /><code>%s</code>'
+			'<div class="acf-icon-picker-preview"><img %s /><code>%s</code>'
 			. '<a href="#" class="acf-icon -cancel dark" data-name="remove" title="%s"></a></div>',
-			esc_url( $this->preview_url( $icon ) ),
+			$preview, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Html::attributes() escapa cada atributo.
 			esc_html( $icon['value'] ),
 			esc_attr__( 'Quitar', 'forja-fields' )
 		);
@@ -156,7 +168,7 @@ final class IconPicker extends Field {
 	}
 
 	/**
-	 * Dirección de la vista previa de un icono.
+	 * Dirección de la vista previa de un icono que no es de Iconify.
 	 *
 	 * @param array{type: string, value: string} $icon Icono normalizado.
 	 * @return string URL de la imagen, o cadena vacía.
@@ -169,13 +181,26 @@ final class IconPicker extends Field {
 		return match ( $icon['type'] ) {
 			'url'           => $icon['value'],
 			'media_library' => (string) wp_get_attachment_image_url( (int) $icon['value'], 'thumbnail' ),
+			default         => '',
+		};
+	}
+
+	/**
+	 * Nombre en Iconify de la vista previa, si se resuelve por ahí.
+	 *
+	 * @param array{type: string, value: string} $icon Icono normalizado.
+	 * @return string Nombre `coleccion:icono`, o cadena vacía.
+	 */
+	private function iconify_name( array $icon ): string {
+		$name = match ( $icon['type'] ) {
 			// Los dashicons guardados por ACF se resuelven por su colección
 			// homónima en Iconify, así que no hay que tratarlos aparte.
-			'dashicons'     => Iconify::api_url() . '/dashicons/' . rawurlencode( $icon['value'] ) . '.svg',
-			default         => str_contains( $icon['value'], ':' )
-				? Iconify::api_url() . '/' . str_replace( ':', '/', $icon['value'] ) . '.svg'
-				: '',
+			'dashicons' => 'dashicons:' . $icon['value'],
+			'iconify'   => $icon['value'],
+			default     => '',
 		};
+
+		return Iconify::is_valid_name( $name ) ? $name : '';
 	}
 
 	/**

@@ -60,7 +60,11 @@ src/
     Validator.php         Campos obligatorios y punto de extensión
 
   Icons/
-    Iconify.php           Resuelve nombres de icono a SVG, con caché
+    Iconify.php           Resuelve nombres de icono a SVG, con caché, uno a uno o por lotes
+
+  Ajax/
+    Search.php            Búsqueda remota de los campos relacionales
+    Icons.php             Intermediario del selector de iconos con Iconify
 
 assets/
   src/css/                Un archivo por responsabilidad; la entrada sólo importa
@@ -440,7 +444,7 @@ localizado.
 
 | Campo | De qué depende | Qué pasa si falla |
 |---|---|---|
-| `icon_picker` | `api.iconify.design` | El buscador deja de encontrar. Los iconos ya cacheados se siguen pintando |
+| `icon_picker` | `api.iconify.design`, siempre desde el servidor | El buscador deja de encontrar. Los iconos ya cacheados se siguen pintando, en el escritorio y en la parte pública |
 | `oembed` | El endpoint `oembed/1.0/proxy` del núcleo, que a su vez llama al proveedor | La vista previa queda vacía |
 | `wysiwyg` con `table` | Nada externo: el plugin viaja en `assets/vendor/` | — |
 
@@ -449,12 +453,74 @@ localizado.
 Las colecciones completas de Iconify pasan de 100 MB, y una sola —`mdi`— son
 3,1 MB de JSON. Nada de eso tiene sentido dentro de un paquete de Composer.
 
-La API permite CORS y sirve cada icono en unos 150 bytes con caché inmutable de
-una semana, así que el navegador consulta directamente, igual que hace
-icones.js.org. Sin proceso de build y sin endpoint propio.
+Los iconos se piden a la API cuando hacen falta. Iconify es autoalojable: el
+filtro `forja/iconify_api` apunta a una instancia propia cuando el proyecto no
+puede depender de un servicio externo. Lo usa sólo el servidor; el navegador
+nunca habla con Iconify (ver la sección siguiente).
 
-Iconify es autoalojable: el filtro `forja/iconify_api` apunta a una instancia
-propia cuando el proyecto no puede depender de un servicio externo.
+### Por qué el selector pide los iconos a través del servidor
+
+Al principio el navegador consultaba la API directamente, como icones.js.org:
+la API admite CORS y cada miniatura era un `<img>` apuntando a su `.svg`. Eso
+son **96 peticiones por página de resultados**. Unas cuantas búsquedas bastaban
+para que Cloudflare, delante de `api.iconify.design`, bloqueara la IP un rato
+(HTTP 429, «error code: 1015»). El navegador recibía texto plano en lugar de
+SVG, lo descartaba por ORB, y las miniaturas salían rotas.
+
+Hay que contar con dos limitaciones de la API. No admite varias colecciones en
+una petición, solo `/{prefijo}.json?icons=a,b,c` para una. Y una página de
+«home» mezcla unas 30 a 50 colecciones.
+
+Ahora el navegador le pide todo a este WordPress, por admin-ajax
+(`Ajax\Icons`):
+
+- **Una petición por búsqueda.** El servidor la reenvía y la recuerda un día.
+- **Una petición por página de miniaturas**, con los 96 nombres. El servidor
+  saca de la caché lo que tiene y pide el resto agrupado por colección, todas
+  las colecciones en paralelo (`Requests::request_multiple`). Cada icono se
+  guarda 30 días con la misma clave que usa `Iconify::svg()`, así que el que
+  elige el editor ya está en caché para la parte pública.
+- **El SVG llega dentro del JSON** y se pinta como `<img>` con una dirección
+  `data:`. Una imagen no ejecuta nada de lo que traiga el SVG, aunque el saneado
+  fallara.
+
+Medido en este entorno: la primera página de «home», en frío, unos 4 segundos;
+repetida, 0,6. Con la API directa, una búsqueda eran 73 peticiones desde el
+navegador antes incluso de pasar de página. Ahora son cero.
+
+Se descartaron dos alternativas:
+
+- **Agrupar por colección en el navegador** y construir allí el SVG desde el
+  JSON. Pasa de 96 peticiones por página a unas 40: reduce el riesgo a la
+  mitad, pero no lo elimina, y cada editor vuelve a pedir lo mismo.
+- **Un intermediario que sirve cada miniatura como un `.svg` aparte**, como el
+  de referencia del tema intriga. Funciona, pero cada miniatura arranca
+  WordPress, 96 veces por página. Para no repetir el lote de una colección
+  entre esas peticiones simultáneas hace falta un candado. Para esperarlo hay
+  que leer el transitorio de la base de datos saltándose la caché de opciones.
+  Y como `<img>` no manda el nonce de la API REST, los permisos se comprueban
+  leyendo la cookie a mano. Pidiendo la página entera en una petición
+  desaparecen las tres cosas: no hay peticiones simultáneas que coordinar, y
+  `fetch()` sí manda el nonce.
+
+Va por admin-ajax y no por la API REST por lo mismo que `Ajax\Search`: lo
+piden pantallas del escritorio con nonce, y funciona igual con los enlaces
+permanentes «simples», donde la URL de la API REST lleva `?rest_route=`.
+
+**El JSON se convierte a SVG en el servidor** (`Iconify::from_collection()`):
+`body`, las dimensiones y el desplazamiento del icono o, si no los trae, los de
+la colección (16 × 16 en el origen por defecto), y los `aliases` siguiendo su
+`parent`. El resultado se comprobó contra el `.svg` de la API y sale idéntico
+byte a byte. Los iconos con `hFlip`, `vFlip` o `rotate` no se construyen: son
+raros, y uno mal girado es peor que pedirlo hecho, así que se piden en `.svg`.
+
+**Las colecciones animadas no se ofrecen** (`line-md`, `svg-spinners`). Sus
+trazos empiezan ocultos y aparecen con `<animate>`, que el saneado quita al
+incrustar el icono. En la parte pública se verían como una raya suelta.
+
+**La parte pública no pasa por el intermediario.** `Iconify::svg()` sigue
+descargando del servidor directo a Iconify: si pasara por aquí, WordPress se
+llamaría a sí mismo por cada icono.
 
 ### Por qué el SVG se incrusta y no se pide con JavaScript
 
@@ -490,11 +556,18 @@ atributo `style` o en una URL es el fallo que se está evitando.
 contra `^[a-z0-9-]+:[a-z0-9-]+$` antes de construirla.
 
 **El SVG que devuelve Iconify entra en la página**, así que pasa por `wp_kses`
-con una lista blanca de etiquetas y atributos: nada de `script`, `foreignObject`
-ni manejadores de eventos. Un detalle: `wp_kses()` pasa los atributos a
-minúsculas y `viewBox` distingue mayúsculas, así que se restaura después. En
-HTML el navegador lo corregiría solo, pero no si el SVG acaba en un feed o un
-sitemap.
+con una lista blanca de etiquetas y atributos: formas, gradientes, máscaras y
+recortes, y nada de `script`, `foreignObject`, enlaces, animaciones ni
+manejadores de eventos. Un detalle: `wp_kses()` pasa los atributos a
+minúsculas, y algunos de SVG distinguen mayúsculas (`viewBox`,
+`gradientUnits`…), así que se restauran después. En HTML el navegador los
+corregiría solo, pero no en un contexto XML: un feed, un sitemap o el `<img>`
+con dirección `data:` de las miniaturas.
+
+**El intermediario de iconos no está abierto.** Pide el nonce de la pantalla y
+la capacidad `edit_posts`, y no se registra para anónimos: si no, cualquiera
+podría usar el sitio como intermediario gratuito de Iconify. Acepta como mucho
+200 nombres por petición, y cada uno se valida antes de formar una URL.
 
 **El `wysiwyg` sigue el criterio de WordPress**: quien tiene `unfiltered_html`
 conserva su HTML, y al resto se le aplica `wp_kses_post()`.

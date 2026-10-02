@@ -1,11 +1,12 @@
-import { test, expect, type Page, type Locator } from '@playwright/test';
+import { test, expect, type Page, type Locator, type Request } from '@playwright/test';
 
 /**
- * Buscador de iconos contra la API de Iconify.
+ * Buscador de iconos, a través del intermediario del paquete (`Ajax\Icons`).
  *
- * Estos tests salen a la red de verdad. Es deliberado: lo que se comprueba es
- * precisamente cómo se comporta el campo ante respuestas que llegan cuando
- * quieren, y simular la API dejaría fuera justo el fallo que motivó el test.
+ * Estos tests salen a la red de verdad: el servidor consulta Iconify. Es
+ * deliberado: lo que se comprueba es precisamente cómo se comporta el campo
+ * ante respuestas que llegan cuando quieren, y simular la API dejaría fuera
+ * justo el fallo que motivó el test.
  */
 
 const CATEGORY = process.env.FORJA_E2E_TERM ?? '1';
@@ -30,6 +31,38 @@ async function openPicker( page: Page ): Promise< Locator > {
 	await expect( picker ).toBeVisible();
 
 	return picker;
+}
+
+/**
+ * Si una petición es la de una acción concreta de admin-ajax.
+ */
+function isAction( request: Request, action: string ): boolean {
+	return (
+		request.url().includes( 'admin-ajax.php' ) &&
+		new URLSearchParams( request.postData() ?? '' ).get( 'action' ) === action
+	);
+}
+
+/**
+ * Texto buscado en una petición de búsqueda.
+ */
+function queryOf( request: Request ): string | null {
+	return new URLSearchParams( request.postData() ?? '' ).get( 'query' );
+}
+
+/**
+ * Miniaturas que el navegador ha llegado a pintar de verdad.
+ *
+ * Una imagen rota también es un `<img>`: lo que cuenta es que haya cargado y
+ * tenga tamaño. Así se veía el fallo, con miniaturas rotas por un 429.
+ */
+function paintedImages( picker: Locator ): Promise< number > {
+	return picker.evaluate(
+		( element ) =>
+			Array.from(
+				element.querySelectorAll< HTMLImageElement >( '.acf-icon-picker-result img' )
+			).filter( ( image ) => image.complete && image.naturalWidth > 0 ).length
+	);
 }
 
 /**
@@ -105,12 +138,10 @@ test( 'una búsqueda nueva cancela la anterior', async ( { page } ) => {
 	 * primeras posiciones, así que el síntoma ya no distingue una cosa de la
 	 * otra. La cancelación sí.
 	 */
-	await page.route( /api\.iconify\.design\/search/, async ( route ) => {
-		const query = new URL( route.request().url() ).searchParams.get(
-			'query'
-		);
+	await page.route( /admin-ajax\.php/, async ( route ) => {
+		const request = route.request();
 
-		if ( 'hom' === query ) {
+		if ( isAction( request, 'forja_icons_search' ) && 'hom' === queryOf( request ) ) {
 			await new Promise( ( resolve ) => setTimeout( resolve, 2500 ) );
 		}
 
@@ -120,8 +151,8 @@ test( 'una búsqueda nueva cancela la anterior', async ( { page } ) => {
 	const cancelled: string[] = [];
 
 	page.on( 'requestfailed', ( request ) => {
-		if ( request.url().includes( '/search' ) ) {
-			cancelled.push( request.url() );
+		if ( isAction( request, 'forja_icons_search' ) ) {
+			cancelled.push( queryOf( request ) ?? '' );
 		}
 	} );
 
@@ -136,7 +167,7 @@ test( 'una búsqueda nueva cancela la anterior', async ( { page } ) => {
 	await input.fill( 'home' );
 
 	await expect
-		.poll( () => cancelled.some( ( url ) => url.includes( 'query=hom&' ) ), {
+		.poll( () => cancelled.includes( 'hom' ), {
 			timeout: 10_000,
 		} )
 		.toBe( true );
@@ -145,4 +176,101 @@ test( 'una búsqueda nueva cancela la anterior', async ( { page } ) => {
 	await expect
 		.poll( () => painted( picker ).count() )
 		.toBeGreaterThan( 50 );
+} );
+
+test( 'buscar y paginar no pide nada a Iconify desde el navegador', async ( {
+	page,
+} ) => {
+	/*
+	 * El fallo: cada miniatura era una imagen aparte pedida a la API pública,
+	 * 96 por página, y Cloudflare acababa bloqueando la IP (HTTP 429). Ahora el
+	 * navegador sólo habla con admin-ajax: una petición por búsqueda y otra por
+	 * página de miniaturas.
+	 */
+	const iconify: string[] = [];
+	const batches: Request[] = [];
+
+	page.on( 'request', ( request ) => {
+		if ( new URL( request.url() ).hostname.endsWith( 'iconify.design' ) ) {
+			iconify.push( request.url() );
+		}
+
+		if ( isAction( request, 'forja_icons_svg' ) ) {
+			batches.push( request );
+		}
+	} );
+
+	const picker = await openPicker( page );
+
+	await picker.locator( '.acf-icon-picker-search' ).fill( 'home' );
+
+	await expect
+		.poll( () => painted( picker ).count(), { timeout: 30_000 } )
+		.toBeGreaterThan( 90 );
+
+	// Se mira antes que las miniaturas: es lo que el test vigila, y con el
+	// fallo las miniaturas pueden tardar o no llegar nunca.
+	expect( iconify ).toEqual( [] );
+
+	// Pintadas de verdad, no sólo insertadas: una miniatura rota no cuenta.
+	await expect
+		.poll( () => paintedImages( picker ), { timeout: 30_000 } )
+		.toBeGreaterThan( 90 );
+
+	await picker.locator( '.acf-icon-picker-page:not(.-current)' ).first().click();
+
+	await expect
+		.poll( () => paintedImages( picker ), { timeout: 30_000 } )
+		.toBeGreaterThan( 90 );
+
+	expect( iconify ).toEqual( [] );
+
+	// Una por página. La de la vista previa no cuenta: la fila es nueva y su
+	// selector no tiene icono todavía.
+	expect( batches ).toHaveLength( 2 );
+} );
+
+test( 'elegir un icono lo pinta en la vista previa', async ( { page } ) => {
+	const picker = await openPicker( page );
+
+	await picker.locator( '.acf-icon-picker-search' ).fill( 'home' );
+
+	const first = painted( picker ).first();
+
+	await expect( first ).toBeVisible( { timeout: 30_000 } );
+
+	const name = ( await first.getAttribute( 'data-icon' ) ) ?? '';
+
+	await first.click();
+
+	const preview = picker.locator( '.acf-icon-picker-preview img' );
+
+	await expect( picker.locator( '.acf-icon-picker-preview code' ) ).toHaveText( name );
+	await expect( preview ).toHaveAttribute( 'src', /^data:image\/svg\+xml/ );
+	await expect
+		.poll( () => preview.evaluate( ( image ) => ( image as HTMLImageElement ).naturalWidth ) )
+		.toBeGreaterThan( 0 );
+} );
+
+test( 'no ofrece las colecciones animadas', async ( { page } ) => {
+	/*
+	 * line-md y svg-spinners dibujan con `<animate>`, que el saneado quita al
+	 * incrustar el icono en la parte pública: se verían como una raya. «loading»
+	 * es de lo que más tienen las dos.
+	 */
+	const picker = await openPicker( page );
+
+	await picker.locator( '.acf-icon-picker-search' ).fill( 'loading' );
+
+	await expect
+		.poll( () => painted( picker ).count(), { timeout: 30_000 } )
+		.toBeGreaterThan( 10 );
+
+	const names = await painted( picker ).evaluateAll( ( els ) =>
+		els.map( ( e ) => ( e as HTMLElement ).dataset.icon ?? '' )
+	);
+
+	expect(
+		names.filter( ( n ) => n.startsWith( 'line-md:' ) || n.startsWith( 'svg-spinners:' ) )
+	).toEqual( [] );
 } );

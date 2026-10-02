@@ -69,16 +69,36 @@ describe( 'campo', function () {
 		expect( $field->format_value( array( 'type' => 'iconify', 'value' => 'mdi:home' ) ) )->toBe( 'mdi:home' );
 	} );
 
-	it( 'pinta el buscador con la API y las colecciones declaradas', function () {
+	it( 'pinta el buscador apuntando al intermediario, no a la API', function () {
 		$field = forja_test_field(
 			array( 'type' => 'icon_picker', 'collections' => array( 'mdi', 'tabler' ) )
 		);
 
 		$html = forja_test_render( $field, '' );
 
+		// El navegador habla con admin-ajax: ninguna dirección de Iconify en el
+		// markup, o volverían las peticiones por miniatura.
 		expect( $html )->toContain( 'class="acf-icon-picker-search"' )
 			->and( $html )->toContain( 'data-collections="mdi,tabler"' )
-			->and( $html )->toContain( 'api.iconify.design' );
+			->and( $html )->toContain( 'data-svg-action="forja_icons_svg"' )
+			->and( $html )->toContain( 'data-nonce="' )
+			->and( $html )->not->toContain( 'iconify.design' );
+	} );
+
+	it( 'deja la vista previa del icono guardado al JavaScript', function () {
+		$field = forja_test_field( array( 'type' => 'icon_picker' ) );
+
+		$html = forja_test_render( $field, array( 'type' => 'iconify', 'value' => 'mdi:home' ) );
+
+		expect( $html )->toContain( '<img data-icon="mdi:home" alt="" />' );
+	} );
+
+	it( 'resuelve los dashicons de ACF por su colección en Iconify', function () {
+		$field = forja_test_field( array( 'type' => 'icon_picker' ) );
+
+		$html = forja_test_render( $field, array( 'type' => 'dashicons', 'value' => 'admin-home' ) );
+
+		expect( $html )->toContain( 'data-icon="dashicons:admin-home"' );
 	} );
 
 	it( 'permite apuntar a una instancia propia de la API', function () {

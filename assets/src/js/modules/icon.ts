@@ -1,30 +1,13 @@
 /**
  * Selector de icono.
  *
- * Busca contra la API de Iconify directamente desde el navegador, igual que
- * hace icones.js.org. Su CORS lo permite y las respuestas se sirven con caché
- * de una semana, así que no hace falta ni endpoint propio ni proceso de build.
+ * Busca en Iconify a través de este WordPress (`icons.ts`), no directamente:
+ * las miniaturas de una página llegan en una sola petición en vez de una por
+ * icono. Ver `Ajax\Icons`.
  */
 
 import { refreshConditions } from './conditions';
-
-/** Respuesta del buscador de Iconify. */
-interface SearchResponse {
-	icons?: string[];
-}
-
-/**
- * Cuántos resultados se piden por búsqueda.
- *
- * 999 es el máximo de la API: pedir más devuelve un 400, y `start` más allá de
- * ahí también. Es el mismo tope con el que trabaja icon-sets.iconify.design,
- * que para «home» muestra once páginas.
- *
- * Se pide el máximo porque una búsqueda corta tiene cientos de variantes
- * repartidas entre colecciones, y quedarse en las primeras decenas da la
- * impresión de que el catálogo es pobre.
- */
-const LIMIT = 999;
+import { iconSrc, iconsContext, loadIcons, searchIcons } from './icons';
 
 /**
  * Cuántos iconos se pintan a la vez.
@@ -62,7 +45,9 @@ function select( field: HTMLElement, name: string ): void {
 	);
 
 	if ( preview ) {
-		preview.src = name === '' ? '' : iconUrl( field, name );
+		// El icono viene de los resultados, así que ya está traído.
+		preview.dataset.icon = name;
+		showIcon( field, preview );
 	}
 
 	if ( label ) {
@@ -77,16 +62,30 @@ function select( field: HTMLElement, name: string ): void {
 }
 
 /**
- * Dirección del SVG de un icono.
+ * Pinta en una imagen el icono que indica su `data-icon`, trayéndolo si falta.
  *
  * @param field Contenedor `.acf-icon-picker`.
- * @param name  Nombre en formato `coleccion:icono`.
- * @return URL del SVG.
+ * @param image Imagen con el nombre en `data-icon`.
  */
-function iconUrl( field: HTMLElement, name: string ): string {
-	const api = field.dataset.api ?? 'https://api.iconify.design';
+function showIcon( field: HTMLElement, image: HTMLImageElement ): void {
+	const name = image.dataset.icon ?? '';
 
-	return `${ api }/${ name.replace( ':', '/' ) }.svg`;
+	if ( name === '' ) {
+		image.removeAttribute( 'src' );
+
+		return;
+	}
+
+	void loadIcons( iconsContext( field ), [ name ] ).then( () => {
+		// Si entretanto se eligió otro, esta respuesta ya no es la suya.
+		if ( image.dataset.icon === name ) {
+			const src = iconSrc( name );
+
+			if ( src ) {
+				image.src = src;
+			}
+		}
+	} );
 }
 
 /**
@@ -249,8 +248,10 @@ function paint( field: HTMLElement, icons: string[], page = 0 ): void {
 	paintPager( field, icons.length, page );
 
 	const start = page * PAGE_SIZE;
+	const shown = icons.slice( start, start + PAGE_SIZE );
+	const images = new Map< string, HTMLImageElement >();
 
-	for ( const name of icons.slice( start, start + PAGE_SIZE ) ) {
+	for ( const name of shown ) {
 		const button = document.createElement( 'button' );
 
 		button.type = 'button';
@@ -261,19 +262,28 @@ function paint( field: HTMLElement, icons: string[], page = 0 ): void {
 
 		const image = document.createElement( 'img' );
 
-		// Cada icono son unos 150 bytes y la API los sirve como inmutables, así
-		// que el navegador no vuelve a pedirlos.
-		image.src = iconUrl( field, name );
 		image.alt = '';
-		image.loading = 'lazy';
+		images.set( name, image );
 
 		button.appendChild( image );
 		results.appendChild( button );
 	}
+
+	// Toda la página en una petición. Si entretanto se cambió de página o de
+	// búsqueda, las imágenes ya no están en el documento y no pasa nada.
+	void loadIcons( iconsContext( field ), shown ).then( () => {
+		for ( const [ name, image ] of images ) {
+			const src = iconSrc( name );
+
+			if ( src ) {
+				image.src = src;
+			}
+		}
+	} );
 }
 
 /**
- * Consulta la API de Iconify.
+ * Consulta el buscador.
  *
  * Devuelve los nombres en vez de pintarlos: quien llama decide si la respuesta
  * sigue siendo la buena. Ver `initIconPicker()`.
@@ -292,30 +302,16 @@ async function search(
 		return [];
 	}
 
-	const api = field.dataset.api ?? 'https://api.iconify.design';
-	const collections = field.dataset.collections ?? '';
-
-	const url = new URL( 'search', `${ api }/` );
-	url.searchParams.set( 'query', query );
-	url.searchParams.set( 'limit', String( LIMIT ) );
-
-	// Restringir las colecciones acota el catálogo a lo que el proyecto usa.
-	if ( collections !== '' ) {
-		url.searchParams.set( 'prefixes', collections );
-	}
-
 	field.classList.add( '-loading' );
 
 	try {
-		const response = await fetch( url, { signal } );
-
-		if ( ! response.ok ) {
-			throw new Error( String( response.status ) );
-		}
-
-		const data = ( await response.json() ) as SearchResponse;
-
-		return data.icons ?? [];
+		// Restringir las colecciones acota el catálogo a lo que el proyecto usa.
+		return await searchIcons(
+			iconsContext( field ),
+			query,
+			field.dataset.collections ?? '',
+			signal
+		);
 	} catch {
 		// Una petición cancelada no es un fallo: la sustituye otra más reciente,
 		// y vaciar los resultados haría parpadear la lista sin motivo.
@@ -339,6 +335,16 @@ export function initIconPicker( field: HTMLElement ): void {
 
 	if ( ! input ) {
 		return;
+	}
+
+	// La vista previa del icono ya guardado. Las de todos los campos de la
+	// pantalla viajan en el mismo lote.
+	const preview = field.querySelector< HTMLImageElement >(
+		'.acf-icon-picker-preview img'
+	);
+
+	if ( preview ) {
+		showIcon( field, preview );
 	}
 
 	let timer = 0;

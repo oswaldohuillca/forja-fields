@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Forja;
 
+use Forja\Ajax\Icons;
 use Forja\Ajax\Search;
 use Forja\Context\OptionsContext;
 use Forja\Context\PostContext;
@@ -109,6 +110,9 @@ final class Plugin {
 
 		// Búsqueda remota de los campos relacionales.
 		( new Search( $this->boxes() ) )->register_hooks();
+
+		// Búsqueda y miniaturas del selector de iconos, por lotes.
+		( new Icons() )->register_hooks();
 
 		// Cada pantalla del escritorio donde pueden aparecer campos tiene su
 		// contexto; todos comparten la misma mecánica de leer y guardar.

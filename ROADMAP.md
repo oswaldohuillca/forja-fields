@@ -90,7 +90,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [ ] Guardar compuestos anidados (un repetidor dentro de otro, o dentro de contenido flexible): el compuesto exterior sanea al interior con el `sanitize()` genérico, PHP avisa de *Array to string conversion* y el aviso rompe la redirección del guardado
 - [ ] Un campo `required` oculto por la lógica condicional: `conditions.ts` oculta el envoltorio pero deja el `required` en el control, y el `Validator` tampoco tiene en cuenta las condiciones. Por el código, debería bloquear el envío igual que las plantillas; falta reproducirlo
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
-- [x] Tests de navegador con Playwright: 35 casos sobre filas nuevas, iconos, relacionales, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
+- [x] Tests de navegador con Playwright: 58 casos en el escritorio sobre filas nuevas, iconos (sin peticiones del navegador a Iconify), relacionales, el modal de enlaces, subcampos obligatorios, opciones numéricas, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
 - [x] `save_terms` y `load_terms` del campo `taxonomy`, con la interfaz `ObjectAware`
 - [ ] Decidir si `assets/build/` se versiona: hoy `.gitignore` lo excluye, pero el comentario y `Assets.php` dan por hecho que viaja dentro del paquete para los temas sin bundler
 - [x] Lógica condicional entre campos (grupos OR con reglas AND, con ámbito por fila)
@@ -100,7 +100,7 @@ de los editores, así que tiene prioridad dentro de esta capa.
 - [x] Páginas de opciones (`object_type => option`, con menú propio)
 - [x] Compatibilidad de datos con ACF/SCF en el repetidor: lee y escribe `campo_N_subcampo`
 - [x] Internacionalización: dominio `forja-fields` verificado y `languages/forja-fields.pot` generado con `composer make-pot`
-- [x] Tests con Pest: 215 casos sobre saneado, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
+- [x] Tests con Pest: 256 casos sobre saneado, conversión de iconos, medios, agrupado, clonado, validación, almacenamiento y el ciclo de guardado completo en entradas, términos y usuarios
 
 ---
 
@@ -122,7 +122,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | Bun en lugar de npm/Node | Decisión del proyecto. |
 | Formato de salida IIFE, modo librería de Vite | Los scripts se encolan como scripts clásicos. El modo librería es lo que hace que Vite extraiga el CSS en vez de inyectarlo desde JS. |
 | Un archivo de CSS y de TypeScript por responsabilidad | Añadir un tipo de campo no debe obligar a tocar un archivo compartido. La entrada sólo importa; Vite los une en un bundle. |
-| El selector de iconos usa Iconify por API, sin empaquetar catálogo | Las colecciones completas pasan de 100 MB. La API permite CORS y sirve cada icono en ~150 bytes con caché inmutable de una semana, así que el navegador busca directamente, como hace icones.js.org. Sin build ni endpoint propio. |
+| El selector de iconos usa Iconify por API, sin empaquetar catálogo | Las colecciones completas pasan de 100 MB. Los iconos se piden a la API cuando hacen falta, siempre desde el servidor (ver la fila del intermediario). |
 | En la parte pública el SVG se incrusta, no se pide con JavaScript | El componente web de Iconify añadiría una dependencia para el visitante y una petición por icono en cada carga. Se descarga una vez, se guarda en un transitorio y se incrusta: sin JavaScript, sin salto de maquetado e indexable. |
 | Un campo puede aportar sus propias reglas de validación | `Field::validate()`. El validador se ocupa de `required`, que es común; lo que sólo tiene sentido para un tipo —cuántas imágenes admite una galería— vive en el tipo. |
 | La galería descarta al leer los adjuntos borrados | Un identificador huérfano obligaría a comprobarlo en cada iteración de la plantilla. WordPress cachea los objetos, y una galería tiene pocas imágenes. |
@@ -170,6 +170,8 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | El `link` imprime el modal de enlaces si nadie lo ha hecho | El núcleo solo imprime `#wp-link-wrap` cuando hay un editor en la página. `render_input()` engancha `_WP_Editors::wp_link_dialog()` al pie del admin, y la guarda estática del núcleo evita duplicarlo cuando también hay editor. |
 | Las plantillas de filas y capas se pintan sin `required` | El navegador valida también los controles ocultos, y una plantilla vacía con `required` cancelaba el envío sin mensaje. `Html::template()` lo emite como `data-forja-required` y `initClonedRow()` lo restaura al clonar. Se descartó `disabled` porque ya es una opción de los campos. Detalle en `arquitectura.md`. |
 | Las claves de las opciones se comparan como texto | PHP convierte en entero toda clave numérica (`'6'` pasa a `6`) y el valor guardado es texto. Cada campo de elección convierte la clave con `(string)` al empezar su bucle de pintado. Sin eso, el `select` y el `button_group` no marcaban la opción guardada, y el `radio` y el `checkbox` lanzaban un `TypeError` por `strict_types`. `sanitize()` ya funcionaba: `array_key_exists()` normaliza la clave igual que el array. |
+| El navegador pide los iconos a este WordPress, por lotes | Con la API directa, cada miniatura era una petición: 96 por página, y Cloudflare bloqueaba la IP (429, «error code: 1015»). Ahora hay una petición por búsqueda y otra por página de miniaturas (`Ajax\Icons`). El servidor pide lo que falta por colección y en paralelo, y cachea cada icono 30 días. Se descartaron agrupar en el navegador (reduce a la mitad, no elimina) y servir cada miniatura como `.svg` (96 arranques de WordPress por página, candado y permisos por cookie). Detalle en `arquitectura.md`. |
+| El selector no ofrece las colecciones animadas | `line-md` y `svg-spinners` dibujan con `<animate>`, que el saneado quita: en la parte pública se verían como una raya. |
 | El textarea oculto es la señal de que TinyMCE arrancó | Al inicializarse lo esconde y lo sustituye por su iframe. Exigirle visibilidad hacía fallar un test que en realidad estaba comprobando lo correcto. |
 | Un campo que toca el objeto lo recibe de quien lo tiene, no lo guarda | `taxonomy` con `save_terms` necesita saber sobre qué entrada trabaja, y ningún campo lo sabía. Dar estado al campo era la opción fácil y la peor: las instancias se comparten entre objetos y peticiones. En su lugar, la interfaz `ObjectAware` recibe el objeto como argumento, del contexto al guardar y de `forja_get_field()` al leer. |
 | Cada contexto declara su tipo de objeto | Antes repetía el literal en dos sitios (`storage->for('post')`). Ahora `Context::object_type()` lo declara una vez, y de paso es lo que permite pasárselo a los campos que lo necesitan. |
