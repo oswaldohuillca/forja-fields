@@ -83,6 +83,33 @@ export function initFields( root: ParentNode = document ): void {
 }
 
 /**
+ * Devuelve el `required` a los controles de una fila recién clonada.
+ *
+ * El servidor pinta las plantillas con `data-forja-required` en lugar de
+ * `required`, porque el navegador valida también los controles ocultos y una
+ * plantilla vacía cancelaba el envío. Al convertirse en fila real lo recupera.
+ *
+ * Se saltan las plantillas anidadas, como la de un repetidor dentro de esta
+ * fila: siguen siendo plantillas y deben seguir sin `required`.
+ *
+ * @param row Fila recién insertada.
+ */
+function restoreRequired( row: HTMLElement ): void {
+	for ( const control of row.querySelectorAll< HTMLElement >(
+		'[data-forja-required]'
+	) ) {
+		// La fila ya perdió su `.acf-clone` al clonarse: si aún hay una por
+		// encima del control, es la de una plantilla anidada.
+		if ( control.closest( '.acf-clone' ) ) {
+			continue;
+		}
+
+		control.setAttribute( 'required', 'required' );
+		control.removeAttribute( 'data-forja-required' );
+	}
+}
+
+/**
  * Arranca los campos de una fila recién clonada.
  *
  * Se diferencia de `initFields()` en dos cosas. Los editores pasan por
@@ -94,6 +121,7 @@ export function initFields( root: ParentNode = document ): void {
  * @param row Fila recién insertada.
  */
 export function initClonedRow( row: HTMLElement ): void {
+	restoreRequired( row );
 	initBehaviours( row );
 	prepareEditors( row );
 	refreshConditions( row );

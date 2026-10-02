@@ -375,10 +375,14 @@ final class FlexibleContent extends Field implements Composite {
 		);
 
 		// Plantillas: una por capa, ocultas, que el JavaScript clona al añadir.
+		// `Html::template()` les quita los `required` para que no bloqueen el
+		// envío.
 		echo '<div class="clones">';
 
 		foreach ( $this->layouts as $name => $layout ) {
-			$this->render_layout( $renderer, self::CLONE_INDEX, 0, (string) $name, $layout, array(), $input_name );
+			Html::template(
+				fn () => $this->render_layout( $renderer, self::CLONE_INDEX, 0, (string) $name, $layout, array(), $input_name )
+			);
 		}
 
 		echo '</div>';

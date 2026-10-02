@@ -219,3 +219,78 @@ describe( 'límites de filas', function () {
 			->and( $this->store['banner'] )->toBe( 2 );
 	} );
 } );
+
+describe( 'obligatorios en la fila plantilla', function () {
+	it( 'la plantilla no lleva required y las filas reales sí', function () {
+		// Un text, un textarea y un select: los tres emiten `required`.
+		$field = forja_test_field(
+			array(
+				'type'       => 'repeater',
+				'name'       => 'filas',
+				'sub_fields' => array(
+					array( 'type' => 'text', 'name' => 'titulo', 'required' => true ),
+					array( 'type' => 'textarea', 'name' => 'nota', 'required' => true ),
+					array(
+						'type'     => 'select',
+						'name'     => 'tipo',
+						'required' => true,
+						'choices'  => array( 'a' => 'A' ),
+					),
+				),
+			)
+		);
+
+		$html = forja_test_render( $field, array( array( 'titulo' => 'Uno', 'nota' => 'Nota', 'tipo' => 'a' ) ) );
+
+		// La plantilla es la última fila; todo lo anterior es la fila real.
+		[ $real, $template ] = explode( 'acf-row acf-clone', $html, 2 );
+
+		expect( substr_count( $real, ' required="required"' ) )->toBe( 3 )
+			->and( $template )->not->toContain( ' required="required"' )
+			->and( substr_count( $template, 'data-forja-required="required"' ) )->toBe( 3 );
+	} );
+
+	it( 'tampoco en las plantillas de un repetidor anidado', function () {
+		$field = forja_test_field(
+			array(
+				'type'       => 'repeater',
+				'name'       => 'bloques',
+				'sub_fields' => array(
+					array(
+						'type'       => 'repeater',
+						'name'       => 'items',
+						'sub_fields' => array(
+							array( 'type' => 'text', 'name' => 'item', 'required' => true ),
+						),
+					),
+				),
+			)
+		);
+
+		$html = forja_test_render( $field, array( array( 'items' => array( array( 'item' => 'Uno' ) ) ) ) );
+
+		// Sólo la fila interior real lleva required. La plantilla interior
+		// dentro de la fila real y la de dentro de la plantilla exterior, no.
+		expect( substr_count( $html, ' required="required"' ) )->toBe( 1 )
+			->and( substr_count( $html, 'data-forja-required="required"' ) )->toBe( 2 );
+	} );
+
+	it( 'un campo pintado después de la plantilla vuelve a llevar required', function () {
+		$field = forja_test_field(
+			array(
+				'type'       => 'repeater',
+				'name'       => 'filas',
+				'sub_fields' => array(
+					array( 'type' => 'text', 'name' => 'titulo', 'required' => true ),
+				),
+			)
+		);
+
+		forja_test_render( $field );
+
+		$html = forja_test_render( forja_test_field( array( 'type' => 'text', 'required' => true ) ) );
+
+		expect( $html )->toContain( ' required="required"' )
+			->and( $html )->not->toContain( 'data-forja-required' );
+	} );
+} );

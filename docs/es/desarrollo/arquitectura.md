@@ -224,6 +224,34 @@ un término o una página de opciones.
 `write_value()` **devuelve los errores** encontrados. Un compuesto que no valida
 no escribe nada, igual que un campo simple.
 
+### Las plantillas de filas y capas se pintan sin `required`
+
+El repetidor pinta una fila plantilla (`acfcloneindex`) y el contenido flexible
+una por capa, ocultas dentro del formulario, para que el JavaScript las clone al
+añadir. El navegador valida también los controles ocultos. Un subcampo con
+`required` dejaba la plantilla vacía e inválida, y «Actualizar» cancelaba el
+envío sin ningún mensaje.
+
+Mientras se pinta una plantilla, `Html::template()` hace que `Html::attributes()`
+emita `required` como `data-forja-required`. Al clonar, `initClonedRow()` lo
+convierte otra vez en `required`, pero no en las plantillas anidadas que trae
+la fila (la de un repetidor dentro de otro), que siguen siendo plantillas. Es un
+contador y no un booleano, porque las plantillas se anidan.
+
+Se descartaron dos alternativas:
+
+- **`disabled` en los controles de la plantilla.** Tampoco se validan ni se
+  envían, pero `disabled` ya es una opción declarable de varios campos. Al
+  clonar, el JavaScript no sabría cuáles quitar sin una segunda marca, así que
+  acaba siendo esta misma solución con una pieza más.
+- **Reutilizar `data-required`.** Ya existe en el envoltorio `.acf-field`, y
+  convertirlo pondría `required` en un `<div>`.
+
+Hacerlo en `Html::attributes()` y no en cada tipo de campo cubre todos los
+controles que emiten `required`, también los que se añadan después, siempre que
+pasen por ahí. La plantilla sigue viajando en el envío, y `write_value()` la
+descarta como siempre.
+
 ### El `clone` se resuelve al registrar, y luego deja de existir
 
 Es el campo que más se aparta de ACF, y conviene entender por qué.

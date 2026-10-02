@@ -87,6 +87,8 @@ de los editores, así que tiene prioridad dentro de esta capa.
 
 ## Transversales
 
+- [ ] Guardar compuestos anidados (un repetidor dentro de otro, o dentro de contenido flexible): el compuesto exterior sanea al interior con el `sanitize()` genérico, PHP avisa de *Array to string conversion* y el aviso rompe la redirección del guardado
+- [ ] Un campo `required` oculto por la lógica condicional: `conditions.ts` oculta el envoltorio pero deja el `required` en el control, y el `Validator` tampoco tiene en cuenta las condiciones. Por el código, debería bloquear el envío igual que las plantillas; falta reproducirlo
 - [ ] Reevaluar el destino en vivo al cambiar la plantilla en el editor (hoy exige recargar)
 - [x] Tests de navegador con Playwright: 35 casos sobre filas nuevas, iconos, relacionales, contenido flexible, condicionales en vivo, arrastre y el editor de bloques
 - [x] `save_terms` y `load_terms` del campo `taxonomy`, con la interfaz `ObjectAware`
@@ -166,6 +168,7 @@ Registradas aquí para no volver a discutirlas en cada sesión.
 | El cajón de metaboxes se abre por JavaScript en los tests | Su control es a la vez el tirador para redimensionar el panel, y Playwright lo ve tapado por la capa que gestiona el arrastre. Lo que se prueba es lo que hay dentro del cajón, no cómo se abre. |
 | El `link` escucha el modal sobre `document` y detecta «aceptar» por el área de texto | `wplink.js` dispara sus eventos con `$( document )`, y escuchando en `<html>` no llegaban nunca. ACF distingue aceptar de cancelar por `:hover`/`:focus` en el botón, y eso descarta el enlace al pulsar Intro. Al aceptar, el núcleo escribe el `<a>` en el área de texto antes de cerrar; al cancelar no. Detalle en `arquitectura.md`. |
 | El `link` imprime el modal de enlaces si nadie lo ha hecho | El núcleo solo imprime `#wp-link-wrap` cuando hay un editor en la página. `render_input()` engancha `_WP_Editors::wp_link_dialog()` al pie del admin, y la guarda estática del núcleo evita duplicarlo cuando también hay editor. |
+| Las plantillas de filas y capas se pintan sin `required` | El navegador valida también los controles ocultos, y una plantilla vacía con `required` cancelaba el envío sin mensaje. `Html::template()` lo emite como `data-forja-required` y `initClonedRow()` lo restaura al clonar. Se descartó `disabled` porque ya es una opción de los campos. Detalle en `arquitectura.md`. |
 | El textarea oculto es la señal de que TinyMCE arrancó | Al inicializarse lo esconde y lo sustituye por su iframe. Exigirle visibilidad hacía fallar un test que en realidad estaba comprobando lo correcto. |
 | Un campo que toca el objeto lo recibe de quien lo tiene, no lo guarda | `taxonomy` con `save_terms` necesita saber sobre qué entrada trabaja, y ningún campo lo sabía. Dar estado al campo era la opción fácil y la peor: las instancias se comparten entre objetos y peticiones. En su lugar, la interfaz `ObjectAware` recibe el objeto como argumento, del contexto al guardar y de `forja_get_field()` al leer. |
 | Cada contexto declara su tipo de objeto | Antes repetía el literal en dos sitios (`storage->for('post')`). Ahora `Context::object_type()` lo declara una vez, y de paso es lo que permite pasárselo a los campos que lo necesitan. |

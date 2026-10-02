@@ -183,3 +183,32 @@ it( 'respeta los límites de filas', function () {
 	expect( $errors )->toHaveCount( 1 )
 		->and( $this->store )->toBe( array() );
 } );
+
+it( 'las plantillas de capa no llevan required y las capas reales sí', function () {
+	$field = forja_test_field(
+		array(
+			'type'    => 'flexible_content',
+			'name'    => 'secciones',
+			'layouts' => array(
+				'texto' => array(
+					'label'      => 'Texto',
+					'sub_fields' => array(
+						array( 'type' => 'text', 'name' => 'titulo', 'required' => true ),
+					),
+				),
+			),
+		)
+	);
+
+	$html = forja_test_render(
+		$field,
+		array( array( FlexibleContent::LAYOUT_KEY => 'texto', 'titulo' => 'Uno' ) )
+	);
+
+	// Las plantillas van en `.clones`, antes que las capas reales en `.values`.
+	[ $clones, $values ] = explode( 'class="values"', $html, 2 );
+
+	expect( $clones )->not->toContain( ' required="required"' )
+		->and( substr_count( $clones, 'data-forja-required="required"' ) )->toBe( 1 )
+		->and( substr_count( $values, ' required="required"' ) )->toBe( 1 );
+} );

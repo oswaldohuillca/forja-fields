@@ -304,8 +304,11 @@ final class Repeater extends Field implements Composite {
 		}
 
 		// Fila plantilla: el JavaScript la clona para añadir. El CSS la
-		// oculta con `.acf-clone`.
-		$this->render_row( $renderer, self::CLONE_INDEX, 0, array(), $input_name );
+		// oculta con `.acf-clone`, y `Html::template()` le quita los
+		// `required` para que no bloquee el envío.
+		Html::template(
+			fn () => $this->render_row( $renderer, self::CLONE_INDEX, 0, array(), $input_name )
+		);
 
 		echo '</tbody>';
 		echo '</table>';
